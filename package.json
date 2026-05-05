@@ -1,0 +1,28 @@
+{
+  "name": "ecoquest",
+  "version": "1.0.0",
+  "description": "Il progetto propone un sistema intelligente che genera missioni urbane gamificate a Trento, adattandosi al contesto e alle preferenze dell'utente per incentivare la mobilità sostenibile, il benessere e il supporto all'economia locale.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgneseMarchesini/EcoQuest.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AgneseMarchesini/EcoQuest/issues"
+  },
+  "homepage": "https://github.com/AgneseMarchesini/EcoQuest#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "mongoose": "^9.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
