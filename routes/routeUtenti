@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const Utente = require("../models/utenti")
+const Utente = require("../models/utente")
 const argon2 = require("argon2")
 
 router.post("/signUp", async (req, res) => {

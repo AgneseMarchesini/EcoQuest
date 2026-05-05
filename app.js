@@ -10,5 +10,6 @@ mongoose.connect(uri)
     .then(() => console.log("Connected to the database!"))
     .catch((err) => console.log("Connection error: ", err));
 
+app.use(express.json())
 app.use("/utenti", routeUtenti)
 app.listen(3000)
