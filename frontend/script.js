@@ -29,8 +29,6 @@ function showError(msg) {
 document.getElementById("signupForm").addEventListener("submit", async(e) => {
     e.preventDefault();
 
-    showError("loading");
-
     const submitBtn = document.getElementById("submitBtn");
 
     const selectedRadio = document.querySelector("input[name=\"accountType\"]:checked");
@@ -42,10 +40,10 @@ document.getElementById("signupForm").addEventListener("submit", async(e) => {
     const repeatedPassword = document.getElementById("repeated-password").value;
 
     if(!username || !email || !password || !repeatedPassword)
-        return showError("Please fill all the fields");
+        return showError("Alcuni campi non sono stati compilati");
 
     if(password != repeatedPassword)
-        return showError("Passwords don't match");
+        return showError("Le password non corrispondono");
 
     const formData = {
         type: selectedType,
@@ -61,15 +59,16 @@ document.getElementById("signupForm").addEventListener("submit", async(e) => {
         const pIva = document.getElementById("pIva").value;
 
         if(!firstName || !lastName || !fiscalCode || !pIva)
-            return showError("Please fill all the fields")
+            return showError("Alcuni campi non sono stati compilati")
         
-        formData.first_name = firstName;
-        formData.last_name = lastName;
-        formData.fiscal_code = fiscalCode;
-        formData.p_iva = pIva; 
+        formData.nome = firstName;
+        formData.cognome = lastName;
+        formData.codiceFiscale = fiscalCode;
+        formData.partitaIVA = pIva; 
     }
 
     submitBtn.disabled = true;
+    submitBtn.innerText = "..."
 
     try {
         const response = await fetch("http://localhost:3000/auth/signUp", {
@@ -82,17 +81,19 @@ document.getElementById("signupForm").addEventListener("submit", async(e) => {
 
         const result = await response.json();
         
-        if (response.ok) {
+        if(response.ok) {
             document.getElementById("signupForm").reset();
-            switchUserType("Utente");
-            radioUtente.checked = true;
+            showError("");
+
+            console.log("iscrizione effettuata")
         } else {
-            showError(result.message || "An error occurred");
+            showError(result.message || "Errore interno");
         }
     } catch (error) {
-        showError("Could not connect to the server");
+        showError("Impossibile connettersi al server");
         console.error("Fetch Error:", error);
     } finally {
+        submitBtn.innerText = "Invia"
         submitBtn.disabled = false;
     }
 });

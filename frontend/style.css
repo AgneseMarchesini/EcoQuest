@@ -118,3 +118,10 @@ input:focus {
 #submitBtn:hover {
     background-color: #0056b3;
 }
+
+#errorMessage {
+    padding: 10px;
+    color: red;
+    font-size: 14px;
+    font-weight: 500;
+}
