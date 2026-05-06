@@ -25,8 +25,12 @@ router.post("/signUp", async (req, res) => {
         return res.status(201).json(persona);
     } 
     catch (error){
+        let message = "Errore durante la registrazione";
+        if (error.code === 11000) {
+            message = "Mail già associata ad un utente"
+        }
         return res.status(500).json({
-            message: "Errore durante la registrazione",
+            message: message,
             error: error.message
         });
     }
