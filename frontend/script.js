@@ -57,13 +57,15 @@ document.getElementById("signupForm").addEventListener("submit", async(e) => {
     if(selectedType === "Esercente") {
         const firstName = document.getElementById("firstName").value;
         const lastName = document.getElementById("lastName").value;
+        const fiscalCode = document.getElementById("fiscalCode").value;
         const pIva = document.getElementById("pIva").value;
 
-        if(!firstName || !lastName || !lastName)
+        if(!firstName || !lastName || !fiscalCode || !pIva)
             return showError("Please fill all the fields")
         
         formData.first_name = firstName;
         formData.last_name = lastName;
+        formData.fiscal_code = fiscalCode;
         formData.p_iva = pIva; 
     }
 
@@ -80,8 +82,7 @@ document.getElementById("signupForm").addEventListener("submit", async(e) => {
 
         const result = await response.json();
         
-        if (response.status === 201) {
-            showError("worked");
+        if (response.ok) {
             document.getElementById("signupForm").reset();
             switchUserType("Utente");
             radioUtente.checked = true;
