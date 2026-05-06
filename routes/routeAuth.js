@@ -8,7 +8,7 @@ const argon2 = require("argon2");
 router.post("/signUp", async (req, res) => {
     try{
         const { type, email, password, username } = req.body;
-
+        console.log(req.body)
         if (!(type && email && password && username)) {
             return res.status(400).json({ message: "Email, password e username sono obbligatori" })
         }
@@ -19,14 +19,14 @@ router.post("/signUp", async (req, res) => {
         const hashedPassword = await argon2.hash(password)
         const datiRegistrazione = {
             ...req.body,
-            password : hashedPassword
+            password: hashedPassword
         };
         const persona = await Persona.create(datiRegistrazione);
         persona.password = undefined;
-        res.status(201).json(persona);
-    }
+        return res.status(201).json(persona);
+    } 
     catch (error){
-        res.status(500).json({
+        return res.status(500).json({
             message: "Errore durante la registrazione",
             error: error.message
         });
