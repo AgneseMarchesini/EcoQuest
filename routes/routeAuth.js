@@ -24,13 +24,24 @@ router.post("/signUp", async (req, res) => {
         persona.password = undefined;
         return res.status(201).json(persona);
     } 
-    catch (error){
+    catch (error) {
         let message = "Errore durante la registrazione";
+
         if (error.code === 11000) {
-            message = "Mail già associata ad un utente"
+            return res.status(409).json({
+                message: "Mail già associata ad un utente"
+            });
         }
+
+        if (error.name === "ValidationError") {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({
+                message: errors
+            });
+        }
+
         return res.status(500).json({
-            message: message,
+            message,
             error: error.message
         });
     }
