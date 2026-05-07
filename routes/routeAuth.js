@@ -48,9 +48,19 @@ router.post("/signUp", async (req, res) => {
         let message = "Errore durante la registrazione";
 
         if (error.code === 11000) {
-            return res.status(409).json({
-                message: "Mail già associata ad un utente"
-            });
+
+            if (error.keyPattern.email) {
+                return res.status(409).json({
+                    message: "Mail già associata ad un utente"
+                });
+            }
+
+            if (error.keyPattern.username) {
+                return res.status(409).json({
+                    message: "Username già in uso"
+                });
+            }
+
         }
 
         if (error.name === "ValidationError") {
