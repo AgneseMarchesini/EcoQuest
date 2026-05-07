@@ -6,6 +6,7 @@ require("../models/esercente");
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken")
 require("dotenv").config();
+const path = require("path")
 
 function authMiddleware(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -24,6 +25,14 @@ function authMiddleware(req, res, next) {
         return res.status(401).json({ message: "Token non valido" });
     }
 }
+
+router.get("/login", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/login.html"));
+});
+
+router.get("/signUp", (req, res)=>{
+    res.sendFile(path.join(__dirname, "../frontend/sign_up.html"))
+})
 
 router.post("/signUp", async (req, res) => {
     try{
@@ -109,7 +118,7 @@ router.post("/login", async (req, res) => {
 
         return res.json({token})
     } catch (error) {
-        return res.json({messaggio: "Errore"})
+        return res.status(500).json({message: "Errore"})
     }
 })
 

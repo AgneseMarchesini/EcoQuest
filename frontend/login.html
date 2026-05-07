@@ -4,11 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ecoquest - Login</title>
-    <link rel="stylesheet" href="./css/login.css">
+    <link rel="stylesheet" href="/css/login.css">
 </head>
 <body>
+    <h1 class="main-title">Ecoquest</h1>
+    <div class="form">
+        <h2>Accedi</h2>
 
+        <form id="loginForm">
 
-    <script src="./js/sign_up.js"></script>
+            <div class="form-input">
+                <label>Email</label>
+                <input type="email" id="email">
+            </div>
+
+            <div class="form-input">
+                <label>Password</label>
+                <input type="password" id="password">
+            </div>
+
+            <button type="submit" id="submitBtn">
+                Login
+            </button>
+
+        </form>
+
+        <span id="errorMessage"></span>
+
+    </div>
+    <script src="/js/login.js"></script>
 </body>
 </html>
