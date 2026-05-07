@@ -1,0 +1,140 @@
+openapi: 3.0.3
+info:
+  title: EcoQuest API
+  description: API per il sistema di generazione di missioni urbane sostenibili nella città di Trento.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Server di sviluppo locale
+paths:
+  /auth/signUp:
+    post:
+      summary: Registrazione di un nuovo utente o esercente
+      description: Crea un nuovo account nel sistema. Il payload richiesto varia a seconda che il campo `type` sia impostato su 'Utente' o 'Esercente'.
+      tags:
+        - Autenticazione
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpRequest'
+      responses:
+        '201':
+          description: Registrazione effettuata con successo. Restituisce i dati dell'account creato (senza la password).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonaResponse'
+        '400':
+          description: Errore di validazione (campi obbligatori mancanti, tipo di account non valido, o vincoli del modello non rispettati).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflitto. L'email o l'username sono già associati a un altro utente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Errore interno del server durante la registrazione.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    SignUpRequest:
+      type: object
+      required:
+        - type
+        - username
+        - email
+        - password
+      properties:
+        type:
+          type: string
+          enum:
+            - Utente
+            - Esercente
+          description: Identifica il ruolo dell'account da creare.
+        username:
+          type: string
+          description: Nome utente (univoco).
+        email:
+          type: string
+          format: email
+          description: Indirizzo email dell'utente (univoco).
+        password:
+          type: string
+          format: password
+          description: Password in chiaro (verrà criptata con argon2 dal server).
+      discriminator:
+        propertyName: type
+        mapping:
+          Utente: '#/components/schemas/UtenteSignUp'
+          Esercente: '#/components/schemas/EsercenteSignUp'
+
+    UtenteSignUp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/SignUpRequest'
+        # Nessun campo aggiuntivo obbligatorio al momento dell'iscrizione per l'Utente
+
+    EsercenteSignUp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/SignUpRequest'
+      required:
+        - nome
+        - cognome
+        - codiceFiscale
+        - partitaIVA
+      properties:
+        nome:
+          type: string
+        cognome:
+          type: string
+        codiceFiscale:
+          type: string
+          pattern: '^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$'
+          description: Codice Fiscale valido.
+        partitaIVA:
+          type: string
+          pattern: '^\d{11}$'
+          description: Partita IVA composta da 11 cifre.
+
+    PersonaResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID univoco generato da MongoDB.
+        type:
+          type: string
+          enum: [Utente, Esercente]
+        username:
+          type: string
+        email:
+          type: string
+        # Eventuali altri campi come 'nome', 'cognome', 'codiceFiscale', 'partitaIVA' saranno presenti se type='Esercente'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      description: Dati della persona registrata. Il campo password è volutamente escluso dalla risposta.
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Descrizione user-friendly dell'errore (o un array di stringhe nel caso di ValidationErrors multipli).
+        error:
+          type: string
+          description: Dettaglio tecnico dell'errore (opzionale, presente nei codici 500).
