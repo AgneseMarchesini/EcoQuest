@@ -45,6 +45,44 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /auth/login:
+    post:
+      summary: Login di un utente, esercente o amministratore
+      description: Autentica un account esistente tramite email e password. In caso di successo restituisce un token JWT valido per 1 ora.
+      tags:
+        - Autenticazione
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login effettuato con successo. Restituisce il token JWT da usare per le richieste autenticate.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Errore di validazione. Email o password mancanti.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Credenziali non valide o token non creato.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Errore interno del server durante il login.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   schemas:
     SignUpRequest:
@@ -138,3 +176,26 @@ components:
         error:
           type: string
           description: Dettaglio tecnico dell'errore (opzionale, presente nei codici 500).
+          
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: Indirizzo email associato all'account.
+        password:
+          type: string
+          format: password
+          description: Password in chiaro dell'account.
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Token JWT firmato dal server. Contiene `userId` e `role` e scade dopo 1 ora.
+

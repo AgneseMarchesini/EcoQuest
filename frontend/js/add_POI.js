@@ -17,8 +17,8 @@ const position = {
     lat: null,
     lng: null
 }
-map.on('click', function (e) {
 
+map.on('click', function (e) {
     const { lat, lng } = e.latlng;
     position.lat = lat
     position.lng = lng
@@ -62,6 +62,9 @@ imagesContainer.addEventListener("input", function (e) {
 document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    if(!position.lat || !position.lng)
+        return showError("Coordinate non valide");
+
     const nome = document.getElementById("nome").value;
     const descrizione = document.getElementById("descrizione").value;
     const imageUrls = Array.from(document.querySelectorAll(".image-input"))
@@ -103,6 +106,7 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
             return;
         }
 
+        showError("");
     } catch (err) {
         console.log("CATCH:", err.message);
         showError("Errore di connessione");

@@ -28,12 +28,20 @@ const poiSchema = new mongoose.Schema({
         type: [String],
         enum: CATEGORIES,
         required: true,
-        validate: {
-            validator: function(v) {
-                return v.every(cat => CATEGORIES.includes(cat));
+        validate: [
+            {
+                validator: function(v) {
+                    return v.every(cat => CATEGORIES.includes(cat));
+                },
+                message: props => `${props.value} contiene categorie non valide!`
             },
-            message: props => `${props.value} contiene categorie non valide!`
-        }
+            {
+                validator: function(v) {
+                    return v.length > 0;
+                },
+                message: "POI deve avere almeno una categoria"
+            }
+        ]
     },
     meteoCondition: [String]
 });
