@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aggiunta POI</title>
+    <link rel="stylesheet" href="/css/add_POI.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+</head>
+<body>
+    <div class="form">
+        <h2>Aggiungi POI</h2>
+
+        <form id="aggiungiPoi">
+
+            <div class="form-input">
+                <label>Nome</label>
+                <input id="nome" required>
+            </div>
+
+            <div class="form-input">
+                <label>Descrizione</label>
+                <input id="descrizione">
+            </div>
+            
+            <div class="form-input">
+<!--                 <label for="latitude">Latitudine</label>
+                <input type="number" id="latitude" step="any" required>
+
+                <label for="longitude">Longitudine</label>
+                <input type="number" id="longitude" step="any" required> -->
+
+                <div id="map" style="height: 400px;"></div>
+
+                <input type="hidden" id="latitude" name="latitude">
+                <input type="hidden" id="longitude" name="longitude">
+
+                <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+            </div>
+
+            <div class="form-input">
+                <label>Link immagini</label>
+
+                <div id="images-container">
+                    <input type="url" name="images" class="image-input" placeholder="https://...">
+                </div>
+            </div>
+
+            <div class="checkbox_group">
+                <label>Categorie</label>
+                <label class="checkbox_item">
+                    <input type="checkbox" id="categoria" value="Cultura">
+                    Cultura
+                </label>
+                <label class="checkbox_item">
+                    <input type="checkbox" id="categoria" value="Natura">
+                    Natura
+                </label>
+                <label class="checkbox_item">
+                    <input type="checkbox" id="categoria" value="Sport">
+                    Sport
+                </label>
+                <label class="checkbox_item">
+                    <input type="checkbox" id="categoria" value="Svago">
+                    Svago
+                </label>
+                <label class="checkbox_item">
+                    <input type="checkbox" id="categoria" value="Benessere">
+                    Benessere
+                </label>
+                <label class="checkbox_item">
+                    <input type="checkbox" id="categoria" value="Spettacolo">
+                    Spettacolo
+                </label>
+                <label class="checkbox_item">
+                    <input type="checkbox" id="categoria" value="Musica">
+                    Musica
+                </label>
+            </div>
+            <button type="submit" id="submitBtn">
+                Aggiungi
+            </button>
+
+        </form>
+
+        <span id="errorMessage"></span>
+
+    </div>
+    <script src="/js/add_POI.js"></script>
+</body>
+</html>
