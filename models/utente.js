@@ -16,4 +16,3 @@ const Utente = Persona.discriminator("Utente", new mongoose.Schema({
 }))
 
 module.exports = Utente
-
