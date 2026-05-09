@@ -13,14 +13,21 @@ const poiSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    coordinate: {
-        type: [Number],
-        required: true,
-        unique: true,
-        validate: {
-            validator: function(v) {
-                return v.length == 2;
-            }, message: "Le coordinate devono contenere esattamente due valori: [Longitudine, Latitudine]"
+    posizione: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            default: 'Point'
+        },
+        coordinates: {
+            type: [Number], 
+            required: true,
+            validate: {
+                validator: function(v) {
+                    return v.length === 2;
+                }, 
+                message: "Le coordinate devono contenere esattamente due valori: [Longitudine, Latitudine]"
+            }
         }
     },
     urlImmagini: [String],
@@ -46,6 +53,6 @@ const poiSchema = new mongoose.Schema({
     meteoCondition: [String]
 });
 
-poiSchema.index({ coordinate: "2dsphere" });
+poiSchema.index({ posizione: "2dsphere" });
 
 module.exports = mongoose.model("POI", poiSchema);

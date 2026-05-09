@@ -19,20 +19,20 @@ const position = {
 }
 
 map.on('click', function (e) {
-    const { lat, lng } = e.latlng;
-    position.lat = lat
-    position.lng = lng
-    document.getElementById('latitude').value = lat;
-    document.getElementById('longitude').value = lng;
+    const { lat: latitudine, lng: longitudine } = e.latlng;
+    position.lat = latitudine
+    position.lng = longitudine
+    document.getElementById('latitudine').value = latitudine;
+    document.getElementById('longitudine').value = longitudine;
 
     if (marker) {
-        marker.setLatLng([lat, lng]);
+        marker.setLatLng([latitudine, longitudine]);
     } else {
-        marker = L.marker([lat, lng]).addTo(map);
+        marker = L.marker([latitudine, longitudine]).addTo(map);
     }
 
-    console.log("Latitudine:", lat);
-    console.log("Longitudine:", lng);
+    console.log("Latitudine:", latitudine);
+    console.log("Longitudine:", longitudine);
 
 });
 
@@ -65,31 +65,39 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
     if(!position.lat || !position.lng)
         return showError("Coordinate non valide");
 
+    const latitudine = position.lat;
+    const longitudine = position.lng
+
     const nome = document.getElementById("nome").value;
     const descrizione = document.getElementById("descrizione").value;
-    const imageUrls = Array.from(document.querySelectorAll(".image-input"))
+    const urlImmagini = Array.from(document.querySelectorAll(".image-input"))
         .map(input => input.value.trim())
         .filter(value => value !== "");
-    const checkedValues = Array.from(document.querySelectorAll('input[id="categoria"]:checked'))
+    const categoria = Array.from(document.querySelectorAll('.categoria:checked'))
         .map(cb => cb.value);
 
-    const formData = {
-        nome: nome,
-        descrizione: descrizione,
-        coordinate: [position.lng, position.lat],
-        urlImmagini: imageUrls,
-        categoria: checkedValues
-    }
+    const poi = {
+        nome,
+        descrizione,
+        urlImmagini,
+        posizione: {
+            type: "Point",
+            coordinates: [longitudine, latitudine]
+        },
+        categoria
+    };
+    console.log(poi);
 
     try {
         const token = localStorage.getItem("token")
+        console.log(poi);
         const response = await fetch("/admin/add_POI", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + token
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(poi)
         });
 
         console.log("STATUS:", response.status);

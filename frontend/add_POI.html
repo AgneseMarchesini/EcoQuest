@@ -32,10 +32,9 @@
 
                 <div id="map" style="height: 400px;"></div>
 
-                <input type="hidden" id="latitude" name="latitude" required>
-                <input type="hidden" id="longitude" name="longitude" required>
+                <input type="hidden" id="latitudine" name="latitudine" required>
+                <input type="hidden" id="longitudine" name="longitudine" required>
 
-                <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
             </div>
 
             <div class="form-input">
@@ -49,31 +48,31 @@
             <div class="checkbox_group">
                 <label>Categorie</label>
                 <label class="checkbox_item">
-                    <input type="checkbox" id="categoria" value="Cultura">
+                    <input type="checkbox" class="categoria" value="Cultura">
                     Cultura
                 </label>
                 <label class="checkbox_item">
-                    <input type="checkbox" id="categoria" value="Natura">
+                    <input type="checkbox" class="categoria" value="Natura">
                     Natura
                 </label>
                 <label class="checkbox_item">
-                    <input type="checkbox" id="categoria" value="Sport">
+                    <input type="checkbox" class="categoria" value="Sport">
                     Sport
                 </label>
                 <label class="checkbox_item">
-                    <input type="checkbox" id="categoria" value="Svago">
+                    <input type="checkbox" class="categoria" value="Svago">
                     Svago
                 </label>
                 <label class="checkbox_item">
-                    <input type="checkbox" id="categoria" value="Benessere">
+                    <input type="checkbox" class="categoria" value="Benessere">
                     Benessere
                 </label>
                 <label class="checkbox_item">
-                    <input type="checkbox" id="categoria" value="Spettacolo">
+                    <input type="checkbox" class="categoria" value="Spettacolo">
                     Spettacolo
                 </label>
                 <label class="checkbox_item">
-                    <input type="checkbox" id="categoria" value="Musica">
+                    <input type="checkbox" class="categoria" value="Musica">
                     Musica
                 </label>
             </div>
@@ -86,6 +85,7 @@
         <span id="errorMessage"></span>
 
     </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="/js/add_POI.js"></script>
 </body>
 </html>

@@ -14,8 +14,19 @@ router.get("/add_POI", (req, res) => {
 router.post("/add_POI", async (req, res) => {
     try {
         console.log(req.body);
-        
-        const nuovoPOI = await POI.create(req.body);
+        const poiData = {
+            nome: req.body.nome,
+            descrizione: req.body.descrizione,
+            urlImmagini: req.body.urlImmagini,
+            meteoCondition: req.body.meteoCondition,
+            posizione: {
+                type: 'Point',
+                coordinates: req.body.posizione.coordinates 
+            },
+            categoria: req.body.categoria
+        };
+
+        const nuovoPOI = await POI.create(poiData);
 
         return res.status(201).json(nuovoPOI);
     } catch (error) {

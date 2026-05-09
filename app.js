@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 const express = require("express")
+const path = require("path");
 const cors = require("cors");
 const app = express();
 const routeAuth = require("./routes/routeAuth");
 const routeAdmin = require("./routes/routeAdmin");
-const path = require("path");
+const routePOI = require("./routes/routePOI.js");
 
 const { authMiddleware, authAdminMiddleware } = require("./utils.js")
 
@@ -20,4 +21,5 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "frontend")));
 app.use("/auth", routeAuth);
 app.use("/admin", authAdminMiddleware, routeAdmin);
+app.use("/poi", routePOI);
 app.listen(3000);
