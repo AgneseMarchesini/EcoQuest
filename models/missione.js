@@ -5,7 +5,8 @@ const STATO_MISSIONE = ['DaIniziare', 'InCorso', 'Completata', 'Annullata', 'InP
 const missionSchema = new mongoose.Schema({
     percorso: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     punti: {
         type: Number,

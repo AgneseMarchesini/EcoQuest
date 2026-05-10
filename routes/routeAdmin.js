@@ -3,6 +3,7 @@ const router = express.Router()
 const Persona = require("../models/persona")
 require("../models/amministratore"); 
 const POI = require("../models/POI");
+const Missione = require("../models/missione")
 const jwt = require("jsonwebtoken")
 require("dotenv").config();
 const path = require("path")
@@ -31,6 +32,38 @@ router.post("/add_POI", async (req, res) => {
             if(error.keyPattern.coordinate) {
                 return res.status(409).json({
                     message: "Coordinate già associate a un altro POI"
+                });
+            }
+        }
+
+        if (error.name === "ValidationError") {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({
+                message: errors
+            });
+        }
+
+        return res.status(500).json({
+            message,
+            error: error.message
+        });
+    }
+})
+
+router.post("/add_mission", async (req, res) => {
+    try {
+
+        const nuovaMissione = await Missione.create(req.body);
+
+        return res.status(201).json(nuovaMissione);
+        
+    } catch (error) {
+        let message = "Errore durante il salvataggio della missione";
+
+        if (error.code === 11000) {
+            if(error.keyPattern.percorso) {
+                return res.status(409).json({
+                    message: "Percorso già associato ad un'altra missione"
                 });
             }
         }
