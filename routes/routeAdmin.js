@@ -12,6 +12,10 @@ router.get("/add_POI", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/add_POI.html"));
 });
 
+router.get("/add_mission", (req, res)=>{
+    res.sendFile(path.join(__dirname, "../frontend/add_default_mission.html"));
+});
+
 router.post("/add_POI", async (req, res) => {
     try {
         console.log(req.body);
@@ -60,13 +64,13 @@ router.post("/add_mission", async (req, res) => {
     } catch (error) {
         let message = "Errore durante il salvataggio della missione";
 
-        if (error.code === 11000) {
-            if(error.keyPattern.percorso) {
-                return res.status(409).json({
-                    message: "Percorso già associato ad un'altra missione"
-                });
-            }
-        }
+        // if (error.code === 11000) {
+        //     if(error.keyPattern.percorso) {
+        //         return res.status(409).json({
+        //             message: "Percorso già associato ad un'altra missione"
+        //         });
+        //     }
+        // }
 
         if (error.name === "ValidationError") {
             const errors = Object.values(error.errors).map(err => err.message);
