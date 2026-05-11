@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest - Mappa Interattiva</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/css/view_map.css">
+</head>
+<body>
+    <div class="dashboard">
+        <header id="main-header">
+            <h1>EcoQuest</h1>
+        </header>
+
+        <main class="content">
+            <div id="mappa"></div>
+
+            <div id="sidebar" class="hidden">
+                <button id="close-sidebar">&times;</button>
+                <div id="sidebar-content"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/view_map.js"></script>
+    <script>
+        creaMappaInterattiva({
+            idContenitore: 'mappa',
+            usaGPS: true,
+            centroDefault: [46.067, 11.121],
+            raggio: 3000
+        });
+
+        document.getElementById('close-sidebar').onclick = () => {
+            document.getElementById('sidebar').classList.add('hidden');
+        };
+    </script>
+</body>
+</html>

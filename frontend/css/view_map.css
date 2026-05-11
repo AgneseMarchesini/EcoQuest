@@ -1,0 +1,172 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+#main-header {
+    background: #2c3e50;
+    color: white;
+    padding: 10px 20px;
+    flex-shrink: 0; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1001;
+}
+
+#main-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.content {
+    flex-grow: 1;
+    position: relative;
+    display: flex;
+}
+
+#mappa {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#sidebar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 380px;
+    height: 100%;
+    background: white;
+    z-index: 1000;
+    box-shadow: -3px 0 15px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease-in-out;
+    padding: 25px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+#sidebar.hidden {
+    transform: translateX(100%);
+}
+
+#close-sidebar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    line-height: 1;
+    border: none;
+    background: rgba(255, 255, 255, 0.7);
+    color: #333;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    z-index: 1100; 
+    
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#close-sidebar:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+    color: #e74c3c; /* Diventa rossa quando ci passi sopra */
+}
+
+.sidebar-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    background: #ecf0f1;
+}
+
+#sidebar-content h2 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 22px;
+}
+
+.description {
+    line-height: 1.6;
+    color: #555;
+    margin-top: 20px;
+}
+
+.categoria-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    margin: 0 6px 6px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cat-cultura { background-color: #e67e22; }
+.cat-natura { background-color: #27ae60; }
+.cat-sport { background-color: #2980b9; }
+.cat-svago { background-color: #9b59b6; }
+.cat-benessere { background-color: #1abc9c; }
+.cat-spettacolo { background-color: #e74c3c; }
+.cat-musica { background-color: #f1c40f; color: #2c3e50; }
+.cat-default { background-color: #95a5a6; color: #000000 }
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    margin-bottom: 15px;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.sidebar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 5px;
+    transition: background 0.3s;
+    z-index: 10;
+}
+
+.carousel-btn:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.prev-btn { left: 10px; }
+.next-btn { right: 10px; }
+
+.hidden-btn {
+    display: none;
+}
