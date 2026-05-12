@@ -7,31 +7,50 @@
     <link rel="stylesheet" href="/css/login.css">
 </head>
 <body>
-    <h1 class="main-title">Ecoquest</h1>
-    <div class="form">
-        <h2>Accedi</h2>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/poi/view_map" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+            
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="https://www.instagram.com/baignowski/" class="nav-item">Chi Siamo</a></li>
+                    <li><a href="" class="nav-item">Accedi</a></li>
+                    <li><a href="/auth/signup" class="nav-item">Registrati</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-        <form id="loginForm">
+    <div class="login-wrapper">
+        <h1 class="main-title">EcoQuest</h1>
+        <div class="form">
+            <h2>Accedi</h2>
 
-            <div class="form-input">
-                <label>Email</label>
-                <input type="email" id="email">
-            </div>
+            <form id="loginForm">
 
-            <div class="form-input">
-                <label>Password</label>
-                <input type="password" id="password">
-            </div>
+                <div class="form-input">
+                    <label>Email</label>
+                    <input type="email" id="email">
+                </div>
 
-            <button type="submit" id="submitBtn">
-                Login
-            </button>
+                <div class="form-input">
+                    <label>Password</label>
+                    <input type="password" id="password">
+                </div>
 
-        </form>
+                <button type="submit" id="submitBtn">
+                    Login
+                </button>
 
-        <span id="errorMessage"></span>
+            </form>
 
+            <span id="errorMessage"></span>
+
+        </div>
     </div>
+
     <script src="/js/login.js"></script>
 </body>
 </html>

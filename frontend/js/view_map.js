@@ -1,3 +1,17 @@
+const greenPin = L.icon({
+    iconUrl: "../assets/green_pin.png",
+    iconSize: [38, 38],
+    iconAnchor: [19, 38],
+    popupAnchor: [0, -35] 
+});
+
+const bluePin = L.icon({
+    iconUrl: "../assets/blue_pin.png",
+    iconSize: [38, 38],
+    iconAnchor: [19, 38],
+    popupAnchor: [0, -35] 
+});
+
 async function creaMappaInterattiva(config) {
     const containerId = config.idContenitore || 'mappa';
     const usaGPS = config.usaGPS || false;
@@ -6,24 +20,52 @@ async function creaMappaInterattiva(config) {
     let longitudine = config.centroDefault[1];
 
     let map;
+    let toastTimeout;
+    let userMarker;
 
-    function avvia() {
+    function inizializzaMappa() {
+        if (map) return;
+    
         map = L.map(containerId).setView([latitudine, longitudine], 14);
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; OpenStreetMap'
         }).addTo(map);
+    }
 
-        if (usaGPS) {
-            L.marker([latitudine, longitudine]).addTo(map).bindPopup("<b>Tu sei qui</b>").openPopup();
+    function rimuoviOverlay() {
+        const overlay = document.getElementById('gps-overlay');
+        if (overlay) {
+            overlay.classList.add('fade-out');
+            setTimeout(() => overlay.style.display = 'none', 500);
         }
-
-        scaricaPuntiDiInteresse();
     }
 
     async function scaricaPuntiDiInteresse() {
         try {
+            map.eachLayer((layer) => {
+                if(layer instanceof L.Marker)
+                    map.removeLayer(layer);
+            });
+
+            const userMarker = L.marker([latitudine, longitudine], { icon: greenPin }).addTo(map);
+
+            userMarker.on('click', () => {
+                const toast = document.getElementById('toast-messagge');
+                
+                if(toastTimeout) {
+                    clearTimeout(toastTimeout);
+                }
+
+                toast.classList.remove('hidden-toast');
+
+                toastTimeout = setTimeout(() => {
+                    toast.classList.add('hidden-toast');
+                    toastTimeout = null;
+                }, 2000);
+            });
+
             const url = `http://localhost:3000/poi/puntiVicini?latitudine=${latitudine}&longitudine=${longitudine}&raggio=${raggio}`;
             const response = await fetch(url);
             const json = await response.json();
@@ -32,7 +74,10 @@ async function creaMappaInterattiva(config) {
                 //L.marker([poiLatitudine, poiLongitudine]).addTo(map).bindPopup(popupContent);
 
                 json.dati.forEach(poi => {
-                    const marker = L.marker([poi.posizione.coordinates[1], poi.posizione.coordinates[0]]).addTo(map);
+                    const marker = L.marker(
+                        [poi.posizione.coordinates[1], poi.posizione.coordinates[0]], 
+                        { icon: bluePin }
+                    ).addTo(map);
                     
                     marker.on('click', () => {
                         const content = document.getElementById('sidebar-content');
@@ -90,19 +135,26 @@ async function creaMappaInterattiva(config) {
         }
     }
 
-    if(usaGPS && "geolocation" in navigator) {
+    inizializzaMappa();
+    scaricaPuntiDiInteresse();
+
+    if(usaGPS && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 latitudine = position.coords.latitude;
                 longitudine = position.coords.longitude;
-                avvia();
+
+                map.flyTo([latitudine, longitudine], 15, { duration: 1.5 });
+                
+                rimuoviOverlay();
+                scaricaPuntiDiInteresse();
             },
             () => {
-                console.warn("GPS rifiutato, uso coordinate default.");
-                avvia(); 
+                console.warn("GPS rifiutato, rimango sulla posizione di default.");
+                rimuoviOverlay();
             }
         );
     } else {
-        avvia();
+        rimuoviOverlay();
     }
 }
