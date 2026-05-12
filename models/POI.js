@@ -53,6 +53,5 @@ const poiSchema = new mongoose.Schema({
     meteoCondition: [String]
 });
 
-poiSchema.index({ posizione: "2dsphere" });
 
 module.exports = mongoose.model("POI", poiSchema);

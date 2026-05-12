@@ -83,6 +83,49 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /admin/add_POI:
+    post:
+      summary: Aggiunta di un nuovo Point Of Intereset (POI).
+      description: Permette all'ammiinistratore di creare e salvare un nuovo POI nel database.
+      tags:
+        - POI
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddPOIRequest'
+
+      responses:
+        '201':
+          description: POI creato con successo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/POIResponse'
+        
+        '400':
+          description: Errore di validazione nei dati inseriti.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        
+        '409':
+          description: Nome o coordinate già associate a un altro POI.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        
+        '500':
+          description: Errore interno del server durante il salvataggio del POI.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   schemas:
     SignUpRequest:
@@ -198,4 +241,80 @@ components:
         token:
           type: string
           description: Token JWT firmato dal server. Contiene `userId` e `role` e scade dopo 1 ora.
+    
+    AddPOIRequest:
+      type: object
+      required:
+        - nome
+        - descrizione
+        - posizione
+        - categoria
+
+      properties:
+        nome:
+          type: string
+          description: Nome univoco del Point Of Interest.
+
+        descrizione:
+          type: string
+          description: Descrizione del POI.
+
+        posizione:
+          type: object
+          required:
+            - type
+            - coordinates
+          properties:
+            type:
+              type: string
+              example: Point
+
+            coordinates:
+              type: array
+              description: Coordinate GeoJSON nel formato [longitudine, latitudine].
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+              example: [11.1217, 46.0679]
+
+        urlImmagini:
+          type: array
+          description: Lista degli URL delle immagini associate al POI.
+          items:
+            type: string
+        
+        categoria:
+          type: array
+          description: Categorie associate al POI.
+          items:
+            type: string
+            enum: [Cultura, Natura, Sport, Svago, Benessere, Spettacolo, Musica]
+        
+        meteoCondition:
+          type: array
+          description: Condizioni meteo adatte per questo POI.
+          items:
+            type: string
+
+    POIResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID univoco del POI generato da MongoDB.
+
+        nome:
+          type: string
+
+        descrizione:
+          type: string
+
+        posizione:
+          type: object
+
+        urlImmagini:
+          type: array
+          items:
+            type: string
 
