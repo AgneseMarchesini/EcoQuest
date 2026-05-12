@@ -7,6 +7,7 @@ const routeAuth = require("./routes/routeAuth");
 const routeAdmin = require("./routes/routeAdmin");
 const routePOI = require("./routes/routePOI.js");
 const routeHome = require("./routes/routeHome.js");
+const routeMission = require("./routes/routeMission.js");
 
 const { authMiddleware, authAdminMiddleware } = require("./utils.js")
 
@@ -24,4 +25,5 @@ app.use("/auth", routeAuth);
 app.use("/admin", authAdminMiddleware, routeAdmin);
 app.use("/poi", routePOI);
 app.use("/home", routeHome);
+app.use("/mission", routeMission);
 app.listen(3000);
