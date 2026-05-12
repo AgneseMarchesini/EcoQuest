@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const CATEGORIES = ['Cultura', 'Natura', 'Sport', 'Svago', 'Benessere', 'Spettacolo', 'Musica'];
+const CATEGORIES = ['Cultura', 'Natura', 'Storia', 'Sport', 'Svago', 'Benessere', 'Spettacolo', 'Musica', 'Indoor', 'Outdoor', 'Bar', 'Ristorante'];
 
 const poiSchema = new mongoose.Schema({
     nome: {
