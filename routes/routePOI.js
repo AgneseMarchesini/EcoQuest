@@ -3,10 +3,6 @@ const router = express.Router();
 const poi = require('../models/POI');
 const path = require('path');
 
-router.get("/view_map", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/view_map.html"));
-});
-
 router.get('/puntiVicini', async (req, res)=> {
     try{
         const latitudine = parseFloat(req.query.latitudine) || 46.066423;
