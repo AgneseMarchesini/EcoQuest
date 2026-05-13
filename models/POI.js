@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 
 const CATEGORIES = ['Cultura', 'Natura', 'Storia', 'Sport', 'Svago', 'Benessere', 'Spettacolo', 'Musica', 'Indoor', 'Outdoor', 'Bar', 'Ristorante'];
 
+const METEO = ['Sole', 'Nuvoloso', 'Pioggia', 'Neve'];
+
 const poiSchema = new mongoose.Schema({
     nome: {
         type: String,

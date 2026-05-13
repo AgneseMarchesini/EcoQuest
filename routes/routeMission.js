@@ -3,6 +3,7 @@ const router = express.Router()
 const poi = require('../models/POI');
 const mission = require('../models/missione');
 const path = require('path');
+const generateUserMissions = require('../mission_system/missionService');
 
 router.get("/getMissions", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/get_missions.html"));
@@ -10,18 +11,27 @@ router.get("/getMissions", (req, res) => {
 
 async function generaMissioniDinamiche(lat, lng) {
     // ehi ehi ehi tocca a voi qui
+    const allPois = await poi.find({});
+    if (!allPois || allPois.length === 0) return [];
 
-    const mission = {
-        titolo: "Sfida del quartiere",
-        descrizione: "Raggiungi i punti suggeriti per guadagnare bonus CO2!",
-        arrayPOI: [ { lat: lat + 0.001, lng: lng + 0.001 } ],
-        punti: 100,
-        risparmioCO2: 5.0,
-        stato: 'DaIniziare',
-        predefinita: false
-    };
+    const generatedMissions = await generateUserMissions(allPois, lat, lng, 2);
 
-    return [mission];
+    const missions = generatedMissions.map(m => {
+        return {
+            titolo: m.template.id.replace(/_/g, " "), // Es: da ESPLORA_STORICO a ESPLORA STORICO
+            descrizione: m.text,
+            arrayPOI: [{ 
+                lat: m.poi.posizione.coordinates[1], // indice 1 = latitudine
+                lng: m.poi.posizione.coordinates[0]  // indice 0 = longitudine
+            }],
+            punti: Math.round(m.score * 100), 
+            risparmioCO2: 5.0,
+            stato: 'DaIniziare',
+            predefinita: false
+        };
+    });
+
+    return missions;
 }
 
 router.get('/listaMissioni', async (req, res) => {

@@ -4,8 +4,8 @@ const generateMission = require("./missionGenerator");
 const computeMissionScore = require("./scoringService");
 const buildContext = require("./contextService");
 
-async function generateUserMission(pois) {
-    const context = buildContext();
+async function generateUserMission(pois, lat, lng) {
+    const context = await buildContext(lat, lng);
 
     let candidateMissions = [];
 
