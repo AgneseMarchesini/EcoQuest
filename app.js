@@ -25,5 +25,5 @@ app.use("/auth", routeAuth);
 app.use("/admin", authAdminMiddleware, routeAdmin);
 app.use("/poi", routePOI);
 app.use("/home", routeHome);
-app.use("/mission", routeMission);
+app.use("/mission", authAdminMiddleware, routeMission);
 app.listen(3000);
