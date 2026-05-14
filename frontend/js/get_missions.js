@@ -135,6 +135,15 @@ function renderMissions(missions) {
 }
 
 async function loadMissions() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        renderSummary([]);
+        missionsList.innerHTML = "";
+        setStatus("Devi effettuare il login per generare le missioni.", true);
+        return;
+    }
+
     setStatus("Caricamento missioni...");
     missionsList.innerHTML = "";
 
@@ -144,7 +153,16 @@ async function loadMissions() {
     });
 
     try {
-        const response = await fetch(`/mission/listaMissioni?${params.toString()}`);
+        const response = await fetch(`/mission/listaMissioni?${params.toString()}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem("token");
+            throw new Error("Token non valido o scaduto");
+        }
 
         if (!response.ok) {
             throw new Error(`Errore HTTP ${response.status}`);
@@ -154,7 +172,10 @@ async function loadMissions() {
         renderMissions(json.dati || []);
     } catch (error) {
         renderSummary([]);
-        setStatus("Non riesco a caricare le missioni. Riprova tra poco.", true);
+        const message = error.message === "Token non valido o scaduto"
+            ? "Sessione scaduta: effettua di nuovo il login."
+            : "Non riesco a caricare le missioni. Riprova tra poco.";
+        setStatus(message, true);
         console.error("Errore nel recupero delle missioni:", error);
     }
 }

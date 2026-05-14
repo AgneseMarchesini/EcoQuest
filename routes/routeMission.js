@@ -4,6 +4,7 @@ const poi = require('../models/POI');
 const mission = require('../models/missione');
 const path = require('path');
 const generateUserMissions = require('../mission_system/missionService');
+const { authMiddleware } = require("../utils");
 
 router.get("/getMissions", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/get_missions.html"));
@@ -40,7 +41,7 @@ async function generaMissioniDinamiche(lat, lng) {
     return missions;
 }
 
-router.get('/listaMissioni', async (req, res) => {
+router.get('/listaMissioni', authMiddleware, async (req, res) => {
     try {
         const latitudine = parseFloat(req.query.latitudine) || 46.066423;
         const longitudine = parseFloat(req.query.longitudine) || 11.125760;
