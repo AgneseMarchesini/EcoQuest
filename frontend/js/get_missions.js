@@ -15,6 +15,18 @@ const locationText = document.getElementById("locationText");
 const refreshBtn = document.getElementById("refreshBtn");
 const useLocationBtn = document.getElementById("useLocationBtn");
 
+const sidebar = document.getElementById("missionSidebar");
+const overlay = document.getElementById("sidebarOverlay");
+const closeBtn = document.getElementById("closeSidebar");
+
+const sideTitle = document.getElementById("sideTitle");
+const sideDescription = document.getElementById("sideDescription");
+const sideStatus = document.getElementById("sideStatus");
+const sidePoints = document.getElementById("sidePoints");
+const sideCO2 = document.getElementById("sideCO2");
+const sideActions = document.getElementById("sideActions");
+const sideType = document.getElementById("sideType");
+
 function setStatus(message, isError = false) {
     statusMessage.textContent = message;
     statusMessage.classList.toggle("error", isError);
@@ -80,6 +92,7 @@ function createAppMapLink(point) {
 function createMissionCard(mission) {
     const card = document.createElement("article");
     card.className = "mission-card";
+    card.style.cursor = "pointer";
 
     const type = mission.predefinita ? "Predefinita" : "Dinamica";
     const co2 = formatCO2(mission.risparmioCO2);
@@ -106,6 +119,13 @@ function createMissionCard(mission) {
             ${createAppMapLink(point)}
         </div>
     `;
+
+    card.addEventListener("click", (e) => {
+        // Don't open sidebar if the user clicked the "Apri mappa" link specifically
+        if (e.target.tagName !== 'A') {
+            openSidebar(mission);
+        }
+    });
 
     return card;
 }
@@ -217,3 +237,29 @@ useLocationBtn.addEventListener("click", useBrowserLocation);
 
 updateLocationText();
 loadMissions();
+
+function openSidebar(mission) {
+    sideTitle.textContent = formatTitle(mission.titolo);
+    sideDescription.textContent = mission.descrizione || "Nessuna descrizione fornita.";
+    sideStatus.textContent = mission.stato || "Da Iniziare";
+    sidePoints.textContent = `${mission.punti || 0} pt`;
+    sideCO2.textContent = formatCO2(mission.risparmioCO2) || "N/A";
+    
+    sideType.textContent = mission.predefinita ? "Predefinita" : "Dinamica";
+    sideType.className = `mission-type ${mission.predefinita ? "" : "dynamic"}`;
+
+    const point = getFirstPoint(mission);
+    sideActions.innerHTML = createAppMapLink(point);
+
+    sidebar.classList.add("active");
+    overlay.classList.add("active");
+}
+
+function closeSidebarFunc() {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+}
+
+// Event listeners for closing
+closeBtn.addEventListener("click", closeSidebarFunc);
+overlay.addEventListener("click", closeSidebarFunc);
