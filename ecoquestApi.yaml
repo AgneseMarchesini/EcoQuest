@@ -7,6 +7,26 @@ servers:
   - url: http://localhost:3000
     description: Server di sviluppo locale
 paths:
+  /home/homepage:
+    get:
+      summary: Visualizzazione della homepage
+      description: Restituisce la pagina HTML della homepage con la visualizzazione della mappa.
+      tags:
+        - Home
+      responses:
+        '200':
+          description: Homepage restituita con successo.
+          content:
+            text/html:
+              schema:
+                type: string
+        '500':
+          description: Errore interno del server durante il caricamento della homepage.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /auth/signUp:
     post:
       summary: Registrazione di un nuovo utente o esercente

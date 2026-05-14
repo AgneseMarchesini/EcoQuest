@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest - Missioni</title>
+    <link rel="stylesheet" href="/css/get_missions.css">
+    <link rel="icon" href="/assets/logo.png">
+</head>
+<body>
+    <main class="missions-page">
+        <section class="missions-header">
+            <div>
+                <p class="eyebrow">EcoQuest</p>
+                <h1>Missioni disponibili</h1>
+                <p id="locationText" class="location-text">Posizione: Trento</p>
+            </div>
+
+            <div class="header-actions">
+                <button type="button" id="useLocationBtn" class="secondary-button">Usa posizione</button>
+                <button type="button" id="refreshBtn" class="primary-button">Genera missioni</button>
+            </div>
+        </section>
+
+        <section class="summary-grid" aria-label="Riepilogo missioni">
+            <div class="summary-item">
+                <span id="totalCount">0</span>
+                <p>Totali</p>
+            </div>
+            <div class="summary-item">
+                <span id="predefinedCount">0</span>
+                <p>Predefinite</p>
+            </div>
+            <div class="summary-item">
+                <span id="dynamicCount">0</span>
+                <p>Dinamiche</p>
+            </div>
+        </section>
+
+        <section id="statusMessage" class="status-message" role="status">Caricamento missioni...</section>
+        <section id="missionsList" class="missions-list" aria-live="polite"></section>
+    </main>
+
+    <script src="/js/get_missions.js"></script>
+</body>
+</html>
