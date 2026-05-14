@@ -43,7 +43,6 @@ async function clean_weather_data() { //prendo i valori delle prossime 3 ore
         let next_3hrs_id 
         for (obj of bulletin.instant) {
             const obj_date = new Date(obj.start)
-            console.log((now - new Date(obj.start))/(1000*60*60))
             if (now < obj_date) {
                 const hr_diff = Math.abs((now - obj_date)/(1000*60*60))
                 if (hr_diff < 1.5) {

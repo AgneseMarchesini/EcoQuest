@@ -10,26 +10,32 @@ router.get("/getMissions", (req, res) => {
 });
 
 async function generaMissioniDinamiche(lat, lng) {
-    // ehi ehi ehi tocca a voi qui
+    
     const allPois = await poi.find({});
     if (!allPois || allPois.length === 0) return [];
 
-    const generatedMissions = await generateUserMissions(allPois, lat, lng, 2);
+    const generatedMissions = await generateUserMissions(allPois, lat, lng, 5);
 
-    const missions = generatedMissions.map(m => {
+    const missions = generatedMissions.filter(Boolean).map(m => {
+        const coordinate = m.poi.coordinate || m.poi.posizione?.coordinates;
+
+        if (!coordinate || coordinate.length !== 2) {
+            return null;
+        }
+
         return {
             titolo: m.template.id.replace(/_/g, " "), // Es: da ESPLORA_STORICO a ESPLORA STORICO
             descrizione: m.text,
             arrayPOI: [{ 
-                lat: m.poi.posizione.coordinates[1], // indice 1 = latitudine
-                lng: m.poi.posizione.coordinates[0]  // indice 0 = longitudine
+                lat: coordinate[1], // indice 1 = latitudine
+                lng: coordinate[0]  // indice 0 = longitudine
             }],
             punti: Math.round(m.score * 100), 
             risparmioCO2: 5.0,
             stato: 'DaIniziare',
             predefinita: false
         };
-    });
+    }).filter(Boolean);
 
     return missions;
 }

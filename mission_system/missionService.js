@@ -31,6 +31,19 @@ async function generateUserMission(pois, lat, lng) {
     return selectedMission;
 }
 
+async function generateUserMissions(pois, lat, lng, count = 5) {
+    const missions = [];
+
+    for (let i = 0; i < count; i += 1) {
+        const mission = await generateUserMission(pois, lat, lng);
+        if (mission) {
+            missions.push(mission);
+        }
+    }
+
+    return missions;
+}
+
 function weightedRandom(missions) {
 
     const totalWeight = missions.reduce((sum, mission) => sum + mission.score, 0);
@@ -45,3 +58,5 @@ function weightedRandom(missions) {
     }
     return missions[0];
 }
+
+module.exports = generateUserMissions;

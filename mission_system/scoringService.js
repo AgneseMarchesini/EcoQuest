@@ -26,14 +26,17 @@ function computeCrowdScore(poi) {
 
 function computeMissionScore(mission, context) {
     const weights = mission.template.scoreWeights;
+    const coordinate = mission.poi.coordinate || mission.poi.posizione?.coordinates || [];
+    const poiLng = coordinate[0];
+    const poiLat = coordinate[1];
 
     const weatherScore = computeWeatherScore(mission.template, context);
     
     const distance = getDistanceInMeters(
         context.userPosition.lat, 
         context.userPosition.lng, 
-        mission.poi.lat,  
-        mission.poi.lng
+        poiLat,
+        poiLng
     );
     const distanceScore = computeDistanceScore(distance);
     
