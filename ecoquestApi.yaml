@@ -146,6 +146,63 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /mission/getMissions:
+    get:
+      summary: Pagina generazione missioni
+      description: Restituisce la pagina HTML contenente l'interfaccia client per la generazione e visualizzazione delle missioni.
+      tags:
+        - Missioni
+      responses:
+        '200':
+          description: Pagina HTML restituita con successo.
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /mission/listaMissioni:
+    get:
+      summary: Recupera la lista delle missioni basate sulla posizione
+      description: Genera e restituisce una lista di missioni dinamiche o predefinite calcolate sui POI vicini alle coordinate passate. Richiede autenticazione.
+      tags:
+        - Missioni
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: latitudine
+          schema:
+            type: number
+            format: float
+            default: 46.066423
+          description: Latitudine della posizione attuale dell'utente.
+        - in: query
+          name: longitudine
+          schema:
+            type: number
+            format: float
+            default: 11.125760
+          description: Longitudine della posizione attuale dell'utente.
+      responses:
+        '200':
+          description: Lista delle missioni recuperata e generata con successo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaMissioniResponse'
+        '401':
+          description: Accesso negato. Token mancante o non valido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Errore interno del server durante la generazione delle missioni.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
 components:
   schemas:
     SignUpRequest:
@@ -337,4 +394,82 @@ components:
           type: array
           items:
             type: string
+    Point:
+      type: object
+      required:
+        - lat
+        - lng
+      properties:
+        lat:
+          type: number
+          format: float
+          description: Latitudine del punto.
+        lng:
+          type: number
+          format: float
+          description: Longitudine del punto.
 
+    Missione:
+      type: object
+      required:
+        - titolo
+        - arrayPOI
+        - punti
+        - predefinita
+      properties:
+        titolo:
+          type: string
+          description: Il titolo identificativo della missione.
+        descrizione:
+          type: string
+          description: Il testo descrittivo che spiega l'obiettivo della missione.
+        arrayPOI:
+          type: array
+          items:
+            $ref: '#/components/schemas/Point'
+          description: Array di coordinate che tracciano il percorso o i punti di interesse della missione.
+        punti:
+          type: integer
+          minimum: 0
+          description: Il punteggio base garantito per il completamento della missione.
+        bonusGamification:
+          type: integer
+          minimum: 0
+          description: Eventuali punti bonus applicati alla missione.
+        risparmioCO2:
+          type: number
+          format: float
+          minimum: 0
+          description: Stima del risparmio di CO2 (in kg) se si completa la missione.
+        stato:
+          type: string
+          enum: ['DaIniziare', 'InCorso', 'Completata', 'Annullata', 'InPausa']
+          default: 'DaIniziare'
+          description: Stato corrente della missione per l'utente.
+        predefinita:
+          type: boolean
+          description: Flag che indica se la missione è un template di sistema (true) o generata dinamicamente (false).
+        preferredWeather:
+          type: array
+          items:
+            type: string
+          description: Lista delle condizioni meteo ottimali per questa specifica missione.
+
+    ListaMissioniResponse:
+      type: object
+      properties:
+        quantita:
+          type: integer
+          description: Numero totale di missioni restituite nell'array.
+        dati:
+          type: array
+          items:
+            $ref: '#/components/schemas/Missione'
+          description: Array contenente gli oggetti missione generati.
+  
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Inserisci il token JWT restituito dal login nel formato "Bearer {token}".
