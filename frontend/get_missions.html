@@ -6,6 +6,8 @@
     <title>EcoQuest - Missioni</title>
     <link rel="stylesheet" href="/css/get_missions.css">
     <link rel="icon" href="/assets/logo.png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
 </head>
 <body>
     <main class="missions-page">
@@ -50,6 +52,17 @@
         </div>
         <div class="sidebar-content">
             <div id="sideType" class="mission-type"></div>
+
+            <div class="transport-selector">
+                <label for="transportMode">Mezzo di trasporto:</label>
+                <select id="transportMode" class="styled-select">
+                    <option value="foot" selected>A piedi</option>
+                    <option value="bike">Bicicletta</option>
+                    <option value="car">Auto (Sconsigliata)</option>
+                </select>
+            </div>
+
+            <div id="missionMap"></div>
             <p id="sideDescription" class="mission-description"></p>
             
             <div class="side-details">
@@ -69,7 +82,8 @@
             </div>
         </div>
     </aside>
-
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
     <script src="/js/get_missions.js"></script>
 </body>
 </html>
