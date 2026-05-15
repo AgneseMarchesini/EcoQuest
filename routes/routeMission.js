@@ -5,6 +5,7 @@ const mission = require('../models/missione');
 const path = require('path');
 const generateUserMissions = require('../mission_system/missionService');
 const { authMiddleware } = require("../utils");
+const MissioneUtente = require("../models/missioneUtente.js");
 
 router.get("/getMissions", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/get_missions.html"));
@@ -60,6 +61,113 @@ router.get('/listaMissioni', authMiddleware, async (req, res) => {
         res.status(500).json({
             message: "Errore durante il recupero delle missioni"
         });
+    }
+});
+
+router.post("/start", authMiddleware, async (req, res) => {
+    try{
+        const userId = req.user.id;
+        const { missionId } = req.body;
+
+        // controlla se già avviata
+        const existing = await MissioneUtente.findOne({
+            userId,
+            missionId,
+            stato: { $in: ["InCorso", "Completata"] }
+        });
+
+        if (existing) {
+            return res.status(400).json({
+                message: "Missione già avviata"
+            });
+        }
+
+        const userMission = await MissioneUtente.create({
+            userId,
+            missionId,
+            stato: "InCorso",
+            startTime: new Date(),
+            currentStep: 0,
+            progress: { visitedPOI: [] },
+            rewardGiven: false
+        });
+
+        res.json(userMission);
+    } catch (error) {
+        console.error("Errore in /start:", error);
+        res.status(500).json({ message: "Errore interno del server" });
+    }
+});
+
+router.post("/progress", authMiddleware, async (req, res) => {
+    try{
+        const userId = req.user.id;
+        const { missionId, poiId } = req.body;
+
+        const userMission = await MissioneUtente.findOne({
+            userId,
+            missionId,
+            stato: "InCorso"
+        });
+
+        if (!userMission) {
+            return res.status(404).json({ message: "Missione non attiva" });
+        }
+
+        // evita duplicati
+        if (userMission.progress.visitedPOI.includes(poiId)) {
+            return res.json(userMission);
+        }
+
+        userMission.progress.visitedPOI.push(poiId);
+        userMission.currentStep += 1;
+
+        await userMission.save();
+
+        res.json(userMission);
+    } catch (error) {
+        console.error("Errore in /progress:", error);
+        res.status(500).json({ message: "Errore interno del server" });
+    }
+});
+
+
+router.post("/complete", authMiddleware, async (req, res) => {
+    try{
+        const userId = req.user.id;
+        const { missionId } = req.body;
+
+        const userMission = await MissioneUtente.findOne({
+            userId,
+            missionId,
+            stato: "InCorso"
+        });
+
+        if (!userMission) {
+            return res.status(404).json({ message: "Missione non trovata" });
+        }
+
+        userMission.stato = "Completata";
+        userMission.endTime = new Date();
+
+        await userMission.save();
+
+        // reward logic
+        const mission = await Mission.findById(missionId);
+
+        const reward = mission.punti;
+
+        await User.findByIdAndUpdate(userId, {
+            $inc: { punti: reward }
+        });
+
+        res.json({
+            message: "Missione completata!",
+            reward
+        });
+    } catch (error) {
+        console.error("Errore in /complete:", error);
+        res.status(500).json({ message: "Errore interno del server" });
     }
 });
 
