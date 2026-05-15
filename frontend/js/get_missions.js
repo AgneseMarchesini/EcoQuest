@@ -1,3 +1,5 @@
+const bike_factor = 0.9
+const car_factor = 0.5
 const defaultPosition = {
     latitudine: 46.066423,
     longitudine: 11.125760,
@@ -244,14 +246,14 @@ useLocationBtn.addEventListener("click", useBrowserLocation);
 updateLocationText();
 loadMissions();
 
-function openSidebar(mission) {
+function openSidebar(mission, transportModeSelect = "foot", factor = 1) {
     currentSidebarMission = mission; // per i cambi di mezzi di trasporto
-    transportModeSelect.value = "foot";
+    transportModeSelect.value = transportModeSelect;
 
     sideTitle.textContent = formatTitle(mission.titolo);
     sideDescription.textContent = mission.descrizione || "Nessuna descrizione fornita.";
     sideStatus.textContent = mission.stato || "Da Iniziare";
-    sidePoints.textContent = `${mission.punti || 0} pt`;
+    sidePoints.textContent = `${Math.round(mission.punti*factor) || 0} pt`;
     sideCO2.textContent = formatCO2(mission.risparmioCO2) || "N/A";
     
     sideType.textContent = mission.predefinita ? "Predefinita" : "Dinamica";
@@ -359,6 +361,14 @@ function showMissionMap(mission) {
 
 transportModeSelect.addEventListener("change", () => {
     if (currentSidebarMission) {
+        let factor = 1
+        const mean = transportModeSelect.value
+        if (mean === "car") {
+            factor = car_factor
+        } else if (mean === "bike") {
+            factor = bike_factor
+        }
+        openSidebar(currentSidebarMission, mean, factor)
         showMissionMap(currentSidebarMission); // Ricarica la mappa con il nuovo mezzo
     }
 });
