@@ -3,8 +3,10 @@ const filterCompatiblePOIs = require("./poiFilter");
 const generateMission = require("./missionGenerator");
 const computeMissionScore = require("./scoringService");
 const buildContext = require("./contextService");
+const Mission = require('../models/missione');
 
-async function generateUserMission(pois, lat, lng) {
+async function generateUserMissions(pois, lat, lng, count = 5) {
+    const missioniPredefinite = await Mission.find({ predefinita: true });
     const context = await buildContext(lat, lng);
 
     let candidateMissions = [];
@@ -18,43 +20,37 @@ async function generateUserMission(pois, lat, lng) {
         }
     }
 
-    candidateMissions.sort(
-        (a, b) => b.score - a.score
-    );
-
-    // top 5
-    const topMissions = candidateMissions.slice(0, 5);
-
-    // random controllato per evitare di avere sempre le stesse missioni
-    const selectedMission = weightedRandom(topMissions);
-
-    return selectedMission;
-}
-
-async function generateUserMissions(pois, lat, lng, count = 5) {
-    const missions = [];
-
-    for (let i = 0; i < count; i += 1) {
-        const mission = await generateUserMission(pois, lat, lng);
-        if (mission) {
-            missions.push(mission);
-        }
+    for (const predefinita of missioniPredefinite) {
+        candidateMissions.push({
+            ...predefinita.toObject(),
+            score: computeMissionScore(predefinita, context)
+        });
     }
 
-    return missions;
+    candidateMissions.sort((a, b) => b.score - a.score);
+
+    const selected = [];
+    const used = new Set();
+
+    while (selected.length < count && used.size < candidateMissions.length) {
+        const available = candidateMissions.filter((_, i) => !used.has(i));
+        if (available.length === 0) break;
+
+        const mission = weightedRandom(available);
+        const idx = candidateMissions.indexOf(mission);
+        used.add(idx);
+        selected.push(mission);
+    }
+
+    return selected;
 }
 
 function weightedRandom(missions) {
-
-    const totalWeight = missions.reduce((sum, mission) => sum + mission.score, 0);
-
+    const totalWeight = missions.reduce((sum, m) => sum + m.score, 0);
     let random = Math.random() * totalWeight;
-
     for (const mission of missions) {
         random -= mission.score;
-        if (random <= 0) {
-            return mission;
-        }
+        if (random <= 0) return mission;
     }
     return missions[0];
 }
