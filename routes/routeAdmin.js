@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const express = require("express")
 const router = express.Router()
 const Persona = require("../models/persona")
@@ -67,21 +68,23 @@ router.post("/add_POI", async (req, res) => {
 
 router.post("/add_mission", async (req, res) => {
     try {
+        const arrayPOI = Array.isArray(req.body.arrayPOI) ? req.body.arrayPOI : JSON.parse(req.body.arrayPOI);
 
-        const nuovaMissione = await Missione.create(req.body);
+        const nuovaMissione = await Missione.create({
+            titolo: req.body.titolo,
+            descrizione: req.body.descrizione,
+            punti: req.body.punti,
+            stato: req.body.stato,
+            predefinita: req.body.predefinita,
+            bonusGamification: req.body.bonusGamification,
+            risparmioCO2: req.body.risparmioCO2,
+            arrayPOI: arrayPOI
+        });
 
         return res.status(201).json(nuovaMissione);
         
     } catch (error) {
         let message = "Errore durante il salvataggio della missione";
-
-        // if (error.code === 11000) {
-        //     if(error.keyPattern.percorso) {
-        //         return res.status(409).json({
-        //             message: "Percorso già associato ad un'altra missione"
-        //         });
-        //     }
-        // }
 
         if (error.name === "ValidationError") {
             const errors = Object.values(error.errors).map(err => err.message);
@@ -96,5 +99,16 @@ router.post("/add_mission", async (req, res) => {
         });
     }
 })
+
+router.get("/pois", async (req, res) => {
+    try {
+        const pois = await POI.find({});
+        res.status(200).json(pois);
+    } catch (error) {
+        res.status(500).json({
+            message: "Errore nel recupero dei POI"
+        });
+    }
+});
 
 module.exports = router
