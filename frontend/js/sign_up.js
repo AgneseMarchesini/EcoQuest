@@ -86,6 +86,7 @@ document.getElementById("signupForm").addEventListener("submit", async(e) => {
             showError("");
 
             console.log("iscrizione effettuata")
+            window.location.href = "/auth/login"
         } else {
             showError(result.message || "Errore interno");
         }

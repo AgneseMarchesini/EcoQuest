@@ -45,6 +45,10 @@ const missionSchema = new mongoose.Schema({
     predefinita: {
         type: Boolean,
         required: true
+    },
+    preferredWeather: {
+        type: [String],
+        default: []  
     }
 })
 

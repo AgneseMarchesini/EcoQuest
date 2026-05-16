@@ -1,3 +1,5 @@
+const bike_factor = 0.9
+const car_factor = 0.5
 const defaultPosition = {
     latitudine: 46.066423,
     longitudine: 11.125760,
@@ -5,6 +7,12 @@ const defaultPosition = {
 };
 
 let currentPosition = { ...defaultPosition };
+
+let map = null;
+let routingControl = null;
+
+const transportModeSelect = document.getElementById("transportMode");
+let currentSidebarMission = null;
 
 const missionsList = document.getElementById("missionsList");
 const statusMessage = document.getElementById("statusMessage");
@@ -18,6 +26,18 @@ const activeMissionSection = document.getElementById("activeMissionSection");
 const activeMissionTitle = document.getElementById("activeMissionTitle");
 const activeMissionDescription = document.getElementById("activeMissionDescription");
 const resumeMissionBtn = document.getElementById("resumeMissionBtn");
+
+const sidebar = document.getElementById("missionSidebar");
+const overlay = document.getElementById("sidebarOverlay");
+const closeBtn = document.getElementById("closeSidebar");
+
+const sideTitle = document.getElementById("sideTitle");
+const sideDescription = document.getElementById("sideDescription");
+const sideStatus = document.getElementById("sideStatus");
+const sidePoints = document.getElementById("sidePoints");
+const sideCO2 = document.getElementById("sideCO2");
+const sideActions = document.getElementById("sideActions");
+const sideType = document.getElementById("sideType");
 
 let activeMissionData = null;
 
@@ -210,6 +230,7 @@ async function startMission(mission, button) {
 function createMissionCard(mission) {
     const card = document.createElement("article");
     card.className = "mission-card";
+    card.style.cursor = "pointer";
 
     const type = mission.predefinita ? "Predefinita" : "Dinamica";
     const co2 = formatCO2(mission.risparmioCO2);
@@ -237,6 +258,13 @@ function createMissionCard(mission) {
             <button type="button" class="start-mission-btn">Avvia</button>
         </div>
     `;
+
+    card.addEventListener("click", (e) => {
+        // Don't open sidebar if the user clicked the "Apri mappa" link specifically
+        if (e.target.tagName !== 'A') {
+            openSidebar(mission);
+        }
+    });
 
     const startButton = card.querySelector(".start-mission-btn");
     if (activeMissionData) {
@@ -359,3 +387,131 @@ resumeMissionBtn.addEventListener("click", resumeActiveMission);
 
 updateLocationText();
 loadMissions();
+
+
+function openSidebar(mission, transportModeSelect = "foot", factor = 1) {
+    currentSidebarMission = mission; // per i cambi di mezzi di trasporto
+    transportModeSelect.value = transportModeSelect;
+
+    sideTitle.textContent = formatTitle(mission.titolo);
+    sideDescription.textContent = mission.descrizione || "Nessuna descrizione fornita.";
+    sideStatus.textContent = mission.stato || "Da Iniziare";
+    sidePoints.textContent = `${Math.round(mission.punti*factor) || 0} pt`;
+    sideCO2.textContent = formatCO2(mission.risparmioCO2) || "N/A";
+    
+    sideType.textContent = mission.predefinita ? "Predefinita" : "Dinamica";
+    sideType.className = `mission-type ${mission.predefinita ? "" : "dynamic"}`;
+
+    const point = getFirstPoint(mission);
+    sideActions.innerHTML = createAppMapLink(point);
+
+    sidebar.classList.add("active");
+    overlay.classList.add("active");
+
+    showMissionMap(mission);
+}
+
+function closeSidebarFunc() {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+
+    if (map) {
+        map.remove();
+        map = null;
+    }
+}
+
+// Event listeners for closing
+closeBtn.addEventListener("click", closeSidebarFunc);
+overlay.addEventListener("click", closeSidebarFunc);
+
+function showMissionMap(mission) {
+
+    // reset vecchia mappa
+    if (map) {
+        map.remove();
+        map = null;
+    }
+
+    map = L.map("missionMap");
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap"
+    }).addTo(map);
+
+    const waypoints = [];
+
+    // posizione utente 
+    if (currentPosition?.latitudine && currentPosition?.longitudine) {
+        waypoints.push(
+            L.latLng(
+                currentPosition.latitudine,
+                currentPosition.longitudine
+            )
+        );
+    }
+
+    // missione predefinita arrayPOI
+    if (mission.predefinita && Array.isArray(mission.arrayPOI)) {
+
+        mission.arrayPOI.forEach(poi => {
+            if (poi.lat && poi.lng) {
+                waypoints.push(L.latLng(poi.lat, poi.lng));
+            }
+        });
+
+    } 
+    // missione dinamica, solo 1 POI
+    else {
+        const poi = getFirstPoint(mission);
+
+        if (poi && poi.lat && poi.lng) {
+            waypoints.push(L.latLng(poi.lat, poi.lng));
+        }
+    }
+
+    if (waypoints.length < 2) return;
+
+    const selectedMode = transportModeSelect.value;
+
+    let routingUrl = 'https://routing.openstreetmap.de/routed-foot/route/v1'; 
+    if (selectedMode === 'car') {
+        routingUrl = 'https://routing.openstreetmap.de/routed-car/route/v1';
+    } else if (selectedMode === 'bike') {
+        routingUrl = 'https://routing.openstreetmap.de/routed-bike/route/v1';
+    }
+
+    routingControl = L.Routing.control({
+        waypoints,
+        router: L.Routing.osrmv1({
+            serviceUrl: routingUrl,
+            // openstreetmap.de richiede che l'url finisca con /driving/
+            profile: 'driving'
+        }),
+        routeWhileDragging: false,
+        draggableWaypoints: false,
+        addWaypoints: false,
+        show: false
+    }).addTo(map);
+
+    map.fitBounds(L.latLngBounds(waypoints));
+
+    // fix sidebar resize bug
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 200);
+}
+
+transportModeSelect.addEventListener("change", () => {
+    if (currentSidebarMission) {
+        let factor = 1
+        const mean = transportModeSelect.value
+        if (mean === "car") {
+            factor = car_factor
+        } else if (mean === "bike") {
+            factor = bike_factor
+        }
+        openSidebar(currentSidebarMission, mean, factor)
+        showMissionMap(currentSidebarMission); // Ricarica la mappa con il nuovo mezzo
+    }
+});

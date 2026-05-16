@@ -3,8 +3,10 @@ const filterCompatiblePOIs = require("./poiFilter");
 const generateMission = require("./missionGenerator");
 const computeMissionScore = require("./scoringService");
 const buildContext = require("./contextService");
+const Mission = require('../models/missione');
 
-async function generateUserMission(pois, lat, lng) {
+async function generateUserMission(pois, lat, lng, count = 5) {
+    const missioniPredefinite = await Mission.find({ predefinita: true });
     const context = await buildContext(lat, lng);
 
     let candidateMissions = [];
@@ -18,17 +20,29 @@ async function generateUserMission(pois, lat, lng) {
         }
     }
 
-    candidateMissions.sort(
-        (a, b) => b.score - a.score
-    );
+    for (const predefinita of missioniPredefinite) {
+        candidateMissions.push({
+            ...predefinita.toObject(),
+            score: computeMissionScore(predefinita, context)
+        });
+    }
 
-    // top 5
-    const topMissions = candidateMissions.slice(0, 5);
+    candidateMissions.sort((a, b) => b.score - a.score);
 
-    // random controllato per evitare di avere sempre le stesse missioni
-    const selectedMission = weightedRandom(topMissions);
+    const selected = [];
+    const used = new Set();
 
-    return selectedMission;
+    while (selected.length < count && used.size < candidateMissions.length) {
+        const available = candidateMissions.filter((_, i) => !used.has(i));
+        if (available.length === 0) break;
+
+        const mission = weightedRandom(available);
+        const idx = candidateMissions.indexOf(mission);
+        used.add(idx);
+        selected.push(mission);
+    }
+
+    return selected;
 }
 
 async function generateUserMissions(pois, lat, lng, count = 5) {

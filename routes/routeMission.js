@@ -36,7 +36,7 @@ router.get("/start_mission", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/start_mission.html"));
 });
 
-async function generaMissioniDinamiche(lat, lng) {
+async function generaMissioni(lat, lng) {
     
     const allPois = await poi.find({});
     if (!allPois || allPois.length === 0) return [];
@@ -44,6 +44,20 @@ async function generaMissioniDinamiche(lat, lng) {
     const generatedMissions = await generateUserMissions(allPois, lat, lng, 5);
 
     const missions = generatedMissions.filter(Boolean).map(m => {
+        // Predefinita
+        if (m.predefinita || !m.poi) {
+            return {
+                titolo: m.titolo,
+                descrizione: m.descrizione,
+                arrayPOI: m.arrayPOI,
+                punti: m.punti,
+                risparmioCO2: m.risparmioCO2 ?? 5.0,
+                stato: 'DaIniziare',
+                predefinita: true
+            };
+        }
+
+        // Dinamica
         const coordinate = m.poi.coordinate || m.poi.posizione?.coordinates;
 
         if (!coordinate || coordinate.length !== 2) {
@@ -72,10 +86,7 @@ router.get('/listaMissioni', authMiddleware, async (req, res) => {
         const latitudine = parseFloat(req.query.latitudine) || 46.066423;
         const longitudine = parseFloat(req.query.longitudine) || 11.125760;
 
-        const predefinedMissions = await mission.find({ predefinita: true });
-        const dynamicMissions = await generaMissioniDinamiche(latitudine, longitudine);
-
-        const missions = [...predefinedMissions, ...dynamicMissions];
+        const missions = await generaMissioni(latitudine, longitudine);
 
         res.status(200).json({
             quantita: missions.length,
