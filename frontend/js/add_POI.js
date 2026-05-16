@@ -1,3 +1,5 @@
+let messageTimeout;
+
 function showError(message) {
     const errorMessage = document.getElementById("errorMessage");
     errorMessage.innerText = message;
@@ -6,6 +8,15 @@ function showError(message) {
 function showSuccess(message) {
     const successMessage = document.getElementById("successMessage");
     successMessage.innerText = message;
+
+    if (messageTimeout) {
+        clearTimeout(messageTimeout);
+    }
+    if (message !== "") {
+        messageTimeout = setTimeout(() => {
+            successMessage.innerText = "";
+        }, 5000); 
+    }
 }
 
 const map = L.map('map').setView([46.067, 11.121], 13);
