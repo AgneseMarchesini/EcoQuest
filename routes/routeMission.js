@@ -6,9 +6,34 @@ const path = require('path');
 const generateUserMissions = require('../mission_system/missionService');
 const { authMiddleware } = require("../utils");
 const MissioneUtente = require("../models/missioneUtente.js");
+const Utente = require("../models/utente.js");
+
+function getUserId(req) {
+    return req.user.userId || req.user.id;
+}
+
+async function getActiveMission(userId) {
+    const userMission = await MissioneUtente.findOne({
+        userId,
+        stato: "InCorso"
+    }).populate("missionId").lean();
+
+    if (!userMission) {
+        return null;
+    }
+
+    return {
+        userMission,
+        mission: userMission.missionId
+    };
+}
 
 router.get("/getMissions", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/get_missions.html"));
+});
+
+router.get("/start_mission", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/start_mission.html"));
 });
 
 async function generaMissioniDinamiche(lat, lng) {
@@ -64,15 +89,59 @@ router.get('/listaMissioni', authMiddleware, async (req, res) => {
     }
 });
 
+router.get("/active", authMiddleware, async (req, res) => {
+    try {
+        const activeMission = await getActiveMission(getUserId(req));
+
+        res.status(200).json({
+            active: Boolean(activeMission),
+            data: activeMission
+        });
+    } catch (error) {
+        console.error("Errore in /active:", error);
+        res.status(500).json({ message: "Errore interno del server" });
+    }
+});
+
 router.post("/start", authMiddleware, async (req, res) => {
     try{
-        const userId = req.user.id;
-        const { missionId } = req.body;
+        const userId = getUserId(req);
+        const { missionId, missionData } = req.body;
+        let missionIdToStart = missionId;
+
+        const activeMission = await getActiveMission(userId);
+        if (activeMission) {
+            return res.status(409).json({
+                message: "Hai già una missione in corso",
+                active: activeMission
+            });
+        }
+
+        if (!missionIdToStart && missionData) {
+            const nuovaMissione = await mission.create({
+                arrayPOI: missionData.arrayPOI,
+                punti: missionData.punti,
+                bonusGamification: missionData.bonusGamification,
+                risparmioCO2: missionData.risparmioCO2,
+                stato: missionData.stato || "DaIniziare",
+                titolo: missionData.titolo,
+                descrizione: missionData.descrizione,
+                predefinita: false
+            });
+
+            missionIdToStart = nuovaMissione._id;
+        }
+
+        if (!missionIdToStart) {
+            return res.status(400).json({
+                message: "missionId o missionData mancanti"
+            });
+        }
 
         // controlla se già avviata
         const existing = await MissioneUtente.findOne({
             userId,
-            missionId,
+            missionId: missionIdToStart,
             stato: { $in: ["InCorso", "Completata"] }
         });
 
@@ -84,7 +153,7 @@ router.post("/start", authMiddleware, async (req, res) => {
 
         const userMission = await MissioneUtente.create({
             userId,
-            missionId,
+            missionId: missionIdToStart,
             stato: "InCorso",
             startTime: new Date(),
             currentStep: 0,
@@ -101,7 +170,7 @@ router.post("/start", authMiddleware, async (req, res) => {
 
 router.post("/progress", authMiddleware, async (req, res) => {
     try{
-        const userId = req.user.id;
+        const userId = getUserId(req);
         const { missionId, poiId } = req.body;
 
         const userMission = await MissioneUtente.findOne({
@@ -134,7 +203,7 @@ router.post("/progress", authMiddleware, async (req, res) => {
 
 router.post("/complete", authMiddleware, async (req, res) => {
     try{
-        const userId = req.user.id;
+        const userId = getUserId(req);
         const { missionId } = req.body;
 
         const userMission = await MissioneUtente.findOne({
@@ -153,12 +222,18 @@ router.post("/complete", authMiddleware, async (req, res) => {
         await userMission.save();
 
         // reward logic
-        const mission = await Mission.findById(missionId);
+        const missioneCompletata = await mission.findById(missionId);
 
-        const reward = mission.punti;
+        const reward = missioneCompletata ? missioneCompletata.punti : 0;
 
-        await User.findByIdAndUpdate(userId, {
-            $inc: { punti: reward }
+        userMission.rewardGiven = true;
+        await userMission.save();
+
+        await Utente.findByIdAndUpdate(userId, {
+            $inc: {
+                currentPoints: reward,
+                totalPoints: reward
+            }
         });
 
         res.json({

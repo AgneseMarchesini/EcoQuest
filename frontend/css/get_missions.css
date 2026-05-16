@@ -86,6 +86,20 @@ button,
     border: 1px solid #bbd5da;
 }
 
+.start-mission-btn {
+    background: #1f7a55;
+    color: #ffffff;
+}
+
+.start-mission-btn:hover:not(:disabled) {
+    background: #14583d;
+}
+
+.start-mission-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
 .secondary-button:hover,
 .maps-link:hover {
     border-color: #1ea85a;
@@ -114,6 +128,34 @@ button,
 
 .summary-item p {
     margin: 4px 0 0;
+    color: #526159;
+}
+
+.active-mission {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid rgba(31, 122, 85, 0.35);
+    border-left: 6px solid #1f7a55;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.active-mission.hidden {
+    display: none;
+}
+
+.active-mission h2 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.active-mission p:last-child {
+    margin: 6px 0 0;
     color: #526159;
 }
 
@@ -208,6 +250,9 @@ button,
 
 .mission-actions {
     margin-top: auto;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 @media (max-width: 680px) {
@@ -231,5 +276,10 @@ button,
 
     .summary-grid {
         grid-template-columns: 1fr;
+    }
+
+    .active-mission {
+        align-items: stretch;
+        flex-direction: column;
     }
 }
