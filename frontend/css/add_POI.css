@@ -123,6 +123,13 @@ input:focus {
   background-color: #1ea85a;
 }
 
+#successMessage{
+  padding: 10px;
+  color: green;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 #errorMessage {
   padding: 10px;
   color: red;

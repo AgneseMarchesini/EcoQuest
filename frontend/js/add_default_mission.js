@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
     // coordinate di trento
     const map = L.map('map').setView([46.066423, 11.12576], 13);
     
@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    let selectedPOIs = [];
-    let selectedMarkers = [];
+    let waypoints = []; 
+    let markers = [];
 
     const arrayPOIInput = document.getElementById('arrayPOI');
 
@@ -16,48 +16,26 @@ document.addEventListener("DOMContentLoaded", async () => {
             className: 'custom-div-icon',
             html: `<div class="number-marker">${number}</div>`,
             iconSize: [24, 24],
-            iconAnchor: [12, 12]
+            iconAnchor: [12, 12] 
         });
     };
 
     // evento: click sulla mappa per aggiungere un punto
-    try {
-        const response = await fetch('/admin/pois');
-        const pois = await response.json();
+    map.on('click', function(e) {
+        const currentOrder = waypoints.length + 1;
+        const newMarker = L.marker(e.latlng, { icon: createNumberedIcon(currentOrder) }).addTo(map);
+        markers.push(newMarker);
 
-        pois.forEach(poi => {
+        waypoints.push({ lat: e.latlng.lat, lng: e.latlng.lng });
 
-            const [lng, lat] = poi.posizione.coordinates;
-            const marker = L.marker([lat, lng]).addTo(map);
-
-            marker.bindTooltip(poi.nome, {
-                permanent: false,
-                direction: "top"
-            });
-
-            marker.on('click', () => {
-                // evita doppia selezione
-                if (selectedPOIs.includes(poi._id.toString())) {
-                    return;
-                }
-                selectedPOIs.push(poi._id.toString());
-                const order = selectedPOIs.length;
-                marker.setIcon(createNumberedIcon(order));
-                selectedMarkers.push(marker);
-            });
-        });
-
-    } catch (error) {
-        console.error(error);
-    }
+        arrayPOIInput.value = JSON.stringify(waypoints);
+    });
 
     // evento: cancella percorso
     document.getElementById('clearMapBtn').addEventListener('click', () => {
-        selectedPOIs = [];
-        selectedMarkers.forEach(marker => {
-            marker.setIcon(new L.Icon.Default());
-        });
-        selectedMarkers = [];
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
+        waypoints = [];
         arrayPOIInput.value = "";
     });
 
@@ -72,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         errorMessageDiv.style.color = "red";
 
         // validazione mappa
-        if (selectedPOIs.length === 0) {
+        if (!arrayPOIInput.value || waypoints.length === 0) {
             errorMessageDiv.innerText = "Devi selezionare almeno un punto sulla mappa per creare il percorso.";
             return;
         }
@@ -80,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const payload = {
             titolo: document.getElementById('titolo').value,
             descrizione: document.getElementById('descrizione').value,
-            arrayPOI: selectedPOIs, 
+            arrayPOI: waypoints, 
             punti: Number(document.getElementById('punti').value),
             stato: document.getElementById('stato').value,
             predefinita: true

@@ -1,6 +1,22 @@
+let messageTimeout;
+
 function showError(message) {
     const errorMessage = document.getElementById("errorMessage");
     errorMessage.innerText = message;
+}
+
+function showSuccess(message) {
+    const successMessage = document.getElementById("successMessage");
+    successMessage.innerText = message;
+
+    if (messageTimeout) {
+        clearTimeout(messageTimeout);
+    }
+    if (message !== "") {
+        messageTimeout = setTimeout(() => {
+            successMessage.innerText = "";
+        }, 5000); 
+    }
 }
 
 const map = L.map('map').setView([46.067, 11.121], 13);
@@ -76,6 +92,9 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
     const categoria = Array.from(document.querySelectorAll('.categoria:checked'))
         .map(cb => cb.value);
 
+    const meteoCondition = Array.from(document.querySelectorAll('.meteo:checked'))
+        .map(cb => cb.value);
+
     const poi = {
         nome,
         descrizione,
@@ -84,7 +103,8 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
             type: "Point",
             coordinates: [longitudine, latitudine]
         },
-        categoria
+        categoria,
+        meteoCondition
     };
     console.log(poi);
 
@@ -115,6 +135,23 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
         }
 
         showError("");
+        showSuccess("POI aggiunto con successo!");
+
+        // pulizia dei campi
+        document.getElementById("aggiungiPoi").reset();
+
+        if (marker) {
+            map.removeLayer(marker);
+            marker = null;
+        }
+        position.lat = null;
+        position.lng = null;
+        document.getElementById('latitudine').value = "";
+        document.getElementById('longitudine').value = "";
+
+        const imagesContainer = document.getElementById("images-container");
+        imagesContainer.innerHTML = '<input type="url" name="images" class="image-input" placeholder="https://...">';
+
     } catch (err) {
         console.log("CATCH:", err.message);
         showError("Errore di connessione");
