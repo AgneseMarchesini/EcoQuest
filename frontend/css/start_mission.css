@@ -1,0 +1,197 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", sans-serif;
+    color: #17211d;
+    background:
+        linear-gradient(rgba(246, 248, 244, 0.88), rgba(246, 248, 244, 0.94)),
+        url("../assets/sfondo.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+.start-page {
+    width: min(920px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 36px 0;
+}
+
+.mission-panel {
+    background: #ffffff;
+    border: 1px solid rgba(50, 74, 64, 0.12);
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.eyebrow {
+    margin: 0 0 6px;
+    color: #1f7a55;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(32px, 5vw, 48px);
+    line-height: 1.05;
+}
+
+.description {
+    color: #526159;
+    line-height: 1.5;
+    margin: 14px 0 22px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.stats-grid div,
+.poi-item {
+    border: 1px solid #e0e7e3;
+    border-radius: 8px;
+    padding: 14px;
+    background: #fafcf9;
+}
+
+.stats-grid span {
+    display: block;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.stats-grid p {
+    margin: 4px 0 0;
+    color: #526159;
+}
+
+.poi-list {
+    display: grid;
+    gap: 10px;
+}
+
+.poi-item strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.poi-item.visited {
+    border-color: #37ff8b;
+    background: #effff5;
+}
+
+.tracking-section {
+    margin-top: 22px;
+    border: 1px solid #e0e7e3;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fafcf9;
+}
+
+.tracking-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 16px;
+}
+
+.tracking-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.tracking-header p {
+    margin: 6px 0 0;
+    color: #526159;
+}
+
+.tracking-header p.on-route {
+    color: #1f7a55;
+    font-weight: 700;
+}
+
+.tracking-header p.off-route {
+    color: #9b1c1c;
+    font-weight: 700;
+}
+
+#missionMap {
+    width: 100%;
+    height: 420px;
+    border-top: 1px solid #e0e7e3;
+}
+
+.status-message {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #fff6f6;
+    color: #9b1c1c;
+    border: 1px solid #efb1b1;
+}
+
+.status-message.hidden {
+    display: none;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+}
+
+.primary-button,
+.secondary-button {
+    border: none;
+    border-radius: 8px;
+    padding: 11px 16px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+}
+
+.primary-button {
+    background: #37ff8b;
+    color: #07140d;
+}
+
+.secondary-button {
+    background: #ffffff;
+    color: #1b4f3a;
+    border: 1px solid #bbd5da;
+}
+
+@media (max-width: 680px) {
+    .mission-panel {
+        padding: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tracking-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    #missionMap {
+        height: 340px;
+    }
+}
