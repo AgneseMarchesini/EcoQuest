@@ -15,12 +15,12 @@
         <form id="aggiungiPoi">
 
             <div class="form-input">
-                <label>Nome</label>
+                <label><b>Nome</b></label>
                 <input id="nome" required>
             </div>
 
             <div class="form-input">
-                <label>Descrizione</label>
+                <label><b>Descrizione</b></label>
                 <input id="descrizione" required>
             </div>
             
@@ -39,7 +39,7 @@
             </div>
 
             <div class="form-input">
-                <label>Link immagini</label>
+                <label><b>Link immagini</b></label>
 
                 <div id="images-container">
                     <input type="url" name="images" class="image-input" placeholder="https://...">
@@ -47,36 +47,31 @@
             </div>
 
             <div class="checkbox_group">
-                <label>Categorie</label>
-                <label class="checkbox_item">
-                    <input type="checkbox" class="categoria" value="Cultura">
-                    Cultura
-                </label>
-                <label class="checkbox_item">
-                    <input type="checkbox" class="categoria" value="Natura">
-                    Natura
-                </label>
-                <label class="checkbox_item">
-                    <input type="checkbox" class="categoria" value="Sport">
-                    Sport
-                </label>
-                <label class="checkbox_item">
-                    <input type="checkbox" class="categoria" value="Svago">
-                    Svago
-                </label>
-                <label class="checkbox_item">
-                    <input type="checkbox" class="categoria" value="Benessere">
-                    Benessere
-                </label>
-                <label class="checkbox_item">
-                    <input type="checkbox" class="categoria" value="Spettacolo">
-                    Spettacolo
-                </label>
-                <label class="checkbox_item">
-                    <input type="checkbox" class="categoria" value="Musica">
-                    Musica
-                </label>
+                <label><b>Categorie</b></label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Cultura"> Cultura</label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Natura"> Natura</label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Storia"> Storia</label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Sport"> Sport</label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Svago"> Svago</label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Benessere"> Benessere</label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Spettacolo"> Spettacolo</label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Musica"> Musica</label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Indoor"> Indoor</label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Outdoor"> Outdoor</label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Bar"> Bar</label>
+                <label class="checkbox_item"><input type="checkbox" class="categoria" value="Ristorante"> Ristorante</label>
             </div>
+
+            <div><p> </p></div>
+            
+            <div class="checkbox_group">
+                <label><b>Condizioni Meteo</b></label>
+                <label class="checkbox_item"><input type="checkbox" class="meteo" value="Sole"> Sole</label>
+                <label class="checkbox_item"><input type="checkbox" class="meteo" value="Nuvoloso"> Nuvoloso</label>
+                <label class="checkbox_item"><input type="checkbox" class="meteo" value="Pioggia"> Pioggia</label>
+                <label class="checkbox_item"><input type="checkbox" class="meteo" value="Neve"> Neve</label>
+            </div>
+
             <button type="submit" id="submitBtn">
                 Aggiungi
             </button>
@@ -84,6 +79,7 @@
         </form>
 
         <span id="errorMessage"></span>
+        <span id="successMessage"></span>
 
     </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>

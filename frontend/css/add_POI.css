@@ -130,6 +130,13 @@ input:focus {
   font-weight: 500;
 }
 
+#successMessage{
+  padding: 10px;
+  color: green;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .main-title {
   color: white;
   font-size: 48px;
