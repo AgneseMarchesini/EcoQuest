@@ -261,7 +261,7 @@ function createMissionCard(mission) {
 
     card.addEventListener("click", (e) => {
         // Don't open sidebar if the user clicked the "Apri mappa" link specifically
-        if (e.target.tagName !== 'A') {
+        if (    !e.target.closest('.start-mission-btn')) {
             openSidebar(mission);
         }
     });

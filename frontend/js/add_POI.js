@@ -106,11 +106,9 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
         categoria,
         meteoCondition
     };
-    console.log(poi);
 
     try {
         const token = localStorage.getItem("token")
-        console.log(poi);
         const response = await fetch("/admin/add_POI", {
             method: "POST",
             headers: {

@@ -71,7 +71,7 @@ document.getElementById("signupForm").addEventListener("submit", async(e) => {
     submitBtn.innerText = "..."
 
     try {
-        const response = await fetch("/auth/signUp", {
+        const response = await fetch("/auth/sign_up", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

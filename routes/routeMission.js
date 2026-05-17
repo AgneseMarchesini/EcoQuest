@@ -28,7 +28,7 @@ async function getActiveMission(userId) {
     };
 }
 
-router.get("/getMissions", (req, res) => {
+router.get("/get_missions", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/get_missions.html"));
 });
 
@@ -77,8 +77,6 @@ async function generaMissioni(lat, lng) {
             predefinita: false
         };
     }).filter(Boolean);
-
-    console.log(missions);
 
     return missions;
 }

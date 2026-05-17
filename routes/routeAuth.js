@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken")
 require("dotenv").config();
 const path = require("path")
 
-router.get("/signUp", (req, res)=>{
+router.get("/sign_up", (req, res)=>{
     res.sendFile(path.join(__dirname, "../frontend/sign_up.html"))
 })
 
@@ -16,7 +16,7 @@ router.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/login.html"));
 });
 
-router.post("/signUp", async (req, res) => {
+router.post("/sign_up", async (req, res) => {
     try{
         const { type, email, password, username } = req.body;
 

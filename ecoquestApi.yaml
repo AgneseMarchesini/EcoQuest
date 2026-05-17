@@ -27,7 +27,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /auth/signUp:
+  /auth/sign_up:
     post:
       summary: Registrazione di un nuovo utente o esercente
       description: Crea un nuovo account nel sistema. Il payload richiesto varia a seconda che il campo `type` sia impostato su 'Utente' o 'Esercente'.
