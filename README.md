@@ -1,3 +1,5 @@
+<a name="readme-top"></a>
+
 # EcoQuest
 
 Questo progetto propone un sistema di generazione di **missioni urbane sostenibili nella città di Trento**, progettato per i cittadini e per incentivare uno stile di vita più consapevole e attivo. A differenza delle tradizionali applicazioni di navigazione o turismo, il sistema non si limita a suggerire percorsi, ma coinvolge l’utente attraverso missioni dinamiche che promuovono comportamenti ecologici, come l’uso della bicicletta, gli spostamenti a piedi e il supporto alle attività locali.
@@ -48,3 +50,11 @@ EcoQuest-dev/
     ├── routeMission.js           # Rotte per la gestione delle missioni
     └── routePOI.js               # Rotte per la gestione dei Punti di Interesse
 ```
+
+Gruppo 8
+
+Alessandro Bignami 242884
+Agnese Marchesini 244658
+Michele Zanetti 244710
+
+<p align="right">(<a href="#readme-top">torna in alto</a>)</p>
