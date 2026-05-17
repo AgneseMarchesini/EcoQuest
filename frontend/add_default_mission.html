@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aggiungi Missione Predefinita</title>
 
-    <link rel="stylesheet" href="/css/add_POI.css"> 
+    <link rel="stylesheet" href="/css/add.css"> 
+    <link rel="stylesheet" href="/css/navbar.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
@@ -40,61 +41,85 @@
     </style>
 </head>
 <body>
-
-    <div class="form">
-        <h2>Aggiungi Nuova Missione Predefinita</h2>
-        
-        <form id="missionForm">
-            <div class="form-input">
-                <label for="titolo">Titolo Missione*</label>
-                <input type="text" id="titolo" required>
-            </div>
-
-            <div class="form-input">
-                <label for="descrizione">Descrizione</label>
-                <textarea id="descrizione" rows="3"></textarea>
-            </div>
-
-            <div class="form-input">
-                <label>Traccia i Punti (In ordine di visita)</label>
-                <div id="map"></div>
-                <p class="help-text">Clicca sulla mappa per aggiungere i punti. Verranno numerati in automatico.</p>
-                <button type="button" id="clearMapBtn" style="padding: 5px 10px; border-radius: 5px; border: 1px solid #bbd5da; cursor: pointer;">Cancella Punti</button>
-            </div>
-
-            <div class="form-input">
-                <label for="punti">Punti Ricompensa*</label>
-                <input type="number" id="punti" min="0" placeholder="Es. 100" required>
-            </div>
-
-            <div class="form-input">
-                <label for="bonusGamification">Bonus Gamification</label>
-                <input type="number" id="bonusGamification" min="0" placeholder="Es. 1">
-            </div>
-
-            <div class="form-input">
-                <label for="risparmioCO2">Risparmio CO2 Stimato (kg)</label>
-                <input type="number" id="risparmioCO2" min="0" step="0.01" placeholder="Es. 2.5">
-            </div>
-
-            <div class="form-input">
-                <label for="stato">Stato Iniziale</label>
-                <select id="stato">
-                    <option value="DaIniziare" selected>Da Iniziare</option>
-                    <option value="InCorso">In Corso</option>
-                    <option value="Completata">Completata</option>
-                    <option value="InPausa">In Pausa</option>
-                    <option value="Annullata">Annullata</option>
-                </select>
-            </div>
-
-            <div id="errorMessage"></div>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/home/homepage" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
             
-            <button type="submit" id="submitBtn">Salva Missione</button>
-        </form>
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="https://www.instagram.com/baignowski/" class="nav-item">Chi Siamo</a></li>
+                    <li class="guest-only"><a href="/auth/login" class="nav-item">Accedi</a></li>
+                    <li class="guest-only"><a href="/auth/sign_up" class="nav-item">Registrati</a></li>
+                    <li class="user-only"><a href="/mission/get_missions" class="nav-item">Genera Missioni</a></li>
+                    <li class="admin-only"><a href="/admin/add_mission" class="nav-item">Crea Missione</a></li>
+                    <li class="admin-only"><a href="/admin/add_POI" class="nav-item">Crea POI</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Gestione Profilo</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="login-wrapper">
+        <div class="form">
+            <h2>Aggiungi Nuova Missione Predefinita</h2>
+            
+            <form id="missionForm">
+                <div class="form-input">
+                    <label for="titolo">Titolo Missione*</label>
+                    <input type="text" id="titolo" required>
+                </div>
+
+                <div class="form-input">
+                    <label for="descrizione">Descrizione</label>
+                    <textarea id="descrizione" rows="3"></textarea>
+                </div>
+
+                <div class="form-input">
+                    <label>Traccia i Punti (In ordine di visita)</label>
+                    <div id="map"></div>
+                    <p class="help-text">Clicca sulla mappa per aggiungere i punti. Verranno numerati in automatico.</p>
+                    <button type="button" id="clearMapBtn" style="padding: 5px 10px; border-radius: 5px; border: 1px solid #bbd5da; cursor: pointer;">Cancella Punti</button>
+                    <input type="hidden" id="arrayPOI" required>
+                </div>
+
+                <div class="form-input">
+                    <label for="punti">Punti Ricompensa*</label>
+                    <input type="number" id="punti" min="0" placeholder="Es. 100" required>
+                </div>
+
+                <div class="form-input">
+                    <label for="bonusGamification">Bonus Gamification</label>
+                    <input type="number" id="bonusGamification" min="0" placeholder="Es. 1">
+                </div>
+
+                <div class="form-input">
+                    <label for="risparmioCO2">Risparmio CO2 Stimato (kg)</label>
+                    <input type="number" id="risparmioCO2" min="0" step="0.01" placeholder="Es. 2.5">
+                </div>
+
+                <div class="form-input">
+                    <label for="stato">Stato Iniziale</label>
+                    <select id="stato">
+                        <option value="DaIniziare" selected>Da Iniziare</option>
+                        <option value="InCorso">In Corso</option>
+                        <option value="Completata">Completata</option>
+                        <option value="InPausa">In Pausa</option>
+                        <option value="Annullata">Annullata</option>
+                    </select>
+                </div>
+
+                <div id="errorMessage"></div>
+                
+                <button type="submit" id="submitBtn">Salva Missione</button>
+            </form>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="/js/add_default_mission.js"></script>
+    <script src="/js/navbar.js"></script>
 </body>
 </html>

@@ -9,14 +9,11 @@ const pointSchema = new mongoose.Schema({
 }, { _id: false });
 
 const missionSchema = new mongoose.Schema({
-    // percorso: {
-    //     type: String,
-    //     unique: true
-    // },
-    arrayPOI: {
-        type: [pointSchema],
+    arrayPOI: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "POI",
         required: true
-    },
+    }],
     punti: {
         type: Number,
         min: 0,

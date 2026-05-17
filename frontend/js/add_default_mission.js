@@ -29,12 +29,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // evento: click sulla mappa per aggiungere un punto
     try {
-        const response = await fetch('/admin/pois');
+        const response = await fetch('/poi/pois');
         const pois = await response.json();
 
-
         pois.forEach(poi => {
-
             const [lng, lat] = poi.posizione.coordinates;
             const marker = L.marker([lat, lng], { icon: poiIcon }).addTo(map);
 
@@ -107,10 +105,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (co2Input) payload.risparmioCO2 = Number(co2Input);
 
         try {
-            const response = await fetch('/admin/add_mission', {
-                method: 'POST',
+            const token = localStorage.getItem("token");
+            const response = await fetch("/admin/add_mission", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json",
+                    "authorization": "Bearer " + token
                 },
                 body: JSON.stringify(payload)
             });

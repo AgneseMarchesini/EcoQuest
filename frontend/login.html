@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ecoquest - Login</title>
     <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="/css/navbar.css">
     <link rel="icon" href="/assets/logo.png">
 </head>
 <body>
@@ -17,15 +18,19 @@
             <nav class="navbar">
                 <ul class="nav-links">
                     <li><a href="https://www.instagram.com/baignowski/" class="nav-item">Chi Siamo</a></li>
-                    <li><a href="" class="nav-item">Accedi</a></li>
-                    <li><a href="/auth/sign_up" class="nav-item">Registrati</a></li>
+                    <li class="guest-only"><a href="/auth/login" class="nav-item">Accedi</a></li>
+                    <li class="guest-only"><a href="/auth/sign_up" class="nav-item">Registrati</a></li>
+                    <li class="user-only"><a href="/mission/get_missions" class="nav-item">Genera Missioni</a></li>
+                    <li class="admin-only"><a href="/admin/add_mission" class="nav-item">Crea Missione</a></li>
+                    <li class="admin-only"><a href="/admin/add_POI" class="nav-item">Crea POI</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Gestione Profilo</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
     <div class="login-wrapper">
-        <h1 class="main-title">EcoQuest</h1>
         <div class="form">
             <h2>Accedi</h2>
 
@@ -57,5 +62,6 @@
     </div>
 
     <script src="/js/login.js"></script>
+    <script src="/js/navbar.js"></script>
 </body>
 </html>

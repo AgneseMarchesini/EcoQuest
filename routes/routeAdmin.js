@@ -9,6 +9,8 @@ const jwt = require("jsonwebtoken")
 require("dotenv").config();
 const path = require("path")
 
+const { authMiddleware, authAdminMiddleware } = require("../utils.js")
+
 router.get("/add_POI", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/add_POI.html"));
 });
@@ -17,18 +19,7 @@ router.get("/add_mission", (req, res)=>{
     res.sendFile(path.join(__dirname, "../frontend/add_default_mission.html"));
 });
 
-router.get("/pois", async (req, res) => {
-    try {
-        const pois = await POI.find({});
-        res.status(200).json(pois);
-    } catch (error) {
-        res.status(500).json({
-            message: "Errore nel recupero dei POI"
-        });
-    }
-});
-
-router.post("/add_POI", async (req, res) => {
+router.post("/add_POI", authAdminMiddleware, async (req, res) => {
     try {
         const poiData = {
             nome: req.body.nome,
@@ -76,7 +67,7 @@ router.post("/add_POI", async (req, res) => {
     }
 })
 
-router.post("/add_mission", async (req, res) => {
+router.post("/add_mission", authAdminMiddleware, async (req, res) => {
     try {
         const arrayPOI = Array.isArray(req.body.arrayPOI) ? req.body.arrayPOI : JSON.parse(req.body.arrayPOI);
 

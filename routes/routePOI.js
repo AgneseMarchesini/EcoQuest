@@ -3,6 +3,18 @@ const router = express.Router();
 const poi = require('../models/POI');
 const path = require('path');
 
+router.get("/pois", async (req, res) => {
+    try {
+        const pois = await poi.find({});
+        res.status(200).json(pois);
+    } catch (error) {
+        res.status(500).json({
+            message: "Errore nel recupero dei POI"
+        });
+    }
+});
+
+
 router.get('/puntiVicini', async (req, res)=> {
     try{
         const latitudine = parseFloat(req.query.latitudine) || 46.066423;

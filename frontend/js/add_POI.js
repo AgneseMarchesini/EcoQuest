@@ -113,22 +113,20 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: "Bearer " + token
+                "authorization": "Bearer " + token
             },
             body: JSON.stringify(poi)
         });
 
-        console.log("STATUS:", response.status);
-        console.log("OK:", response.ok);
-        console.log("RAW TEXT:", await response.clone().text());
-
         const data = await response.json();
 
-        console.log("response.ok:", response.ok);
-        console.log("data:", data);
+        if(!response.ok) {
+            if (Array.isArray(data.message)) {
+                errorMessageDiv.innerText = data.message.join(", ");
+            } else {
+                errorMessageDiv.innerText = data.message || "Errore sconosciuto.";
+            }
 
-        if (!response.ok) {
-            showError(data.message || "Errore di add_POI");
             return;
         }
 

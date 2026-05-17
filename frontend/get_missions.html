@@ -5,15 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EcoQuest - Missioni</title>
     <link rel="stylesheet" href="/css/get_missions.css">
+    <link rel="stylesheet" href="/css/navbar.css">
     <link rel="icon" href="/assets/logo.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
 </head>
 <body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/home/homepage" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+            
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="https://www.instagram.com/baignowski/" class="nav-item">Chi Siamo</a></li>
+                    <li class="guest-only"><a href="/auth/login" class="nav-item">Accedi</a></li>
+                    <li class="guest-only"><a href="/auth/sign_up" class="nav-item">Registrati</a></li>
+                    <li class="user-only"><a href="/mission/get_missions" class="nav-item">Genera Missioni</a></li>
+                    <li class="admin-only"><a href="/admin/add_mission" class="nav-item">Crea Missione</a></li>
+                    <li class="admin-only"><a href="/admin/add_POI" class="nav-item">Crea POI</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Gestione Profilo</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
     <main class="missions-page">
         <section class="missions-header">
             <div>
-                <p class="eyebrow">EcoQuest</p>
                 <h1>Missioni disponibili</h1>
                 <p id="locationText" class="location-text">Posizione: Trento</p>
             </div>
@@ -97,5 +118,6 @@
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
     <script src="/js/get_missions.js"></script>
+    <script src="/js/navbar.js"></script>
 </body>
 </html>
