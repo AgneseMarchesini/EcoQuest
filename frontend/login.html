@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecoquest - Login</title>
+    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="icon" href="/assets/logo.png">
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/home/homepage" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+            
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="https://www.instagram.com/baignowski/" class="nav-item">Chi Siamo</a></li>
+                    <li class="guest-only"><a href="/auth/login" class="nav-item">Accedi</a></li>
+                    <li class="guest-only"><a href="/auth/sign_up" class="nav-item">Registrati</a></li>
+                    <li class="user-only"><a href="/mission/get_missions" class="nav-item">Genera Missioni</a></li>
+                    <li class="admin-only"><a href="/admin/add_mission" class="nav-item">Crea Missione</a></li>
+                    <li class="admin-only"><a href="/admin/add_POI" class="nav-item">Crea POI</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Gestione Profilo</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="login-wrapper">
+        <div class="form">
+            <h2>Accedi</h2>
+
+            <form id="loginForm">
+
+                <div class="form-input">
+                    <label>Email</label>
+                    <input type="email" id="email">
+                </div>
+
+                <div class="form-input">
+                    <label>Password</label>
+                    <input type="password" id="password">
+                </div>
+
+                <button type="submit" id="submitBtn">
+                    Login
+                </button>
+
+            </form>
+
+            <span id="errorMessage"></span>
+
+            <p class="register-link">
+                Non sei registrato/a? <a href="/auth/sign_up">Registrati</a>
+            </p>
+
+        </div>
+    </div>
+
+    <script src="/js/login.js"></script>
+    <script src="/js/navbar.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest - Missione Avviata</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css">
+    <link rel="stylesheet" href="/css/start_mission.css">
+    <link rel="icon" href="/assets/logo.png">
+</head>
+<body>
+    <main class="start-page">
+        <section class="mission-panel">
+            <p class="eyebrow">Missione in corso</p>
+            <h1 id="missionTitle">Missione avviata</h1>
+            <p id="missionDescription" class="description">Caricamento dettagli...</p>
+
+            <div class="stats-grid">
+                <div>
+                    <span id="missionPoints">0</span>
+                    <p>Punti</p>
+                </div>
+                <div>
+                    <span id="missionStatus">InCorso</span>
+                    <p>Stato</p>
+                </div>
+                <div>
+                    <span id="missionStep">0</span>
+                    <p>Step</p>
+                </div>
+            </div>
+
+            <div id="poiList" class="poi-list"></div>
+
+            <section class="tracking-section">
+                <div class="tracking-header">
+                    <div>
+                        <h2>Tracking percorso</h2>
+                        <p id="trackingText">In attesa della posizione...</p>
+                    </div>
+                    <button id="toggleTrackingBtn" type="button" class="secondary-button">Ferma tracking</button>
+                </div>
+                <div id="missionMap"></div>
+            </section>
+
+            <div id="statusMessage" class="status-message hidden" role="status"></div>
+
+            <div class="actions">
+                <a id="openMapLink" class="secondary-button" href="/home/homepage">Apri mappa</a>
+                <a class="primary-button" href="/mission/get_missions">Torna alle missioni</a>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script src="/js/start_mission.js"></script>
+</body>
+</html>

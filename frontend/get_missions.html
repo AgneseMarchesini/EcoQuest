@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest - Missioni</title>
+    <link rel="stylesheet" href="/css/get_missions.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="icon" href="/assets/logo.png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/home/homepage" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+            
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="https://www.instagram.com/baignowski/" class="nav-item">Chi Siamo</a></li>
+                    <li class="guest-only"><a href="/auth/login" class="nav-item">Accedi</a></li>
+                    <li class="guest-only"><a href="/auth/sign_up" class="nav-item">Registrati</a></li>
+                    <li class="user-only"><a href="/mission/get_missions" class="nav-item">Genera Missioni</a></li>
+                    <li class="admin-only"><a href="/admin/add_mission" class="nav-item">Crea Missione</a></li>
+                    <li class="admin-only"><a href="/admin/add_POI" class="nav-item">Crea POI</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Gestione Profilo</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="missions-page">
+        <section class="missions-header">
+            <div>
+                <h1>Missioni disponibili</h1>
+                <p id="locationText" class="location-text">Posizione: Trento</p>
+            </div>
+
+            <div class="header-actions">
+                <button type="button" id="useLocationBtn" class="secondary-button">Usa posizione</button>
+                <button type="button" id="refreshBtn" class="primary-button">Genera missioni</button>
+            </div>
+        </section>
+
+        <section class="summary-grid" aria-label="Riepilogo missioni">
+            <div class="summary-item">
+                <span id="totalCount">0</span>
+                <p>Totali</p>
+            </div>
+            <div class="summary-item">
+                <span id="predefinedCount">0</span>
+                <p>Predefinite</p>
+            </div>
+            <div class="summary-item">
+                <span id="dynamicCount">0</span>
+                <p>Dinamiche</p>
+            </div>
+        </section>
+
+        <section id="activeMissionSection" class="active-mission hidden" aria-live="polite">
+            <div>
+                <p class="eyebrow">Missione già iniziata</p>
+                <h2 id="activeMissionTitle">Missione in corso</h2>
+                <p id="activeMissionDescription">Riprendi la missione attiva prima di iniziarne una nuova.</p>
+            </div>
+            <button type="button" id="resumeMissionBtn" class="primary-button">Riprendi</button>
+        </section>
+
+        <section id="statusMessage" class="status-message" role="status">Caricamento missioni...</section>
+        <section id="missionsList" class="missions-list" aria-live="polite"></section>
+    </main>
+
+    
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <aside id="missionSidebar" class="mission-sidebar">
+        <div class="sidebar-header">
+            <button id="closeSidebar" class="close-btn">&times;</button>
+            <h2 id="sideTitle">Titolo Missione</h2>
+        </div>
+        <div class="sidebar-content">
+            <div id="sideType" class="mission-type"></div>
+
+            <div class="transport-selector">
+                <label for="transportMode">Mezzo di trasporto:</label>
+                <select id="transportMode" class="styled-select">
+                    <option value="foot" selected>A piedi</option>
+                    <option value="bike">Bicicletta</option>
+                    <option value="car">Auto (Sconsigliata)</option>
+                </select>
+            </div>
+
+            <div id="missionMap"></div>
+            <p id="sideDescription" class="mission-description"></p>
+            
+            <div class="side-details">
+                <div class="detail-item">
+                    <strong>Stato:</strong> <span id="sideStatus"></span>
+                </div>
+                <div class="detail-item">
+                    <strong>Punti:</strong> <span id="sidePoints"></span>
+                </div>
+                <div class="detail-item">
+                    <strong>Risparmio CO2:</strong> <span id="sideCO2"></span>
+                </div>
+            </div>
+            
+            <div id="sideActions" class="side-actions">
+                <!-- The "Open Map" link will be cloned here -->
+            </div>
+        </div>
+    </aside>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <script src="/js/get_missions.js"></script>
+    <script src="/js/navbar.js"></script>
+</body>
+</html>

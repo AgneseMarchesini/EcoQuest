@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Ecoquest - SignUp</title>
+    
+        <link rel="stylesheet" href="/css/sign_up.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="icon" href="/assets/logo.png">
+    </head>
+    <body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/home/homepage" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+            
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="https://www.instagram.com/baignowski/" class="nav-item">Chi Siamo</a></li>
+                    <li class="guest-only"><a href="/auth/login" class="nav-item">Accedi</a></li>
+                    <li class="guest-only"><a href="/auth/sign_up" class="nav-item">Registrati</a></li>
+                    <li class="user-only"><a href="/mission/get_missions" class="nav-item">Genera Missioni</a></li>
+                    <li class="admin-only"><a href="/admin/add_mission" class="nav-item">Crea Missione</a></li>
+                    <li class="admin-only"><a href="/admin/add_POI" class="nav-item">Crea POI</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Gestione Profilo</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="login-wrapper">
+        <div class="form">
+            <h2>Registrati</h2>
+            <form id="signupForm">
+                <div class="user-type-switch form-input">
+                    <label for="userUtente" id="labelUtente" class="switch-button active">UTENTE</label>
+                    <label for="userEsercente" id="labelEsercente" class="switch-button">ESERCENTE</label>
+                    <input type="radio" id="userUtente" name="accountType" value="Utente" checked class="hidden-radio">
+                    <input type="radio" id="userEsercente" name="accountType" value="Esercente" class="hidden-radio">
+                </div>
+
+                <div class="form-input">
+                    <label>Username</label>
+                    <input type="text" id="username">
+                </div>
+
+                <div class="form-input">
+                    <label>Email</label>
+                    <input type="email" id="email">
+                </div>
+
+                <div class="form-input">
+                    <label>Password</label>
+                    <input type="password" id="password">
+                </div>
+
+                <div class="form-input">
+                    <label>Ripeti Password</label>
+                    <input type="password" id="repeated-password">
+                </div>
+
+                <div id="esercenteFields" style="display: none;">
+                    <div class="form-input">
+                        <label>Nome</label>
+                        <input type="text" id="firstName">
+                    </div>
+
+                    <div class="form-input">
+                        <label>Cognome</label>
+                        <input type="text" id="lastName">
+                    </div>
+                    
+                    <div class="form-input">
+                        <label>Codice Fiscale</label>
+                        <input type="text" id="fiscalCode">
+                    </div>
+
+                    <div class="form-input">
+                        <label>P. IVA</label>
+                        <input type="text" id="pIva">
+                    </div>
+                </div>
+
+                <button id="submitBtn">Invia</button>
+            </form>
+
+            <span id="errorMessage"></span>
+
+            <p class="login-link">
+                Sei già registrato/a? <a href="/auth/login">Accedi</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="/js/sign_up.js"></script>
+    <script src="/js/navbar.js"></script>
+    </body>
+</html>

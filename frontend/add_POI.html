@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest - AddPOI</title>
+    <link rel="stylesheet" href="/css/add.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="icon" href="/assets/logo.png">
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/home/homepage" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+            
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="https://www.instagram.com/baignowski/" class="nav-item">Chi Siamo</a></li>
+                    <li class="guest-only"><a href="/auth/login" class="nav-item">Accedi</a></li>
+                    <li class="guest-only"><a href="/auth/sign_up" class="nav-item">Registrati</a></li>
+                    <li class="user-only"><a href="/mission/get_missions" class="nav-item">Genera Missioni</a></li>
+                    <li class="admin-only"><a href="/admin/add_mission" class="nav-item">Crea Missione</a></li>
+                    <li class="admin-only"><a href="/admin/add_POI" class="nav-item">Crea POI</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Gestione Profilo</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="login-wrapper">
+        <div class="form">
+            <h2>Aggiungi POI</h2>
+
+            <form id="aggiungiPoi">
+
+                <div class="form-input">
+                    <label><b>Nome</b></label>
+                    <input id="nome" required>
+                </div>
+
+                <div class="form-input">
+                    <label><b>Descrizione</b></label>
+                    <input id="descrizione" required>
+                </div>
+                
+                <div class="form-input">
+    <!--                 <label for="latitude">Latitudine</label>
+                    <input type="number" id="latitude" step="any" required>
+
+                    <label for="longitude">Longitudine</label>
+                    <input type="number" id="longitude" step="any" required> -->
+
+                    <div id="map" style="height: 400px;"></div>
+
+                    <input type="hidden" id="latitudine" name="latitudine" required>
+                    <input type="hidden" id="longitudine" name="longitudine" required>
+
+                </div>
+
+                <div class="form-input">
+                    <label><b>Link immagini</b></label>
+
+                    <div id="images-container">
+                        <input type="url" name="images" class="image-input" placeholder="https://...">
+                    </div>
+                </div>
+
+                <div class="checkbox_group">
+                    <label><b>Categorie</b></label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Cultura"> Cultura</label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Natura"> Natura</label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Storia"> Storia</label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Sport"> Sport</label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Svago"> Svago</label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Benessere"> Benessere</label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Spettacolo"> Spettacolo</label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Musica"> Musica</label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Indoor"> Indoor</label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Outdoor"> Outdoor</label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Bar"> Bar</label>
+                    <label class="checkbox_item"><input type="checkbox" class="categoria" value="Ristorante"> Ristorante</label>
+                </div>
+
+                <div><p> </p></div>
+                
+                <div class="checkbox_group">
+                    <label><b>Condizioni Meteo</b></label>
+                    <label class="checkbox_item"><input type="checkbox" class="meteo" value="Sole"> Sole</label>
+                    <label class="checkbox_item"><input type="checkbox" class="meteo" value="Nuvoloso"> Nuvoloso</label>
+                    <label class="checkbox_item"><input type="checkbox" class="meteo" value="Pioggia"> Pioggia</label>
+                    <label class="checkbox_item"><input type="checkbox" class="meteo" value="Neve"> Neve</label>
+                </div>
+
+                <button type="submit" id="submitBtn">
+                    Aggiungi
+                </button>
+
+            </form>
+
+            <span id="errorMessage"></span>
+            <span id="successMessage"></span>
+
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="/js/add_POI.js"></script>
+    <script src="/js/navbar.js"></script>
+</body>
+</html>

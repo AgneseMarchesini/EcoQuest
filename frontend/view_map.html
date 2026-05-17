@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest - View Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/css/view_map.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="icon" href="/assets/logo.png">
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/home/homepage" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+            
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="https://www.instagram.com/baignowski/" class="nav-item">Chi Siamo</a></li>
+                    <li class="guest-only"><a href="/auth/login" class="nav-item">Accedi</a></li>
+                    <li class="guest-only"><a href="/auth/sign_up" class="nav-item">Registrati</a></li>
+                    <li class="user-only"><a href="/mission/get_missions" class="nav-item">Genera Missioni</a></li>
+                    <li class="admin-only"><a href="/admin/add_mission" class="nav-item">Crea Missione</a></li>
+                    <li class="admin-only"><a href="/admin/add_POI" class="nav-item">Crea POI</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Gestione Profilo</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <div id="toast-messagge" class="hidden-toast">Tu sei qui</div>
+    
+    <div class="dashboard">
+        <main class="content">
+            <div id="mappa"></div>
+
+            <div id="gps-overlay">
+                <div class="overlay-msg">
+                    <div class="spinner"></div>
+                    <p>Attiva la posizione per scoprire i punti di interesse intorno a te</p>
+                </div>
+            </div>
+
+
+            <div id="sidebar" class="hidden">
+                <button id="close-sidebar">&times;</button>
+                <div id="sidebar-content"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/view_map.js"></script>
+    <script src="/js/navbar.js"></script>
+    <script>
+        creaMappaInterattiva({
+            idContenitore: 'mappa',
+            usaGPS: true,
+            centroDefault: [46.067, 11.121],
+            raggio: 3000
+        });
+
+        document.getElementById('close-sidebar').onclick = () => {
+            document.getElementById('sidebar').classList.add('hidden');
+        };
+    </script>
+</body>
+</html>
