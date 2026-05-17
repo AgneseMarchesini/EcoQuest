@@ -104,6 +104,19 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   /admin/add_POI:
+    get:
+      summary: Pagina aggiunta POI
+      description: Restituisce la pagina HTML per l'aggiunta di un nuovo POI.
+      tags:
+        - Admin Pagine HTML
+      responses:
+        '200':
+          description: Pagina HTML restituita con successo.
+          content:
+            text/html:
+              schema:
+                type: string
+
     post:
       summary: Aggiunta di un nuovo Point Of Intereset (POI).
       description: Permette all'ammiinistratore di creare e salvare un nuovo POI nel database.
@@ -141,6 +154,73 @@ paths:
         
         '500':
           description: Errore interno del server durante il salvataggio del POI.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/add_mission:
+    get:
+      summary: Pagina aggiunta missione predefinita
+      description: Restituisce la pagina HTML per l'aggiunta di una nuova missione di default.
+      tags:
+        - Admin Pagine HTML
+      responses:
+        '200':
+          description: Pagina HTML restituita con successo.
+          content:
+            text/html:
+              schema:
+                type: string
+    
+    post:
+      summary: Aggiunta di una nuova missione
+      description: Permette all'amministratore di creare e salvare una nuova missione.
+      tags:
+        - Missioni
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddMissionRequest'
+      responses:
+        '201':
+          description: Missione creata con successo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissioneResponse'
+        '400':
+          description: Errore di validazione nei dati inseriti.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Errore interno del server durante il salvataggio della missione.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+  /admin/pois:
+    get:
+      summary: Recupero dei POI
+      description: Restituisce l'elenco di tutti i Point Of Interest salvati.
+      tags:
+        - POI
+      responses:
+        '200':
+          description: Recupero dei POI avvenuto con successo.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/POIResponse'
+        '500':
+          description: Errore nel recupero dei POI.
           content:
             application/json:
               schema:
@@ -466,6 +546,72 @@ components:
           items:
             $ref: '#/components/schemas/Missione'
           description: Array contenente gli oggetti missione generati.
+    
+    AddMissionRequest:
+      type: object
+      required:
+        - titolo
+        - punti
+        - arrayPOI
+        - predefinita
+      properties:
+        titolo:
+          type: string
+          description: Titolo della missione.
+        descrizione:
+          type: string
+          description: Descrizione testuale della missione.
+        punti:
+          type: number
+          minimum: 0
+          description: Punti ricompensa della missione.
+        stato:
+          type: string
+          enum: ['DaIniziare', 'InCorso', 'Completata', 'Annullata', 'InPausa']
+          default: 'DaIniziare'
+          description: Stato di avanzamento della missione.
+        predefinita:
+          type: boolean
+          description: Indica se la missione è predefinita dall'admin.
+        bonusGamification:
+          type: number
+          minimum: 0
+          description: Eventuali punti bonus di gamification.
+        risparmioCO2:
+          type: number
+          description: Valore calcolato (Decimal128) per il risparmio di CO2.
+        arrayPOI:
+          type: array
+          description: Array di Object ID dei POI associati (accetta stringhe o array diretto).
+          items:
+            type: string
+            description: Object ID di MongoDB di un POI valido.
+
+    MissioneResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID univoco della missione generato da MongoDB.
+        titolo:
+          type: string
+        descrizione:
+          type: string
+        punti:
+          type: number
+        stato:
+          type: string
+        predefinita:
+          type: boolean
+        bonusGamification:
+          type: number
+        risparmioCO2:
+          type: number
+        arrayPOI:
+          type: array
+          items:
+            type: string
+
   
   securitySchemes:
     bearerAuth:
@@ -473,3 +619,4 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Inserisci il token JWT restituito dal login nel formato "Bearer {token}".
+  
