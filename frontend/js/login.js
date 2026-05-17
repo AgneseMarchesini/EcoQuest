@@ -40,7 +40,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         // login ok
         localStorage.setItem("token", data.token);
 
-        window.location.href = "/home/homepage";
+        window.location.href = "/get_missions.html";
 
     } catch (err) {
         console.log("CATCH:", err.message);

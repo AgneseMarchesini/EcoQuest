@@ -277,6 +277,11 @@ button,
     .summary-grid {
         grid-template-columns: 1fr;
     }
+    
+    .active-mission {
+        align-items: stretch;
+        flex-direction: column;
+    }
 }
 
 .mission-sidebar {

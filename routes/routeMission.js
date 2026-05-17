@@ -78,6 +78,8 @@ async function generaMissioni(lat, lng) {
         };
     }).filter(Boolean);
 
+    console.log(missions);
+
     return missions;
 }
 

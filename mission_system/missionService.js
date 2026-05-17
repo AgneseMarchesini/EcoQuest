@@ -5,7 +5,7 @@ const computeMissionScore = require("./scoringService");
 const buildContext = require("./contextService");
 const Mission = require('../models/missione');
 
-async function generateUserMission(pois, lat, lng, count = 5) {
+async function generateUserMissions(pois, lat, lng, count = 5) {
     const missioniPredefinite = await Mission.find({ predefinita: true });
     const context = await buildContext(lat, lng);
 
@@ -43,19 +43,6 @@ async function generateUserMission(pois, lat, lng, count = 5) {
     }
 
     return selected;
-}
-
-async function generateUserMissions(pois, lat, lng, count = 5) {
-    const missions = [];
-
-    for (let i = 0; i < count; i += 1) {
-        const mission = await generateUserMission(pois, lat, lng);
-        if (mission) {
-            missions.push(mission);
-        }
-    }
-
-    return missions;
 }
 
 function weightedRandom(missions) {
