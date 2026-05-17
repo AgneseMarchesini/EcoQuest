@@ -18,12 +18,16 @@ mongoose.connect(uri)
     .then(() => console.log("Connected to the database!"))
     .catch((err) => console.log("Connection error: ", err));
 
+app.get("/", (req, res) => {
+    res.redirect("/home/homepage");
+});
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "frontend")));
+app.use("/home", routeHome);
 app.use("/auth", routeAuth);
 app.use("/admin", routeAdmin); 
 app.use("/poi", routePOI);
-app.use("/home", routeHome);
 app.use("/mission", routeMission);
 app.listen(3000);
