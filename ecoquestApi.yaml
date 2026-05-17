@@ -1,231 +1,561 @@
 openapi: 3.0.3
 info:
   title: EcoQuest API
-  description: API per il sistema di generazione di missioni urbane sostenibili nella città di Trento.
   version: 1.0.0
+  description: >
+    Documentazione delle API EcoQuest ricavata dai file nelle cartelle
+    `routes` e `models`. Le sezioni sono divise secondo i prefissi usati in
+    `app.js`: `/home`, `/auth`, `/poi`, `/mission` e `/admin`.
+
 servers:
   - url: http://localhost:3000
-    description: Server di sviluppo locale
+    description: Server locale di sviluppo
+
+tags:
+  - name: home (/home)
+    description: Pagine pubbliche principali dell'applicazione.
+  - name: autenticazione (/auth)
+    description: Registrazione, login e rilascio del token JWT.
+  - name: poi (/poi)
+    description: API pubbliche per cercare Point Of Interest.
+  - name: missioni (/mission)
+    description: Pagine e API per generare, consultare, avviare e completare missioni.
+  - name: admin (/admin)
+    description: Pagine e API amministrative per POI e missioni predefinite.
+
 paths:
   /home/homepage:
     get:
-      summary: Visualizzazione della homepage
-      description: Restituisce la pagina HTML della homepage con la visualizzazione della mappa.
       tags:
-        - Home
+        - home (/home)
+      summary: Homepage con mappa
+      description: >
+        Restituisce `frontend/view_map.html`. La pagina mostra la mappa e puo
+        ricevere coordinate in query string per centrare la visualizzazione.
+      parameters:
+        - $ref: "#/components/parameters/Latitudine"
+        - $ref: "#/components/parameters/Longitudine"
+        - name: focusPoi
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Indica al frontend se evidenziare il punto alle coordinate ricevute.
       responses:
-        '200':
-          description: Homepage restituita con successo.
+        "200":
+          description: Pagina HTML restituita con successo.
           content:
             text/html:
               schema:
                 type: string
-        '500':
-          description: Errore interno del server durante il caricamento della homepage.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
   /auth/sign_up:
-    post:
-      summary: Registrazione di un nuovo utente o esercente
-      description: Crea un nuovo account nel sistema. Il payload richiesto varia a seconda che il campo `type` sia impostato su 'Utente' o 'Esercente'.
+    get:
       tags:
-        - Autenticazione
+        - autenticazione (/auth)
+      summary: Pagina di registrazione
+      description: Restituisce `frontend/sign_up.html`.
+      responses:
+        "200":
+          description: Pagina HTML restituita con successo.
+          content:
+            text/html:
+              schema:
+                type: string
+    post:
+      tags:
+        - autenticazione (/auth)
+      summary: Registrazione account
+      description: >
+        Crea una nuova `Persona`. Il campo `type` deve essere `Utente` o
+        `Esercente`. Per `Esercente` il modello richiede anche `nome`,
+        `cognome`, `codiceFiscale` e `partitaIVA`. La password viene cifrata
+        con argon2 prima del salvataggio.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SignUpRequest'
+              $ref: "#/components/schemas/SignUpRequest"
       responses:
-        '201':
-          description: Registrazione effettuata con successo. Restituisce i dati dell'account creato (senza la password).
+        "201":
+          description: Account creato. La password non viene restituita.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PersonaResponse'
-        '400':
-          description: Errore di validazione (campi obbligatori mancanti, tipo di account non valido, o vincoli del modello non rispettati).
+                $ref: "#/components/schemas/Persona"
+        "400":
+          description: Campi obbligatori mancanti, type non valido o errore di validazione.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Conflitto. L'email o l'username sono già associati a un altro utente.
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email o username gia usati.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Errore interno del server durante la registrazione.
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Errore durante la registrazione.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /auth/login:
-    post:
-      summary: Login di un utente, esercente o amministratore
-      description: Autentica un account esistente tramite email e password. In caso di successo restituisce un token JWT valido per 1 ora.
+    get:
       tags:
-        - Autenticazione
+        - autenticazione (/auth)
+      summary: Pagina di login
+      description: Restituisce `frontend/login.html`.
+      responses:
+        "200":
+          description: Pagina HTML restituita con successo.
+          content:
+            text/html:
+              schema:
+                type: string
+    post:
+      tags:
+        - autenticazione (/auth)
+      summary: Login account
+      description: >
+        Verifica email e password. In caso di successo restituisce un token JWT
+        che contiene `userId` e `role` e scade dopo 1 ora.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: "#/components/schemas/LoginRequest"
       responses:
-        '200':
-          description: Login effettuato con successo. Restituisce il token JWT da usare per le richieste autenticate.
+        "200":
+          description: Login effettuato.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
-        '400':
-          description: Errore di validazione. Email o password mancanti.
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          description: Email o password mancanti.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Credenziali non valide o token non creato.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Errore interno del server durante il login.
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Errore durante il login.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /poi/puntiVicini:
+    get:
+      tags:
+        - poi (/poi)
+      summary: Cerca POI vicini
+      description: >
+        Restituisce i POI vicini a una posizione usando una query geospaziale
+        MongoDB su `posizione`. Se le coordinate non sono fornite, usa Trento
+        come posizione predefinita.
+      parameters:
+        - $ref: "#/components/parameters/Latitudine"
+        - $ref: "#/components/parameters/Longitudine"
+        - name: raggio
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 3000
+          description: Raggio massimo di ricerca in metri.
+      responses:
+        "200":
+          description: POI trovati.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/POIListResponse"
+        "500":
+          description: Errore durante la ricerca geospaziale.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /mission/get_missions:
+    get:
+      tags:
+        - missioni (/mission)
+      summary: Pagina elenco missioni
+      description: Restituisce `frontend/get_missions.html`.
+      responses:
+        "200":
+          description: Pagina HTML restituita con successo.
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /mission/start_mission:
+    get:
+      tags:
+        - missioni (/mission)
+      summary: Pagina missione avviata
+      description: >
+        Restituisce `frontend/start_mission.html`, usata per mostrare missione
+        attiva, mappa, tracking GPS, POI da raggiungere e completamento.
+      responses:
+        "200":
+          description: Pagina HTML restituita con successo.
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /mission/listaMissioni:
+    get:
+      tags:
+        - missioni (/mission)
+      summary: Genera e restituisce missioni disponibili
+      description: >
+        Endpoint protetto da JWT. Genera missioni usando i POI salvati e la
+        posizione dell'utente. La risposta contiene missioni predefinite e
+        missioni dinamiche.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Latitudine"
+        - $ref: "#/components/parameters/Longitudine"
+      responses:
+        "200":
+          description: Missioni disponibili.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionListResponse"
+        "401":
+          description: Token assente o non valido.
+        "403":
+          description: Token scaduto o non autorizzato.
+        "500":
+          description: Errore durante il recupero delle missioni.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /mission/active:
+    get:
+      tags:
+        - missioni (/mission)
+      summary: Missione attiva dell'utente
+      description: >
+        Endpoint protetto da JWT. Cerca una `MissioneUtente` in stato `InCorso`
+        per l'utente autenticato e popola il campo `missionId` con i dati della
+        missione.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Stato della missione attiva.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActiveMissionResponse"
+        "401":
+          description: Token assente o non valido.
+        "403":
+          description: Token scaduto o non autorizzato.
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /mission/start:
+    post:
+      tags:
+        - missioni (/mission)
+      summary: Avvia una missione
+      description: >
+        Endpoint protetto da JWT. Avvia una missione esistente tramite
+        `missionId`, oppure crea una missione dinamica usando `missionData` e
+        poi la avvia. L'utente puo avere una sola missione `InCorso`.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartMissionRequest"
+      responses:
+        "200":
+          description: Missione avviata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissioneUtente"
+        "400":
+          description: missionId/missionData mancanti o missione gia avviata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: L'utente ha gia una missione in corso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StartConflictResponse"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /mission/progress:
+    post:
+      tags:
+        - missioni (/mission)
+      summary: Aggiorna progresso missione
+      description: >
+        Endpoint protetto da JWT. Aggiunge un POI a `progress.visitedPOI` e
+        incrementa `currentStep`, evitando duplicati.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MissionProgressRequest"
+      responses:
+        "200":
+          description: Progresso aggiornato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissioneUtente"
+        "404":
+          description: Missione non attiva.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /mission/complete:
+    post:
+      tags:
+        - missioni (/mission)
+      summary: Completa missione
+      description: >
+        Endpoint protetto da JWT. Imposta la missione utente a `Completata`,
+        salva `endTime`, assegna la ricompensa e incrementa `currentPoints` e
+        `totalPoints` dell'utente.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteMissionRequest"
+      responses:
+        "200":
+          description: Missione completata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompleteMissionResponse"
+        "404":
+          description: Missione non trovata o non in corso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Errore interno del server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /admin/add_POI:
     get:
-      summary: Pagina aggiunta POI
-      description: Restituisce la pagina HTML per l'aggiunta di un nuovo POI.
       tags:
-        - Admin Pagine HTML
+        - admin (/admin)
+      summary: Pagina aggiunta POI
+      description: Restituisce `frontend/add_POI.html`.
       responses:
-        '200':
+        "200":
           description: Pagina HTML restituita con successo.
           content:
             text/html:
               schema:
                 type: string
     post:
-      summary: Aggiunta di un nuovo Point Of Intereset (POI).
-      description: Permette all'ammiinistratore di creare e salvare un nuovo POI nel database.
       tags:
-        - POI
-
+        - admin (/admin)
+      summary: Crea POI
+      description: >
+        Crea un Point Of Interest con nome univoco, descrizione, immagini,
+        condizioni meteo, coordinate GeoJSON e categorie.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddPOIRequest'
-
+              $ref: "#/components/schemas/AddPOIRequest"
       responses:
-        '201':
-          description: POI creato con successo.
+        "201":
+          description: POI creato.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/POIResponse'
-        
-        '400':
-          description: Errore di validazione nei dati inseriti.
+                $ref: "#/components/schemas/POI"
+        "400":
+          description: Errore di validazione.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        
-        '409':
-          description: Nome o coordinate già associate a un altro POI.
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Nome o coordinate gia associate a un altro POI.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        
-        '500':
-          description: Errore interno del server durante il salvataggio del POI.
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Errore durante il salvataggio del POI.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /admin/add_mission:
     get:
-      summary: Pagina aggiunta missione predefinita
-      description: Restituisce la pagina HTML per l'aggiunta di una nuova missione di default.
       tags:
-        - Admin Pagine HTML
+        - admin (/admin)
+      summary: Pagina aggiunta missione predefinita
+      description: Restituisce `frontend/add_default_mission.html`.
       responses:
-        '200':
+        "200":
           description: Pagina HTML restituita con successo.
           content:
             text/html:
               schema:
                 type: string
     post:
-      summary: Aggiunta di una nuova missione
-      description: Permette all'amministratore di creare e salvare una nuova missione.
       tags:
-        - Missioni
+        - admin (/admin)
+      summary: Crea missione
+      description: >
+        Crea una nuova missione. Nel modello `Missione`, `arrayPOI` e un array
+        di punti `{lat, lng}`; il frontend admin attuale invia gli id dei POI
+        selezionati sulla mappa.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddMissionRequest'
+              $ref: "#/components/schemas/AddMissionRequest"
       responses:
-        '201':
-          description: Missione creata con successo.
+        "201":
+          description: Missione creata.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MissioneResponse'
-        '400':
-          description: Errore di validazione nei dati inseriti.
+                $ref: "#/components/schemas/Missione"
+        "400":
+          description: Errore di validazione.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Errore interno del server durante il salvataggio della missione.
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Errore durante il salvataggio della missione.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /admin/pois:
     get:
-      summary: Recupero dei POI
-      description: Restituisce l'elenco di tutti i Point Of Interest salvati.
       tags:
-        - POI
+        - admin (/admin)
+      summary: Lista POI
+      description: >
+        Restituisce tutti i POI salvati. Viene usato dalla pagina admin per
+        selezionare i punti da associare a una missione predefinita.
       responses:
-        '200':
-          description: Recupero dei POI avvenuto con successo.
+        "200":
+          description: Lista dei POI.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/POIResponse'
-        '500':
+                  $ref: "#/components/schemas/POI"
+        "500":
           description: Errore nel recupero dei POI.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Latitudine:
+      name: latitudine
+      in: query
+      required: false
+      schema:
+        type: number
+        default: 46.066423
+      description: Latitudine della posizione di riferimento.
+    Longitudine:
+      name: longitudine
+      in: query
+      required: false
+      schema:
+        type: number
+        default: 11.125760
+      description: Longitudine della posizione di riferimento.
+
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        error:
+          type: string
+
     SignUpRequest:
       type: object
       required:
@@ -239,85 +569,43 @@ components:
           enum:
             - Utente
             - Esercente
-          description: Identifica il ruolo dell'account da creare.
         username:
           type: string
-          description: Nome utente (univoco).
         email:
           type: string
           format: email
-          description: Indirizzo email dell'utente (univoco).
         password:
           type: string
           format: password
-          description: Password in chiaro (verrà criptata con argon2 dal server).
-      discriminator:
-        propertyName: type
-        mapping:
-          Utente: '#/components/schemas/UtenteSignUp'
-          Esercente: '#/components/schemas/EsercenteSignUp'
-
-    UtenteSignUp:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/SignUpRequest'
-        # Nessun campo aggiuntivo obbligatorio al momento dell'iscrizione per l'Utente
-
-    EsercenteSignUp:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/SignUpRequest'
-      required:
-        - nome
-        - cognome
-        - codiceFiscale
-        - partitaIVA
-      properties:
+        preferences:
+          type: array
+          items:
+            type: boolean
+        totalPoints:
+          type: number
+          minimum: 0
+        currentPoints:
+          type: number
+          minimum: 0
+        badges:
+          type: array
+          items:
+            type: boolean
         nome:
           type: string
+          description: Campo richiesto per account `Esercente`.
         cognome:
           type: string
+          description: Campo richiesto per account `Esercente`.
         codiceFiscale:
           type: string
-          pattern: '^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$'
-          description: Codice Fiscale valido.
+          pattern: "^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$"
+          description: Campo richiesto e univoco per account `Esercente`.
         partitaIVA:
           type: string
-          pattern: '^\d{11}$'
-          description: Partita IVA composta da 11 cifre.
+          pattern: "^\\d{11}$"
+          description: Campo richiesto e univoco per account `Esercente`.
 
-    PersonaResponse:
-      type: object
-      properties:
-        _id:
-          type: string
-          description: ID univoco generato da MongoDB.
-        type:
-          type: string
-          enum: [Utente, Esercente]
-        username:
-          type: string
-        email:
-          type: string
-        # Eventuali altri campi come 'nome', 'cognome', 'codiceFiscale', 'partitaIVA' saranno presenti se type='Esercente'
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-      description: Dati della persona registrata. Il campo password è volutamente escluso dalla risposta.
-
-    ErrorResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          description: Descrizione user-friendly dell'errore (o un array di stringhe nel caso di ValidationErrors multipli).
-        error:
-          type: string
-          description: Dettaglio tecnico dell'errore (opzionale, presente nei codici 500).
-          
     LoginRequest:
       type: object
       required:
@@ -327,19 +615,73 @@ components:
         email:
           type: string
           format: email
-          description: Indirizzo email associato all'account.
         password:
           type: string
           format: password
-          description: Password in chiaro dell'account.
 
     LoginResponse:
       type: object
       properties:
         token:
           type: string
-          description: Token JWT firmato dal server. Contiene `userId` e `role` e scade dopo 1 ora.
-    
+
+    Persona:
+      type: object
+      properties:
+        _id:
+          type: string
+        type:
+          type: string
+          enum:
+            - Utente
+            - Esercente
+            - Amministratore
+        username:
+          type: string
+        email:
+          type: string
+        preferences:
+          type: array
+          items:
+            type: boolean
+        totalPoints:
+          type: number
+        currentPoints:
+          type: number
+        badges:
+          type: array
+          items:
+            type: boolean
+        nome:
+          type: string
+        cognome:
+          type: string
+        codiceFiscale:
+          type: string
+        partitaIVA:
+          type: string
+
+    GeoPoint:
+      type: object
+      required:
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum:
+            - Point
+          default: Point
+        coordinates:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            type: number
+          description: Coordinate GeoJSON nel formato `[longitudine, latitudine]`.
+          example:
+            - 11.125760
+            - 46.066423
+
     AddPOIRequest:
       type: object
       required:
@@ -347,71 +689,123 @@ components:
         - descrizione
         - posizione
         - categoria
-
       properties:
         nome:
           type: string
-          description: Nome univoco del Point Of Interest.
-
         descrizione:
           type: string
-          description: Descrizione del POI.
-
         posizione:
-          type: object
-          required:
-            - type
-            - coordinates
-          properties:
-            type:
-              type: string
-              example: Point
-
-            coordinates:
-              type: array
-              description: Coordinate GeoJSON nel formato [longitudine, latitudine].
-              items:
-                type: number
-              minItems: 2
-              maxItems: 2
-              example: [11.1217, 46.0679]
-
+          $ref: "#/components/schemas/GeoPoint"
         urlImmagini:
           type: array
-          description: Lista degli URL delle immagini associate al POI.
           items:
             type: string
-        
         categoria:
           type: array
-          description: Categorie associate al POI.
+          minItems: 1
           items:
             type: string
-            enum: [Cultura, Natura, Sport, Svago, Benessere, Spettacolo, Musica]
-        
+            enum:
+              - Cultura
+              - Natura
+              - Storia
+              - Sport
+              - Svago
+              - Benessere
+              - Spettacolo
+              - Musica
+              - Indoor
+              - Outdoor
+              - Bar
+              - Ristorante
         meteoCondition:
           type: array
-          description: Condizioni meteo adatte per questo POI.
           items:
             type: string
+            enum:
+              - Sole
+              - Nuvoloso
+              - Pioggia
+              - Neve
 
-    POIResponse:
+    POI:
       type: object
       properties:
         _id:
           type: string
-          description: ID univoco del POI generato da MongoDB.
-
         nome:
           type: string
-
         descrizione:
           type: string
-
         posizione:
-          type: object
-
+          $ref: "#/components/schemas/GeoPoint"
         urlImmagini:
+          type: array
+          items:
+            type: string
+        categoria:
+          type: array
+          items:
+            type: string
+        meteoCondition:
+          type: array
+          items:
+            type: string
+
+    POIListResponse:
+      type: object
+      properties:
+        quantita:
+          type: integer
+        dati:
+          type: array
+          items:
+            $ref: "#/components/schemas/POI"
+
+    MissionPoint:
+      type: object
+      required:
+        - lat
+        - lng
+      properties:
+        lat:
+          type: number
+        lng:
+          type: number
+
+    Missione:
+      type: object
+      properties:
+        _id:
+          type: string
+        titolo:
+          type: string
+        descrizione:
+          type: string
+        arrayPOI:
+          type: array
+          items:
+            $ref: "#/components/schemas/MissionPoint"
+        punti:
+          type: number
+          minimum: 0
+        bonusGamification:
+          type: number
+          minimum: 0
+        risparmioCO2:
+          type: number
+          minimum: 0
+        stato:
+          type: string
+          enum:
+            - DaIniziare
+            - InCorso
+            - Completata
+            - Annullata
+            - InPausa
+        predefinita:
+          type: boolean
+        preferredWeather:
           type: array
           items:
             type: string
@@ -426,57 +820,145 @@ components:
       properties:
         titolo:
           type: string
-          description: Titolo della missione.
         descrizione:
           type: string
-          description: Descrizione testuale della missione.
         punti:
           type: number
           minimum: 0
-          description: Punti ricompensa della missione.
         stato:
           type: string
-          enum: ['DaIniziare', 'InCorso', 'Completata', 'Annullata', 'InPausa']
-          default: 'DaIniziare'
-          description: Stato di avanzamento della missione.
+          enum:
+            - DaIniziare
+            - InCorso
+            - Completata
+            - Annullata
+            - InPausa
+          default: DaIniziare
         predefinita:
           type: boolean
-          description: Indica se la missione è predefinita dall'admin.
         bonusGamification:
           type: number
           minimum: 0
-          description: Eventuali punti bonus di gamification.
         risparmioCO2:
           type: number
-          description: Valore calcolato (Decimal128) per il risparmio di CO2.
+          minimum: 0
         arrayPOI:
           type: array
-          description: Array di Object ID dei POI associati (accetta stringhe o array diretto).
+          description: >
+            Il modello usa punti `{lat, lng}`. Il frontend admin attuale invia
+            gli id dei POI selezionati.
           items:
-            type: string
-            description: Object ID di MongoDB di un POI valido.
+            oneOf:
+              - $ref: "#/components/schemas/MissionPoint"
+              - type: string
 
-    MissioneResponse:
+    MissionListResponse:
+      type: object
+      properties:
+        quantita:
+          type: integer
+        dati:
+          type: array
+          items:
+            $ref: "#/components/schemas/Missione"
+
+    MissioneUtente:
       type: object
       properties:
         _id:
           type: string
-          description: ID univoco della missione generato da MongoDB.
-        titolo:
+        userId:
           type: string
-        descrizione:
-          type: string
-        punti:
-          type: number
+        missionId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Missione"
         stato:
           type: string
-        predefinita:
+          enum:
+            - DaIniziare
+            - InCorso
+            - Completata
+            - Annullata
+            - InPausa
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+          nullable: true
+        currentStep:
+          type: number
+        progress:
+          type: object
+          properties:
+            visitedPOI:
+              type: array
+              items:
+                type: string
+        rewardGiven:
           type: boolean
-        bonusGamification:
+
+    ActiveMissionData:
+      type: object
+      properties:
+        userMission:
+          $ref: "#/components/schemas/MissioneUtente"
+        mission:
+          $ref: "#/components/schemas/Missione"
+
+    ActiveMissionResponse:
+      type: object
+      properties:
+        active:
+          type: boolean
+        data:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/ActiveMissionData"
+
+    StartMissionRequest:
+      type: object
+      description: Inviare `missionId` oppure `missionData`.
+      properties:
+        missionId:
+          type: string
+        missionData:
+          $ref: "#/components/schemas/Missione"
+
+    StartConflictResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        active:
+          $ref: "#/components/schemas/ActiveMissionData"
+
+    MissionProgressRequest:
+      type: object
+      required:
+        - missionId
+        - poiId
+      properties:
+        missionId:
+          type: string
+        poiId:
+          type: string
+
+    CompleteMissionRequest:
+      type: object
+      required:
+        - missionId
+      properties:
+        missionId:
+          type: string
+
+    CompleteMissionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Missione completata!
+        reward:
           type: number
-        risparmioCO2:
-          type: number
-        arrayPOI:
-          type: array
-          items:
-            type: string
