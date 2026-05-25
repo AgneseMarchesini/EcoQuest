@@ -118,6 +118,10 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
             body: JSON.stringify(poi)
         });
 
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
+
         const data = await response.json();
 
         if(!response.ok) {

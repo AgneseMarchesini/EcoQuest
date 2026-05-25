@@ -145,7 +145,11 @@ async function loadActiveMission(token) {
         }
     });
 
-    if (response.status === 401 || response.status === 403) {
+    if (redirectToLoginIfUnauthorized(response)) {
+        throw new Error("Token non valido o scaduto");
+    }
+
+    if (response.status === 403) {
         localStorage.removeItem("token");
         throw new Error("Token non valido o scaduto");
     }
@@ -199,6 +203,10 @@ async function startMission(mission, button) {
             },
             body: JSON.stringify(body)
         });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
 
         const data = await response.json();
 
@@ -328,7 +336,11 @@ async function loadMissions() {
             }
         });
 
-        if (response.status === 401 || response.status === 403) {
+        if (redirectToLoginIfUnauthorized(response)) {
+            throw new Error("Token non valido o scaduto");
+        }
+
+        if (response.status === 403) {
             localStorage.removeItem("token");
             throw new Error("Token non valido o scaduto");
         }

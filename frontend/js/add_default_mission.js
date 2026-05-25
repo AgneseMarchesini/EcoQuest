@@ -115,6 +115,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 body: JSON.stringify(payload)
             });
 
+            if (redirectToLoginIfUnauthorized(response)) {
+                return;
+            }
+
             const data = await response.json();
 
             if (response.ok) {

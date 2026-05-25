@@ -93,8 +93,9 @@ router.post("/login", async (req, res) => {
         const token = jwt.sign(
             {userId: persona._id, role: persona.type},
             process.env.JWT_SECRET,
-            {expiresIn: "1h"}
+            {expiresIn: 10}
         );
+        console.log(token)
 
         if (!token) {
             return res.status(401).json({message: "Token non creato"})

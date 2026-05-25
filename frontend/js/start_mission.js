@@ -215,6 +215,10 @@ async function completeMissionOnServer() {
             body: JSON.stringify({ missionId })
         });
 
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
+
         const data = await response.json();
         if (!response.ok) {
             throw new Error(data.message || `Errore HTTP ${response.status}`)
@@ -488,6 +492,10 @@ async function loadActiveMissionFromServer() {
             Authorization: `Bearer ${token}`
         }
     });
+
+    if (redirectToLoginIfUnauthorized(response)) {
+        return null;
+    }
 
     if (!response.ok) {
         return null;

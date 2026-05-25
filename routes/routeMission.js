@@ -156,7 +156,7 @@ router.post("/start", authMiddleware, async (req, res) => {
                             type: 'Point',
                             coordinates: [lng, lat] // Formato GeoJSON: [Longitudine, Latitudine]
                         },
-                        categoria: ['Outdoor'] // Categoria di fallback obbligatoria del tuo schema
+                        categoria: ['Outdoor'] // Categoria di fallback obbligatoria del schema
                     });
 
                     finalPoiIds.push(temporaryPOI._id);
@@ -166,7 +166,6 @@ router.post("/start", authMiddleware, async (req, res) => {
                 }
             }
 
-            // Nota: se il tuo modello si chiama 'mission' invece di 'Missione', adatta la riga sotto
             const nuovaMissione = await Missione.create({
                 arrayPOI: finalPoiIds, // Array pulito di soli ObjectIds!
                 punti: missionData.punti,
