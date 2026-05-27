@@ -225,9 +225,12 @@ async function completeMissionOnServer() {
         }
 
         missionStatus.textContent = "Completata";
-        setTrackingMessage(`Missione completata! Ricompensa: ${data.reward || 0} punti.`, "on-route");
         sessionStorage.removeItem("activeMission")
         stopTracking();
+
+        sessionStorage.setItem('completedMission', JSON.stringify(data));
+
+        window.location.href = "/mission/complete_mission";
     } catch (error) {
         completionSubmitted = false;
         setError("Missione raggiunta, ma non riesco a salvarla come completata. Riprova tra poco.");

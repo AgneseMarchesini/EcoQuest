@@ -37,6 +37,10 @@ router.get("/start_mission", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/start_mission.html"));
 });
 
+router.get("/complete_mission", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/complete_mission.html"));
+});
+
 async function generaMissioni(lat, lng) {
     
     const allPois = await poi.find({});
@@ -290,7 +294,11 @@ router.post("/complete", authMiddleware, async (req, res) => {
 
         res.json({
             message: "Missione completata!",
-            reward
+            startTime: userMission.startTime,
+            endTime: userMission.endTime,
+            reward,
+            percorso: missioneCompletata.arrayPOI
+
         });
     } catch (error) {
         console.error("Errore in /complete:", error);

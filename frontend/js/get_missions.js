@@ -433,7 +433,6 @@ function closeSidebarFunc() {
     }
 }
 
-// Event listeners for closing
 closeBtn.addEventListener("click", closeSidebarFunc);
 overlay.addEventListener("click", closeSidebarFunc);
 

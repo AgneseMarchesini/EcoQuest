@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EcoQuest - Missioni</title>
+        <link rel="stylesheet" href="/css/complete_mission.css">
+        <link rel="stylesheet" href="/css/navbar.css">
+        <link rel="icon" href="/assets/logo.png">
+    </head>
+    <body>
+        <header id="main-header">
+            <div class="header-container">
+                <a href="/home/homepage" class="logo">
+                    <h1>🌱EcoQuest</h1>
+                </a>
+                
+                <nav class="navbar">
+                    <ul class="nav-links">
+                        <li><a href="https://www.instagram.com/baignowski/" class="nav-item">Chi Siamo</a></li>
+                        <li class="guest-only"><a href="/auth/login" class="nav-item">Accedi</a></li>
+                        <li class="guest-only"><a href="/auth/sign_up" class="nav-item">Registrati</a></li>
+                        <li class="user-only"><a href="/mission/get_missions" class="nav-item">Genera Missioni</a></li>
+                        <li class="admin-only"><a href="/admin/add_mission" class="nav-item">Crea Missione</a></li>
+                        <li class="admin-only"><a href="/admin/add_POI" class="nav-item">Crea POI</a></li>
+                        <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                        <li class="user-only"><a href="#" class="nav-item">Gestione Profilo</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        
+        <div class="wrapper">
+            <h1>Missione Completata!</h1>
+            <p class="subtitle">Ottimo lavoro, hai completato con successo il percorso.</p>
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div id="pointsEarned" class="stat-value">0</div>
+                    <div class="stat-label">Punti Guadagnati</div>
+                </div>
+                <div class="stat-card">
+                    <div id="timeUsed" class="stat-value">00:00</div>
+                    <div class="stat-label">Tempo Impiegato</div>
+                </div>
+            </section>
+
+            <section class="map-section">
+                <h2>Il tuo itinerario</h2>
+                <div id="summaryMap"></div>
+            </section>
+        </div>
+    </body>
+
+    <script src="/js/complete_mission.js"></script>
+    <script src="/js/navbar.js"></script>
+</html>
