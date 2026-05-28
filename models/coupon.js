@@ -3,6 +3,11 @@ const mongoose = require("mongoose")
 const CATEGORIES = ['ScontoPercentuale', 'ScontoInDenaro', 'Omaggio'];
 
 const couponSchema = new mongoose.Schema({
+    attivitaId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Attivita',
+        required: true
+    },
     titolo: {
         type: String,
         unique: true,

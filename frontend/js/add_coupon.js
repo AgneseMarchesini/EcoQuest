@@ -51,12 +51,15 @@ else {
                 scadenza: scadenza,
                 categoria: categoriaSelezionata.value
             };
+            
+            const currentPath = window.location.pathname;
 
             try {
-                const response = await fetch('/esercente/add_coupon', {
+                const response = await fetch(currentPath, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
                     body: JSON.stringify(payload)
                 });
