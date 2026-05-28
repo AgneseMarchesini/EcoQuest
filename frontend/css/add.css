@@ -158,7 +158,8 @@ input:focus {
   margin-bottom: 6px;
 }
 
-.checkbox_item input[type="checkbox"] {
+.checkbox_item input[type="checkbox"],
+.checkbox_item input[type="radio"] {
   width: auto;
   margin: 0;
 }

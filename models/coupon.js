@@ -30,7 +30,7 @@ const couponSchema = new mongoose.Schema({
         required: true
     },
     categoria: {
-        type: [String],
+        type: String,
         enum: CATEGORIES,
         required: true
     }

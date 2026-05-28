@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const path = require('path');
-const coupon = require("../models/coupon");
+const Coupon = require("../models/coupon");
+const Attivita = require("../models/attivita");
 
 const crypto = require('crypto');
 
