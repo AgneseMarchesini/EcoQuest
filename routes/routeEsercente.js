@@ -50,6 +50,11 @@ router.get("/api/attivita/:id", authEsercenteMiddleware, async (req, res) => {
     }
 });
 
+// pagina per creare una nuova attivita
+router.get("/nuova_attivita", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/add_attivita.html"));
+});
+
 // crea un nuovo coupon associato all'attività
 router.post("/attivita/:id/nuovo_coupon", authEsercenteMiddleware, async (req, res) => {
     try {
@@ -106,5 +111,44 @@ router.post("/attivita/:id/nuovo_coupon", authEsercenteMiddleware, async (req, r
     }
 });
 
+router.post("/nuova_attivita", authEsercenteMiddleware, async (req, res) => {
+    try {
+        const nuovaAttivitaData = {
+            esercenteId: req.user.id, 
+            nomeAttivita: req.body.nomeAttivita,
+            descrizione: req.body.descrizione,
+            posizione: {
+                type: 'Point',
+                coordinates: req.body.coordinates 
+            },
+            orari: req.body.orari,
+            categoria: req.body.categoria 
+        };
+        const nuovaAttivita = await Attivita.create(nuovaAttivitaData);
+
+        return res.status(201).json(nuovaAttivita);
+
+    } catch (error) {
+        let message = "Errore durante il salvataggio dell'attività";
+
+        if (error.code === 11000 && error.keyPattern.nomeAttivita) {
+            return res.status(409).json({
+                message: "Esiste già un'attività registrata con questo nome."
+            });
+        }
+
+        if (error.name === "ValidationError") {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({
+                message: errors
+            });
+        }
+
+        return res.status(500).json({
+            message,
+            error: error.message
+        });
+    }
+});
 
 module.exports = router;
