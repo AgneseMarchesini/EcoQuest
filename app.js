@@ -5,11 +5,12 @@ const cors = require("cors");
 const app = express();
 const routeAuth = require("./routes/routeAuth");
 const routeAdmin = require("./routes/routeAdmin");
+const routeEsercente = require("./routes/routeEsercente");
 const routePOI = require("./routes/routePOI.js");
 const routeHome = require("./routes/routeHome.js");
 const routeMission = require("./routes/routeMission.js");
 
-const { authMiddleware, authAdminMiddleware } = require("./utils.js")
+const { authMiddleware, authEsercenteMiddleware, authAdminMiddleware } = require("./utils.js")
 
 require("dotenv").config();
 const uri = process.env.MONGODB_URI;
@@ -28,6 +29,7 @@ app.use(express.static(path.join(__dirname, "frontend")));
 app.use("/home", routeHome);
 app.use("/auth", routeAuth);
 app.use("/admin", routeAdmin); 
+app.use("/esercente", routeEsercente); 
 app.use("/poi", routePOI);
 app.use("/mission", routeMission);
 app.listen(3000);
