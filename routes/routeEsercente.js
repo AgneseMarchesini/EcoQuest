@@ -16,8 +16,7 @@ router.post("/add_coupon", authEsercenteMiddleware, async (req, res) => {
         const couponData = {
             titolo: req.body.titolo,
             descrizione: req.body.descrizione,
-            statoUtilizzo: req.body.statoUtilizzo,
-            costo: req.body.costo,
+            costoInPunti: req.body.costoInPunti,
             scadenza: req.body.scadenza,
             categoria: req.body.categoria
         };
@@ -26,7 +25,7 @@ router.post("/add_coupon", authEsercenteMiddleware, async (req, res) => {
 
         couponData.codice = `COUPON-${code}`;
         
-        const nuovoCoupon = await coupon.create(couponData);
+        const nuovoCoupon = await Coupon.create(couponData);
 
         return res.status(201).json(nuovoCoupon);
     } catch(error) {

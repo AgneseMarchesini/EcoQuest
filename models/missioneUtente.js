@@ -52,4 +52,4 @@ const missioneUtenteSchema = new mongoose.Schema({
 
 });
 
-module.exports = mongoose.model("missioneUtente", missioneUtenteSchema);
+module.exports = mongoose.model("MissioneUtente", missioneUtenteSchema);

@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 
 const CATEGORIES = ['ScontoPercentuale', 'ScontoInDenaro', 'Omaggio'];
 
-const missionSchema = new mongoose.Schema({
+const couponSchema = new mongoose.Schema({
     titolo: {
         type: String,
         unique: true,
@@ -14,7 +14,8 @@ const missionSchema = new mongoose.Schema({
     codice: {
         type: String,
         unique: true,
-        uppercase: true
+        uppercase: true,
+        required: true
     },
     statoUtilizzo: {
         type: Boolean,
@@ -35,4 +36,4 @@ const missionSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model("Missione", missionSchema)
+module.exports = mongoose.model("Coupon", couponSchema)
