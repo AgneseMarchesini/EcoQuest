@@ -90,8 +90,8 @@ function buildPayload() {
         posizione: {
             type: "Point",
             coordinates: [
-                Number(longitudeInput.value),
-                Number(latitudeInput.value)
+                parseFloat(longitudeInput.value),
+                parseFloat(latitudeInput.value)
             ]
         },
         orari: getOpeningHours(),
@@ -131,12 +131,14 @@ form.addEventListener("submit", async (event) => {
     submitBtn.disabled = true;
     submitBtn.textContent = "Salvataggio...";
 
+    const currentPath = window.location.pathname;
+
     try {
-        const response = await fetch("/esercente/nuova_attivita", {
+        const response = await fetch(currentPath, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`
+                'Content-Type': "application/json",
+                'Authorization': `Bearer ${localStorage.getItem("token")}`
             },
             body: JSON.stringify(buildPayload())
         });

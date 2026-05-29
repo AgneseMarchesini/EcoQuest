@@ -21,7 +21,7 @@ router.get("/", (req, res) => {
 // api: restituisce le attività dell'esercente loggato
 router.get("/api/mie_attivita", authEsercenteMiddleware, async (req, res) => {
     try {
-        const attivita = await Attivita.find({ esercenteId: req.user.id });
+        const attivita = await Attivita.find({ esercenteId: req.user.userId });
         res.status(200).json(attivita);
     } catch (error) {
         res.status(500).json({ message: "Errore nel recupero delle attività" });
@@ -37,7 +37,7 @@ router.get("/attivita/:id", (req, res) => {
 router.get("/api/attivita/:id", authEsercenteMiddleware, async (req, res) => {
     try {
         const idAttivita = req.params.id;
-        const attivita = await Attivita.findOne({ _id: idAttivita, esercenteId: req.user.id });
+        const attivita = await Attivita.findOne({ _id: idAttivita, esercenteId: req.user.userId });
         if (!attivita) {
             return res.status(404).json({ message: "Attività non trovata o non autorizzata." });
         }
@@ -60,7 +60,7 @@ router.post("/attivita/:id/nuovo_coupon", authEsercenteMiddleware, async (req, r
     try {
         const idAttivita = req.params.id;
 
-        const attivita = await Attivita.findOne({ _id: idAttivita, esercenteId: req.user.id });
+        const attivita = await Attivita.findOne({ _id: idAttivita, esercenteId: req.user.userId });
         if (!attivita) {
             return res.status(403).json({ message: "Azione non consentita su questa attività." });
         }
@@ -113,19 +113,18 @@ router.post("/attivita/:id/nuovo_coupon", authEsercenteMiddleware, async (req, r
 
 router.post("/nuova_attivita", authEsercenteMiddleware, async (req, res) => {
     try {
+        const idEsercente = req.user.userId;
+
         const nuovaAttivitaData = {
-            esercenteId: req.user.id, 
+            esercenteId: idEsercente, 
             nomeAttivita: req.body.nomeAttivita,
             descrizione: req.body.descrizione,
-            posizione: {
-                type: 'Point',
-                coordinates: req.body.coordinates 
-            },
+            posizione: req.body.posizione,
             orari: req.body.orari,
             categoria: req.body.categoria 
         };
         const nuovaAttivita = await Attivita.create(nuovaAttivitaData);
-
+        await nuovaAttivita.save();
         return res.status(201).json(nuovaAttivita);
 
     } catch (error) {
