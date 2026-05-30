@@ -1,8 +1,15 @@
 function redirectToLoginIfUnauthorized(response) {
-    if (response.status === 401 || response.status === 403) {
+    if (response.status === 401) {
         localStorage.removeItem("token");
+        alert("Sessione scaduta o accesso negato. Effettua il login.");
         window.location.href = "/auth/login";
         return true;
+    }
+
+    if (response.status === 403) {
+        alert("Non hai i permessi (Esercente/Admin) per accedere a questa sezione.");
+        window.location.href = '/homepage';
+        return;
     }
 
     return false;
@@ -23,7 +30,7 @@ function checkPageAuth(allowedRoles = []) {
 
             if (!allowedRoles.includes(decodedPayload.role)) {
                 alert("Accesso negato: non hai i permessi necessari.");
-                window.location.href = '/home/homepage'; 
+                window.location.href = '/homepage'; 
                 return false;
             }
         } catch (e) {

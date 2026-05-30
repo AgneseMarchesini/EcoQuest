@@ -1,11 +1,11 @@
 const express = require("express")
 const router = express.Router()
-const poi = require('../models/POI');
-const POI = require("../models/POI");
+const poi = require('../models/POI.js');
+const POI = require("../models/POI.js");
 const path = require('path');
-const generateUserMissions = require('../mission_system/missionService');
-const { authMiddleware } = require("../utils");
-const Missione = require('../models/missione');
+const generateUserMissions = require('../mission_system/missionService.js');
+const { authMiddleware } = require("../utils.js");
+const Missione = require('../models/missione.js');
 const MissioneUtente = require("../models/missioneUtente.js");
 const Utente = require("../models/utente.js");
 
@@ -125,7 +125,6 @@ router.post("/start", authMiddleware, async (req, res) => {
         const { missionId, missionData } = req.body;
         let missionIdToStart = missionId;
 
-        // 1. Controllo se l'utente ha già una missione attiva
         const activeMission = await getActiveMission(userId);
         if (activeMission) {
             return res.status(409).json({
@@ -134,12 +133,10 @@ router.post("/start", authMiddleware, async (req, res) => {
             });
         }
 
-        // 2. Se è una missione dinamica/generata (senza missionId ma con missionData)
         if (!missionIdToStart && missionData) {
             let rawPOIArray = missionData.arrayPOI;
             let finalPoiIds = [];
 
-            // Parsing di sicurezza se i dati arrivano formattati come stringa
             if (typeof rawPOIArray === 'string') {
                 rawPOIArray = JSON.parse(rawPOIArray);
             }
@@ -147,7 +144,6 @@ router.post("/start", authMiddleware, async (req, res) => {
                 rawPOIArray = JSON.parse(rawPOIArray[0]);
             }
 
-            // Trasforma le coordinate {lat, lng} del frontend in veri POI nel database
             for (let item of rawPOIArray) {
                 if (item && (item.lat || (item.posizione && item.posizione.coordinates))) {
                     const lat = item.lat || item.posizione.coordinates[1];
@@ -158,20 +154,19 @@ router.post("/start", authMiddleware, async (req, res) => {
                         descrizione: "Punto di interesse generato dinamicamente",
                         posizione: {
                             type: 'Point',
-                            coordinates: [lng, lat] // Formato GeoJSON: [Longitudine, Latitudine]
+                            coordinates: [lng, lat] // GeoJSON
                         },
-                        categoria: ['Outdoor'] // Categoria di fallback obbligatoria del schema
+                        categoria: ['Outdoor'] 
                     });
 
                     finalPoiIds.push(temporaryPOI._id);
                 } else {
-                    // Se è già un ID stringa valido, lo aggiunge direttamente
                     finalPoiIds.push(item);
                 }
             }
 
             const nuovaMissione = await Missione.create({
-                arrayPOI: finalPoiIds, // Array pulito di soli ObjectIds!
+                arrayPOI: finalPoiIds, 
                 punti: missionData.punti,
                 bonusGamification: missionData.bonusGamification,
                 risparmioCO2: missionData.risparmioCO2,
@@ -184,14 +179,12 @@ router.post("/start", authMiddleware, async (req, res) => {
             missionIdToStart = nuovaMissione._id;
         }
 
-        // 3. Verifica finale sulla presenza del codice missione
         if (!missionIdToStart) {
             return res.status(400).json({
                 message: "missionId o missionData mancanti"
             });
         }
 
-        // 4. Controlla se la specifica missione è già stata avviata/completata in precedenza
         const existing = await MissioneUtente.findOne({
             userId,
             missionId: missionIdToStart,
@@ -204,7 +197,6 @@ router.post("/start", authMiddleware, async (req, res) => {
             });
         }
 
-        // 5. Crea la sessione di tracciamento attiva per l'utente (Risolve il problema di visibilità)
         const userMission = await MissioneUtente.create({
             userId,
             missionId: missionIdToStart,
@@ -214,8 +206,6 @@ router.post("/start", authMiddleware, async (req, res) => {
             progress: { visitedPOI: [] },
             rewardGiven: false
         });
-
-        // Restituisce l'oggetto di tracciamento atteso dal frontend
         res.json(userMission);
 
     } catch (error) {

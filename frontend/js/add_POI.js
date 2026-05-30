@@ -76,6 +76,9 @@ imagesContainer.addEventListener("input", function (e) {
 });
 
 document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
+    if (!checkPageAuth(['Amministratore'])) {
+        return;
+    }
     e.preventDefault();
 
     if(!position.lat || !position.lng)

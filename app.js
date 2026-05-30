@@ -9,6 +9,7 @@ const routeEsercente = require("./routes/routeEsercente");
 const routePOI = require("./routes/routePOI.js");
 const routeHome = require("./routes/routeHome.js");
 const routeMission = require("./routes/routeMission.js");
+const routeCoupon = require("./routes/routeCoupon.js");
 
 const { authMiddleware, authEsercenteMiddleware, authAdminMiddleware } = require("./utils.js")
 
@@ -20,16 +21,17 @@ mongoose.connect(uri)
     .catch((err) => console.log("Connection error: ", err));
 
 app.get("/", (req, res) => {
-    res.redirect("/home/homepage");
+    res.redirect("/homepage");
 });
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "frontend")));
-app.use("/home", routeHome);
+app.use("/homepage", routeHome);
 app.use("/auth", routeAuth);
 app.use("/admin", routeAdmin); 
 app.use("/esercente", routeEsercente); 
 app.use("/poi", routePOI);
 app.use("/mission", routeMission);
+app.use("/coupon", routeCoupon);
 app.listen(3000);

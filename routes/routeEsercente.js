@@ -18,6 +18,17 @@ router.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/esercente_dashboard.html"));
 });
 
+// mostra la pagina di una attività nel dettaglio
+router.get("/attivita/:id", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dettaglio_attivita.html"));
+});
+
+// pagina per creare una nuova attivita
+router.get("/nuova_attivita", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/add_attivita.html"));
+});
+
+
 // api: restituisce le attività dell'esercente loggato
 router.get("/api/mie_attivita", authEsercenteMiddleware, async (req, res) => {
     try {
@@ -26,11 +37,6 @@ router.get("/api/mie_attivita", authEsercenteMiddleware, async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Errore nel recupero delle attività" });
     }
-});
-
-// mostra la pagina di una attività nel dettaglio
-router.get("/attivita/:id", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/dettaglio_attivita.html"));
 });
 
 // api: restituisce i dettagli dell'attivita e i coupon attivi
@@ -48,11 +54,6 @@ router.get("/api/attivita/:id", authEsercenteMiddleware, async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Errore nel caricamento dei dati", error: error.message });
     }
-});
-
-// pagina per creare una nuova attivita
-router.get("/nuova_attivita", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/add_attivita.html"));
 });
 
 // crea un nuovo coupon associato all'attività

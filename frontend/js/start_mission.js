@@ -92,7 +92,7 @@ function getMissionPoints(mission) {
 
 function buildMapUrl(point) {
     if (!point || !Number.isFinite(point.lat) || !Number.isFinite(point.lng)) {
-        return "/home/homepage";
+        return "/homepage";
     }
 
     const params = new URLSearchParams({
@@ -101,7 +101,7 @@ function buildMapUrl(point) {
         focusPoi: "true"
     });
 
-    return `/home/homepage?${params.toString()}`
+    return `/homepage?${params.toString()}`
 }
 
 function distanceMeters(a, b) {

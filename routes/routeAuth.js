@@ -101,7 +101,13 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({message: "Token non creato"})
         }
 
-        return res.json({token})
+        return res.json({
+            success: true,
+            token: token,
+            role: persona.type,
+            username: persona.username
+        });
+        
     } catch (error) {
         let message = "Errore durante il login";
 

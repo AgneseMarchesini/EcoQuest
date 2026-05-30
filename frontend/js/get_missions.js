@@ -99,7 +99,7 @@ function createAppMapLink(point) {
         longitudine: point.lng,
         focusPoi: "true"
     });
-    const url = `/home/homepage?${params.toString()}`;
+    const url = `/homepage?${params.toString()}`;
     return `<a class="maps-link" href="${url}">Apri mappa</a>`;
 }
 

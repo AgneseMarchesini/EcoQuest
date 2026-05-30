@@ -59,4 +59,6 @@ const attivitaSchema = new mongoose.Schema({
     }
 });
 
+attivitaSchema.index({ posizione: '2dsphere' });
+
 module.exports = mongoose.model("Attivita", attivitaSchema);

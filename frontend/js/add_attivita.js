@@ -108,6 +108,9 @@ map.on("click", (event) => {
 });
 
 form.addEventListener("submit", async (event) => {
+    if (!checkPageAuth(['Esercente'])) {
+        return;
+    }
     event.preventDefault();
     clearMessages();
 

@@ -6,6 +6,9 @@ const poiIcon = L.icon({
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
+    if (!checkPageAuth(['Amministratore'])) {
+        return;
+    }
     // coordinate di trento
     const map = L.map('map').setView([46.066423, 11.12576], 13);
     

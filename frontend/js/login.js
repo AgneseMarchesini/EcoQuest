@@ -32,15 +32,15 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         console.log("response.ok:", response.ok);
         console.log("data:", data);
 
-        if (!response.ok) {
+        if (response.ok) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('role', data.role); 
+
+            window.location.href = '/homepage';
+        } else {
             showError(data.message || "Errore di login");
             return;
         }
-
-        // login ok
-        localStorage.setItem("token", data.token);
-
-        window.location.href = "/home/homepage";
 
     } catch (err) {
         console.log("CATCH:", err.message);
