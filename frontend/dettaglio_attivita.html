@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest - Dettaglio Attivita</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/dettaglio_attivita.css">
+    <link rel="icon" href="/assets/logo.png">
+    <script src="/js/auth_utils.js"></script>
+    <script>
+        checkPageAuth(['Esercente', 'Amministratore']);
+    </script>
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/home/homepage" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="/esercente" class="nav-item">Dashboard</a></li>
+                    <li><a href="/esercente/nuova_attivita" class="nav-item">Crea Attivita</a></li>
+                    <li><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="detail-page">
+        <section id="loadingState" class="state-panel">Caricamento attivita...</section>
+        <section id="errorState" class="state-panel error-state" hidden></section>
+
+        <section id="detailContent" class="detail-layout" hidden>
+            <div class="detail-main">
+                <div class="activity-header">
+                    <div>
+                        <p id="approvalBadge" class="approval-badge"></p>
+                        <h2 id="activityName"></h2>
+                    </div>
+                    <a id="createCouponLink" class="primary-action" href="#">Crea coupon</a>
+                </div>
+
+                <p id="activityDescription" class="description"></p>
+
+                <div id="categoryList" class="category-list"></div>
+
+                <section class="info-section">
+                    <h3>Orari</h3>
+                    <div id="hoursList" class="hours-list"></div>
+                </section>
+            </div>
+
+            <aside class="detail-side">
+                <section class="info-section">
+                    <h3>Posizione</h3>
+                    <div id="activityMap"></div>
+                    <div class="coordinates">
+                        <span id="latitudeText"></span>
+                        <span id="longitudeText"></span>
+                    </div>
+                </section>
+
+                <section class="info-section">
+                    <div class="section-title-row">
+                        <h3>Coupon</h3>
+                        <span id="couponCount" class="count-pill">0</span>
+                    </div>
+                    <div id="couponList" class="coupon-list"></div>
+                </section>
+            </aside>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/dettaglio_attivita.js"></script>
+    <script src="/js/navbar.js"></script>
+</body>
+</html>

@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const link = document.createElement('a');
             link.className = 'btn-details';
-            link.href = `/attivita/${item._id}`;
+            link.href = `/esercente/attivita/${item._id}`;
             link.textContent = 'Gestisci / Dettagli';
 
             card.appendChild(category);

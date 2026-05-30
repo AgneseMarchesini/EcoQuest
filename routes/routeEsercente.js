@@ -30,7 +30,7 @@ router.get("/api/mie_attivita", authEsercenteMiddleware, async (req, res) => {
 
 // mostra la pagina di una attività nel dettaglio
 router.get("/attivita/:id", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/dettagio_attivita.html"));
+    res.sendFile(path.join(__dirname, "../frontend/dettaglio_attivita.html"));
 });
 
 // api: restituisce i dettagli dell'attivita e i coupon attivi
@@ -66,6 +66,7 @@ router.post("/attivita/:id/nuovo_coupon", authEsercenteMiddleware, async (req, r
         }
 
         const couponData = {
+            attivitaId: idAttivita,
             titolo: req.body.titolo,
             descrizione: req.body.descrizione,
             costoInPunti: req.body.costoInPunti,
