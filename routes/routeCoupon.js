@@ -11,15 +11,15 @@ router.get("/", (req, res) => {
 
 // restituisce tutti i coupon
 router.get('/api/', authMiddleware, async (req, res) => {
-  try {
-    const coupons = await Coupon.find()
-      .populate('attivita', 'nome') 
-      .sort({ createdAt: -1 });
-    
-    res.status(200).json({ success: true, count: coupons.length, data: coupons });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Errore nel recupero di tutti i coupon' });
-  }
+    try {
+        const coupons = await Coupon.find()
+            .populate('attivitaId', 'nome') 
+            .sort({ createdAt: -1 });
+        
+        res.status(200).json({ success: true, count: coupons.length, data: coupons });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Errore nel recupero di tutti i coupon' });
+    }
 });
 
 // restituisce i coupon legati a un'attività -> per la ricerca spaziale

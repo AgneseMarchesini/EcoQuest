@@ -10,6 +10,7 @@ const routePOI = require("./routes/routePOI.js");
 const routeHome = require("./routes/routeHome.js");
 const routeMission = require("./routes/routeMission.js");
 const routeCoupon = require("./routes/routeCoupon.js");
+const routeUser = require("./routes/routeUser.js");
 
 const { authMiddleware, authEsercenteMiddleware, authAdminMiddleware } = require("./utils.js")
 
@@ -34,4 +35,5 @@ app.use("/esercente", routeEsercente);
 app.use("/poi", routePOI);
 app.use("/mission", routeMission);
 app.use("/coupon", routeCoupon);
+app.use("/user", routeUser);
 app.listen(3000);
