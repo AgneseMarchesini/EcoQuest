@@ -9,10 +9,6 @@ const Missione = require('../models/missione.js');
 const MissioneUtente = require("../models/missioneUtente.js");
 const Utente = require("../models/utente.js");
 
-function getUserId(req) {
-    return req.user.userId || req.user.id;
-}
-
 async function getActiveMission(userId) {
     const userMission = await MissioneUtente.findOne({
         userId,
@@ -107,7 +103,7 @@ router.get('/listaMissioni', authMiddleware, async (req, res) => {
 
 router.get("/active", authMiddleware, async (req, res) => {
     try {
-        const activeMission = await getActiveMission(getUserId(req));
+        const activeMission = await getActiveMission(req.user.userId);
 
         res.status(200).json({
             active: Boolean(activeMission),
@@ -121,7 +117,7 @@ router.get("/active", authMiddleware, async (req, res) => {
 
 router.post("/start", authMiddleware, async (req, res) => {
     try {
-        const userId = getUserId(req);
+        const userId = req.user.userId;
         const { missionId, missionData } = req.body;
         let missionIdToStart = missionId;
 
@@ -216,7 +212,7 @@ router.post("/start", authMiddleware, async (req, res) => {
 
 router.post("/progress", authMiddleware, async (req, res) => {
     try{
-        const userId = getUserId(req);
+        const userId = req.user.userId;
         const { missionId, poiId } = req.body;
 
         const userMission = await MissioneUtente.findOne({
@@ -246,10 +242,36 @@ router.post("/progress", authMiddleware, async (req, res) => {
     }
 });
 
+router.patch("/suspend", authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const { missionId } = req.body;
+
+        const userMission = await MissioneUtente.findOne({
+            userId,
+            missionId,
+            stato: "InCorso"
+        });
+
+        if (!userMission) {
+            return res.status(404).json({message: "Missione non trovata"})
+        }
+
+        userMission.stato = "InPausa"
+
+        await userMission.save()
+
+        return res.status(200).json({message: "Missione sospesa con successo"})
+        
+    } catch (error) {
+        console.error("Errore in /suspend:", error);
+        res.status(500).json({ message: "Errore interno del server" });
+    }
+})
 
 router.post("/complete", authMiddleware, async (req, res) => {
     try{
-        const userId = getUserId(req);
+        const userId = req.user.userId;
         const { missionId } = req.body;
 
         const userMission = await MissioneUtente.findOne({
