@@ -66,7 +66,7 @@ async function loadDashboardData() {
             }
         });
 
-        if (redirectToLoginIfUnauthorized(response)) {
+        if (redirectToLoginIfUnauthorized(userResponse)) {
             return;
         }
 
@@ -86,7 +86,7 @@ async function loadDashboardData() {
             }
         });
 
-        if (redirectToLoginIfUnauthorized(response)) {
+        if (redirectToLoginIfUnauthorized(couponResponse)) {
             return;
         }
 
