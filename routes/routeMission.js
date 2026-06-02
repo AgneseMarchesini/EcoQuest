@@ -138,7 +138,6 @@ router.post("/api/avvia", authMiddleware, async (req, res) => {
 
         if (!missionIdToStart && missionData) {
             let rawPOIArray = missionData.arrayPOI;
-            let finalPoiIds = [];
 
             if (typeof rawPOIArray === 'string') {
                 rawPOIArray = JSON.parse(rawPOIArray);
@@ -147,22 +146,14 @@ router.post("/api/avvia", authMiddleware, async (req, res) => {
                 rawPOIArray = JSON.parse(rawPOIArray[0]);
             }
 
+            let finalPoiIds = [];
+            let puntiDinamici = [];
+
             for (let item of rawPOIArray) {
                 if (item && (item.lat || (item.posizione && item.posizione.coordinates))) {
                     const lat = item.lat || item.posizione.coordinates[1];
                     const lng = item.lng || item.posizione.coordinates[0];
-
-                    const temporaryPOI = await POI.create({
-                        nome: `Punto Generato - ${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-                        descrizione: "Punto di interesse generato dinamicamente",
-                        posizione: {
-                            type: 'Point',
-                            coordinates: [lng, lat] // GeoJSON
-                        },
-                        categoria: ['Outdoor'] 
-                    });
-
-                    finalPoiIds.push(temporaryPOI._id);
+                    puntiDinamici.push({ lat, lng });
                 } else {
                     finalPoiIds.push(item);
                 }
@@ -170,6 +161,7 @@ router.post("/api/avvia", authMiddleware, async (req, res) => {
 
             const nuovaMissione = await Missione.create({
                 arrayPOI: finalPoiIds, 
+                puntiDinamici: puntiDinamici,
                 punti: missionData.punti,
                 bonusGamification: missionData.bonusGamification,
                 risparmioCO2: missionData.risparmioCO2,
