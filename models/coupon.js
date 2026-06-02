@@ -22,10 +22,6 @@ const couponSchema = new mongoose.Schema({
         uppercase: true,
         required: true
     },
-    statoUtilizzo: {
-        type: Boolean,
-        default: false
-    },
     costoInPunti: {
         type: Number,
         required: true

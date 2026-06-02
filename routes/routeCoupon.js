@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Coupon = require('../models/coupon.js'); 
+const Coupon = require('../models/coupon.js');
+const CouponAcquistato = require('../models/couponAcquistato.js'); 
 const path = require('path');
 const User = require('../models/utente.js')
 const { authMiddleware } = require("../utils.js")
@@ -36,6 +37,61 @@ router.get('/api/attivita/:idAttivita', authMiddleware, async (req, res) => {
   }
 });
 
+// utilizza un coupon specifico
+router.patch('/api/:id/riscatta', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const couponAcquistato = await CouponAcquistato.findById(id).populate('couponId');
+
+    if (!couponAcquistato) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Coupon non trovato.' 
+      });
+    }
+
+    if (couponAcquistato.userId.toString() !== req.user.userId.toString()) {
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Non sei autorizzato a usare questo coupon.' 
+      });
+    }
+
+    // verifica se è già stato utilizzato
+    if (couponAcquistato.statoUtilizzo === true) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Questo coupon è già stato utilizzato.' 
+      });
+    }
+
+    // verifica se è scaduto
+    const dataOdierna = new Date();
+    if (new Date(couponAcquistato.scadenza) < dataOdierna) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Questo coupon è scaduto e non è più valido.' 
+      });
+    }
+
+    couponAcquistato.statoUtilizzo = true;
+    await couponAcquistato.save();
+
+    res.status(200).json({ 
+        success: true, 
+        message: 'Coupon riscattato con successo!',
+        data: couponAcquistato 
+    });
+
+  } catch (error) {
+    console.error("Errore nel riscatto del coupon:", error);
+    res.status(500).json({ 
+        success: false, 
+        error: 'Errore interno del server durante il riscatto del coupon.' 
+    });
+  }
+});
 router.post('/api/acquista/:code', authMiddleware, async (req, res) => {
   try {
     const { code } = req.params;
