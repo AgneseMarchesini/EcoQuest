@@ -37,6 +37,52 @@ router.get('/api/attivita/:idAttivita', authMiddleware, async (req, res) => {
   }
 });
 
+// acquista un coupon
+router.post('/api/acquista/:code', authMiddleware, async (req, res) => {
+  try {
+    const { code } = req.params;
+    const userId = req.user.userId;
+    if (!code) {
+      return res.status(400).json({message: "Codice è null"})
+    } 
+
+    const coupon = await Coupon.findOne({codice: code});
+    if (!coupon) {
+      return res.status(404).json({message: "Coupon non trovato"})
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      {
+        _id: userId,
+        currentPoints: { $gte: coupon.costoInPunti }
+      },
+      {
+        $inc: {
+          currentPoints: -coupon.costoInPunti
+        }
+      },
+      {
+        new: true
+      }
+    );
+    if (!updatedUser) {
+      return res.status(400).json({message: "Punti insufficienti"})
+    }
+
+    const nuovoAcquisto = new CouponAcquistato({
+      utenteId: userId,  
+      couponId: coupon._id
+    });
+
+    await nuovoAcquisto.save();
+      
+    return res.status(200).json({message: "Acquisto completato"})
+  } catch (e) {
+    return res.status(500).json({message: "Errore nell'acquisto"})
+  }
+})
+
+
 // utilizza un coupon specifico
 router.patch('/api/:id/riscatta', authMiddleware, async (req, res) => {
   try {
@@ -92,41 +138,5 @@ router.patch('/api/:id/riscatta', authMiddleware, async (req, res) => {
     });
   }
 });
-router.post('/api/acquista/:code', authMiddleware, async (req, res) => {
-  try {
-    const { code } = req.params;
-    const userId = req.user.userId;
-    if (!code) {
-      return res.status(400).json({message: "Codice è null"})
-    } 
-
-    const coupon = await Coupon.findOne({codice: code});
-    if (!coupon) {
-      return res.status(404).json({message: "Coupon non trovato"})
-    }
-
-    const updatedUser = await User.findOneAndUpdate(
-      {
-        _id: userId,
-        currentPoints: { $gte: coupon.costoInPunti }
-      },
-      {
-        $inc: {
-          currentPoints: -coupon.costoInPunti
-        }
-      },
-      {
-        new: true
-      }
-    );
-    if (!updatedUser) {
-      return res.status(400).json({message: "Punti insufficienti"})
-    }
-      
-    return res.status(200).json({message: "Acquisto completato"})
-  } catch (e) {
-    return res.status(500).json({message: "Errore nell'acquisto"})
-  }
-})
 
 module.exports = router;
