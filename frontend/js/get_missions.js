@@ -122,7 +122,7 @@ function resumeActiveMission() {
     }
 
     saveActiveMission(activeMissionData);
-    window.location.href = "/mission/start_mission";
+    window.location.href = "/missioni/in_corso";
 }
 
 function renderActiveMission(activePayload) {
@@ -139,7 +139,7 @@ function renderActiveMission(activePayload) {
 }
 
 async function loadActiveMission(token) {
-    const response = await fetch("/mission/active", {
+    const response = await fetch("/missioni/api/attiva", {
         headers: {
             Authorization: `Bearer ${token}`
         }
@@ -195,7 +195,7 @@ async function startMission(mission, button) {
                 }
             };
 
-        const response = await fetch("/mission/start", {
+        const response = await fetch("/missioni/api/avvia", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -226,7 +226,7 @@ async function startMission(mission, button) {
             userMission: data
         });
 
-        window.location.href = "/mission/start_mission";
+        window.location.href = "/missioni/in_corso";
     } catch (error) {
         button.disabled = false;
         button.textContent = originalText;
@@ -330,7 +330,7 @@ async function loadMissions() {
     try {
         await loadActiveMission(token);
 
-        const response = await fetch(`/mission/listaMissioni?${params.toString()}`, {
+        const response = await fetch(`/missioni/api?${params.toString()}`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }

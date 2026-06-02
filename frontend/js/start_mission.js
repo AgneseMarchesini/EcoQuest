@@ -13,6 +13,10 @@ const openMapLink = document.getElementById("openMapLink");
 const statusMessage = document.getElementById("statusMessage");
 const trackingText = document.getElementById("trackingText");
 const toggleTrackingBtn = document.getElementById("toggleTrackingBtn");
+const suspendMissionBtn = document.getElementById("suspendMissionBtn");
+const resumeMissionBtn = document.getElementById("resumeMissionBtn");
+const transportModeSelect = document.getElementById("activeTransportMode");
+let lastPosition = null;
 
 let map = null;
 let routingControl = null;
@@ -206,13 +210,12 @@ async function completeMissionOnServer() {
     completionSubmitted = true;
 
     try {
-        const response = await fetch("/mission/complete", {
+        const response = await fetch(`/missioni/api/${missionId}/completata`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ missionId })
         });
 
         if (redirectToLoginIfUnauthorized(response)) {
@@ -264,6 +267,7 @@ function markReachedPois(position) {
 }
 
 function updateTrackingState(position, accuracy) {
+    lastPosition = position;
     if (!map) {
         return;
     }
@@ -426,8 +430,20 @@ function drawRoute(waypoints) {
         return;
     }
 
+    const selectedMode = transportModeSelect ? transportModeSelect.value : 'foot';
+    let routingUrl = 'https://routing.openstreetmap.de/routed-foot/route/v1'; 
+    if (selectedMode === 'car') {
+        routingUrl = 'https://routing.openstreetmap.de/routed-car/route/v1';
+    } else if (selectedMode === 'bike') {
+        routingUrl = 'https://routing.openstreetmap.de/routed-bike/route/v1';
+    }
+
     routingControl = L.Routing.control({
         waypoints,
+        router: L.Routing.osrmv1({
+            serviceUrl: routingUrl,
+            profile: 'driving' 
+        }),
         routeWhileDragging: false,
         draggableWaypoints: false,
         addWaypoints: false,
@@ -481,7 +497,16 @@ function render() {
 
     renderPoiList();
     initMap();
-    startTracking();
+    if (userMission.stato === "InPausa") {
+        setTrackingMessage("Missione in pausa. Premi Riprendi per continuare.", "off-route");
+        if (suspendMissionBtn) suspendMissionBtn.style.display = "none";
+        if (resumeMissionBtn) resumeMissionBtn.style.display = "inline-block";
+    } else {
+        // se è InCorso, fa partire il tracking
+        if (suspendMissionBtn) suspendMissionBtn.style.display = "inline-block";
+        if (resumeMissionBtn) resumeMissionBtn.style.display = "none";
+        startTracking();
+    }
 }
 
 async function loadActiveMissionFromServer() {
@@ -490,7 +515,7 @@ async function loadActiveMissionFromServer() {
         return null;
     }
 
-    const response = await fetch("/mission/active", {
+    const response = await fetch("/missioni/api/attiva", {
         headers: {
             Authorization: `Bearer ${token}`
         }
@@ -508,6 +533,72 @@ async function loadActiveMissionFromServer() {
     return json.active ? json.data : null;
 }
 
+async function suspendMission() {
+    const token = localStorage.getItem("token");
+    const missionId = getActiveMissionId();
+
+    if (!token || !missionId) {
+        setError("Impossibile sospendere: dati della missione mancanti.");
+        return;
+    }
+
+    if (suspendMissionBtn) {
+        suspendMissionBtn.disabled = true;
+        suspendMissionBtn.textContent = "Sospensione in corso...";
+    }
+
+    try {
+        const response = await fetch(`/missioni/api/${missionId}/sospendi`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || `Errore HTTP ${response.status}`);
+        }
+
+        statusMessage.classList.add("hidden");
+
+        missionStatus.textContent = "InPausa";
+        
+        stopTracking(true);
+        setTrackingMessage("Missione in pausa. Tracking GPS disattivato.", "off-route");
+
+        if (activeMission && activeMission.userMission) {
+            activeMission.userMission.stato = "InPausa";
+            sessionStorage.setItem("activeMission", JSON.stringify(activeMission));
+        }
+
+        if (suspendMissionBtn) {
+            suspendMissionBtn.style.display = "none"; 
+            suspendMissionBtn.disabled = false;
+            suspendMissionBtn.textContent = "Sospendi missione";
+        }
+        
+        if (resumeMissionBtn) {
+            resumeMissionBtn.style.display = "inline-block"; 
+        }
+
+    } catch (error) {
+        console.error("Errore durante la sospensione della missione:", error);
+        setError("Errore durante la sospensione della missione. Riprova.");
+        
+        if (suspendMissionBtn) {
+            suspendMissionBtn.disabled = false;
+            suspendMissionBtn.textContent = "Sospendi missione";
+        }
+    }
+}
+
 async function init() {
     if (!activeMission) {
         activeMission = await loadActiveMissionFromServer();
@@ -520,5 +611,20 @@ async function init() {
 }
 
 toggleTrackingBtn.addEventListener("click", toggleTracking);
+
+if (suspendMissionBtn) {
+    suspendMissionBtn.addEventListener("click", suspendMission);
+}
+
+if (transportModeSelect) {
+    transportModeSelect.addEventListener("change", () => {
+        if (lastPosition) {
+            drawRouteFromPosition(lastPosition);
+        } else if (missionPointsArray.length > 0) {
+            const waypointLatLngs = missionPointsArray.map(p => L.latLng(p.lat, p.lng));
+            drawRoute(waypointLatLngs);
+        }
+    });
+}
 
 init();
