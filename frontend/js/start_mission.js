@@ -599,6 +599,72 @@ async function suspendMission() {
     }
 }
 
+async function resumeMission() {
+    const token = localStorage.getItem("token");
+    const missionId = getActiveMissionId();
+
+    if (!token || !missionId) {
+        setError("Impossibile riprendere: dati della missione mancanti.");
+        return;
+    }
+
+    if (resumeMissionBtn) {
+        resumeMissionBtn.disabled = true;
+        resumeMissionBtn.textContent = "Ripresa in corso...";
+    }
+
+    try {
+        const response = await fetch(`/missioni/api/${missionId}/riprendi`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || `Errore HTTP ${response.status}`);
+        }
+
+        statusMessage.classList.add("hidden");
+
+        missionStatus.textContent = "InCorso";
+        
+        startTracking();
+        setTrackingMessage("Tracking attivo. Avvicinati al prossimo POI.", "on-route");
+
+        if (activeMission && activeMission.userMission) {
+            activeMission.userMission.stato = "InCorso";
+            sessionStorage.setItem("activeMission", JSON.stringify(activeMission));
+        }
+
+        if (resumeMissionBtn) {
+            resumeMissionBtn.style.display = "none"; 
+            resumeMissionBtn.disabled = false;
+            resumeMissionBtn.textContent = "Riprendi missione";
+        }
+        
+        if (suspendMissionBtn) {
+            suspendMissionBtn.style.display = "inline-block"; 
+        }
+
+    } catch (error) {
+        console.error("Errore durante la ripresa della missione:", error);
+        setError("Errore durante la ripresa della missione. Riprova.");
+        
+        if (resumeMissionBtn) {
+            resumeMissionBtn.disabled = false;
+            resumeMissionBtn.textContent = "Riprendi missione";
+        }
+    }
+}
+
 async function init() {
     if (!activeMission) {
         activeMission = await loadActiveMissionFromServer();
@@ -614,6 +680,10 @@ toggleTrackingBtn.addEventListener("click", toggleTracking);
 
 if (suspendMissionBtn) {
     suspendMissionBtn.addEventListener("click", suspendMission);
+}
+
+if(resumeMissionBtn) {
+    resumeMissionBtn.addEventListener("click", resumeMission);
 }
 
 if (transportModeSelect) {
