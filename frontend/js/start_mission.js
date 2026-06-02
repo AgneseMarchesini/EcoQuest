@@ -13,6 +13,8 @@ const openMapLink = document.getElementById("openMapLink");
 const statusMessage = document.getElementById("statusMessage");
 const trackingText = document.getElementById("trackingText");
 const toggleTrackingBtn = document.getElementById("toggleTrackingBtn");
+const suspendMissionBtn = document.getElementById("suspendMissionBtn");
+const resumeMissionBtn = document.getElementById("resumeMissionBtn");
 
 let map = null;
 let routingControl = null;
@@ -481,7 +483,16 @@ function render() {
 
     renderPoiList();
     initMap();
-    startTracking();
+    if (userMission.stato === "InPausa") {
+        setTrackingMessage("Missione in pausa. Premi Riprendi per continuare.", "off-route");
+        if (suspendMissionBtn) suspendMissionBtn.style.display = "none";
+        if (resumeMissionBtn) resumeMissionBtn.style.display = "inline-block";
+    } else {
+        // se è InCorso, fa partire il tracking
+        if (suspendMissionBtn) suspendMissionBtn.style.display = "inline-block";
+        if (resumeMissionBtn) resumeMissionBtn.style.display = "none";
+        startTracking();
+    }
 }
 
 async function loadActiveMissionFromServer() {
@@ -508,6 +519,73 @@ async function loadActiveMissionFromServer() {
     return json.active ? json.data : null;
 }
 
+async function suspendMission() {
+    const token = localStorage.getItem("token");
+    const missionId = getActiveMissionId();
+
+    if (!token || !missionId) {
+        setError("Impossibile sospendere: dati della missione mancanti.");
+        return;
+    }
+
+    if (suspendMissionBtn) {
+        suspendMissionBtn.disabled = true;
+        suspendMissionBtn.textContent = "Sospensione in corso...";
+    }
+
+    try {
+        const response = await fetch("/mission/suspend", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ missionId })
+        });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || `Errore HTTP ${response.status}`);
+        }
+
+        statusMessage.classList.add("hidden");
+
+        missionStatus.textContent = "InPausa";
+        
+        stopTracking(true);
+        setTrackingMessage("Missione in pausa. Tracking GPS disattivato.", "off-route");
+
+        if (activeMission && activeMission.userMission) {
+            activeMission.userMission.stato = "InPausa";
+            sessionStorage.setItem("activeMission", JSON.stringify(activeMission));
+        }
+
+        if (suspendMissionBtn) {
+            suspendMissionBtn.style.display = "none"; 
+            suspendMissionBtn.disabled = false;
+            suspendMissionBtn.textContent = "Sospendi missione";
+        }
+        
+        if (resumeMissionBtn) {
+            resumeMissionBtn.style.display = "inline-block"; 
+        }
+
+    } catch (error) {
+        console.error("Errore durante la sospensione della missione:", error);
+        setError("Errore durante la sospensione della missione. Riprova.");
+        
+        if (suspendMissionBtn) {
+            suspendMissionBtn.disabled = false;
+            suspendMissionBtn.textContent = "Sospendi missione";
+        }
+    }
+}
+
 async function init() {
     if (!activeMission) {
         activeMission = await loadActiveMissionFromServer();
@@ -520,5 +598,9 @@ async function init() {
 }
 
 toggleTrackingBtn.addEventListener("click", toggleTracking);
+
+if (suspendMissionBtn) {
+    suspendMissionBtn.addEventListener("click", suspendMission);
+}
 
 init();
