@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     let currentUserPoints = 0;
     let selectedCouponId = null;
+    let selectedCouponCode = null;
 
     const grid = document.getElementById("couponGrid");
     const pointsDisplay = document.getElementById("userPoints");
@@ -47,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if(!couponResponse.ok) {
-                throw new Error("Errore nel recupero dei punti dal server.");
+                throw new Error("Errore nel recupero dei coupon dal server.");
             }
 
             const couponData = await couponResponse.json();
@@ -83,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function openSidebar(coupon) {
         selectedCouponId = coupon._id;
+        selectedCouponCode = coupon.codice;
 
         sideTitle.innerText = coupon.titolo;
         sideCategory.innerText = coupon.categoria;
@@ -112,23 +114,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 4. Gestione Acquisto
     async function handlePurchase() {
-        if (!selectedCouponId) return;
+        if (!selectedCouponCode) return;
 
         try {
             buyBtn.disabled = true;
             buyBtn.innerText = "Elaborazione...";
 
-            // AQUISTA router.POST
+            const token = localStorage.getItem("token");
+            
+            const response = await fetch(`/coupon/api/acquista/${selectedCouponCode}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                }
+            });
 
-            setTimeout(() => {
-                alert("🎉 Coupon acquistato con successo!");
-                closeSidebarAnim();
-                buyBtn.innerText = "Acquista Coupon";
-                loadDashboardData(); // Ricarica i dati per aggiornare i punti e la griglia
-            }, 1000);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Errore durante l'acquisto.");
+            }
+
+            alert("🎉 Coupon acquistato con successo!");
+            closeSidebarAnim();
+            loadDashboardData(); 
 
         } catch (error) {
             console.error("Errore durante l'acquisto:", error);
+            alert("❌ " + error.message);
+        } finally {
             buyBtn.innerText = "Acquista Coupon";
             buyBtn.disabled = false;
         }
