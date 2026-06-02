@@ -15,6 +15,8 @@ const trackingText = document.getElementById("trackingText");
 const toggleTrackingBtn = document.getElementById("toggleTrackingBtn");
 const suspendMissionBtn = document.getElementById("suspendMissionBtn");
 const resumeMissionBtn = document.getElementById("resumeMissionBtn");
+const transportModeSelect = document.getElementById("activeTransportMode");
+let lastPosition = null;
 
 let map = null;
 let routingControl = null;
@@ -265,6 +267,7 @@ function markReachedPois(position) {
 }
 
 function updateTrackingState(position, accuracy) {
+    lastPosition = position;
     if (!map) {
         return;
     }
@@ -427,8 +430,20 @@ function drawRoute(waypoints) {
         return;
     }
 
+    const selectedMode = transportModeSelect ? transportModeSelect.value : 'foot';
+    let routingUrl = 'https://routing.openstreetmap.de/routed-foot/route/v1'; 
+    if (selectedMode === 'car') {
+        routingUrl = 'https://routing.openstreetmap.de/routed-car/route/v1';
+    } else if (selectedMode === 'bike') {
+        routingUrl = 'https://routing.openstreetmap.de/routed-bike/route/v1';
+    }
+
     routingControl = L.Routing.control({
         waypoints,
+        router: L.Routing.osrmv1({
+            serviceUrl: routingUrl,
+            profile: 'driving' 
+        }),
         routeWhileDragging: false,
         draggableWaypoints: false,
         addWaypoints: false,
@@ -599,6 +614,17 @@ toggleTrackingBtn.addEventListener("click", toggleTracking);
 
 if (suspendMissionBtn) {
     suspendMissionBtn.addEventListener("click", suspendMission);
+}
+
+if (transportModeSelect) {
+    transportModeSelect.addEventListener("change", () => {
+        if (lastPosition) {
+            drawRouteFromPosition(lastPosition);
+        } else if (missionPointsArray.length > 0) {
+            const waypointLatLngs = missionPointsArray.map(p => L.latLng(p.lat, p.lng));
+            drawRoute(waypointLatLngs);
+        }
+    });
 }
 
 init();
