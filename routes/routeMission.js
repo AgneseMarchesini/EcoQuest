@@ -9,6 +9,8 @@ const Missione = require('../models/missione.js');
 const MissioneUtente = require("../models/missioneUtente.js");
 const Utente = require("../models/utente.js");
 
+// funzioni di supporto
+
 async function getActiveMission(userId) {
     const userMission = await MissioneUtente.findOne({
         userId,
@@ -24,18 +26,6 @@ async function getActiveMission(userId) {
         mission: userMission.missionId
     };
 }
-
-router.get("/get_missions", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/get_missions.html"));
-});
-
-router.get("/start_mission", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/start_mission.html"));
-});
-
-router.get("/complete_mission", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/complete_mission.html"));
-});
 
 async function generaMissioni(lat, lng) {
     
@@ -82,7 +72,22 @@ async function generaMissioni(lat, lng) {
     return missions;
 }
 
-router.get('/listaMissioni', authMiddleware, async (req, res) => {
+// rotte html
+
+router.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/get_missions.html"));
+});
+
+router.get("/in_corso", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/start_mission.html"));
+});
+
+router.get("/completata", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/complete_mission.html"));
+});
+
+// ottieni missioni vicine
+router.get('/api', authMiddleware, async (req, res) => {
     try {
         const latitudine = parseFloat(req.query.latitudine) || 46.066423;
         const longitudine = parseFloat(req.query.longitudine) || 11.125760;
@@ -101,7 +106,8 @@ router.get('/listaMissioni', authMiddleware, async (req, res) => {
     }
 });
 
-router.get("/active", authMiddleware, async (req, res) => {
+//ottieni missione attiva dell'utente
+router.get("/api/attiva", authMiddleware, async (req, res) => {
     try {
         const activeMission = await getActiveMission(req.user.userId);
 
@@ -115,7 +121,8 @@ router.get("/active", authMiddleware, async (req, res) => {
     }
 });
 
-router.post("/start", authMiddleware, async (req, res) => {
+// avvia una missione
+router.post("/api/avvia", authMiddleware, async (req, res) => {
     try {
         const userId = req.user.userId;
         const { missionId, missionData } = req.body;
@@ -210,10 +217,12 @@ router.post("/start", authMiddleware, async (req, res) => {
     }
 });
 
-router.post("/progress", authMiddleware, async (req, res) => {
+// aggiorna i progressi
+router.post("/api/:id/progresso", authMiddleware, async (req, res) => {
     try{
         const userId = req.user.userId;
-        const { missionId, poiId } = req.body;
+        const missionId = req.params.id;
+        const { poiId } = req.body;
 
         const userMission = await MissioneUtente.findOne({
             userId,
@@ -242,10 +251,11 @@ router.post("/progress", authMiddleware, async (req, res) => {
     }
 });
 
-router.patch("/suspend", authMiddleware, async (req, res) => {
+// sospendi missione
+router.patch("/api/:id/sospendi", authMiddleware, async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { missionId } = req.body;
+        const missionId = req.params.id;
 
         const userMission = await MissioneUtente.findOne({
             userId,
@@ -264,15 +274,16 @@ router.patch("/suspend", authMiddleware, async (req, res) => {
         return res.status(200).json({message: "Missione sospesa con successo"})
         
     } catch (error) {
-        console.error("Errore in /suspend:", error);
+        console.error("Errore in /sospendi:", error);
         res.status(500).json({ message: "Errore interno del server" });
     }
 })
 
-router.post("/complete", authMiddleware, async (req, res) => {
+// completa missione
+router.post("/api/:id/completata", authMiddleware, async (req, res) => {
     try{
         const userId = req.user.userId;
-        const { missionId } = req.body;
+        const missionId = req.params.id;
 
         const userMission = await MissioneUtente.findOne({
             userId,

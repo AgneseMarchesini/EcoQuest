@@ -208,13 +208,12 @@ async function completeMissionOnServer() {
     completionSubmitted = true;
 
     try {
-        const response = await fetch("/mission/complete", {
+        const response = await fetch(`/missioni/api/${missionId}/completata`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ missionId })
         });
 
         if (redirectToLoginIfUnauthorized(response)) {
@@ -501,7 +500,7 @@ async function loadActiveMissionFromServer() {
         return null;
     }
 
-    const response = await fetch("/mission/active", {
+    const response = await fetch("/missioni/api/attiva", {
         headers: {
             Authorization: `Bearer ${token}`
         }
@@ -534,13 +533,12 @@ async function suspendMission() {
     }
 
     try {
-        const response = await fetch("/mission/suspend", {
+        const response = await fetch(`/missioni/api/${missionId}/sospendi`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             },
-            body: JSON.stringify({ missionId })
         });
 
         if (redirectToLoginIfUnauthorized(response)) {

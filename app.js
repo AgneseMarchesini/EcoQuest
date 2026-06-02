@@ -33,7 +33,7 @@ app.use("/auth", routeAuth);
 app.use("/admin", routeAdmin); 
 app.use("/esercente", routeEsercente); 
 app.use("/poi", routePOI);
-app.use("/mission", routeMission);
+app.use("/missioni", routeMission);
 app.use("/coupon", routeCoupon);
 app.use("/user", routeUser);
 app.listen(3000);
