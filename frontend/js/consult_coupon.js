@@ -66,6 +66,10 @@ async function loadDashboardData() {
             }
         });
 
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
+
         if (userResponse.ok) {
             const userData = await userResponse.json();
             currentUserPoints = userData.currentPoints ?? 0;
@@ -81,6 +85,10 @@ async function loadDashboardData() {
                 "Authorization": "Bearer " + token
             }
         });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
 
         if (!couponResponse.ok) {
             couponGrid.innerHTML = '<div class="status-message empty-state">Il negozio al momento è vuoto :(</div>';

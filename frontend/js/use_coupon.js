@@ -35,6 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
+            if (redirectToLoginIfUnauthorized(response)) {
+                return;
+            }
+
             const resData = await response.json();
 
             if (!response.ok) {

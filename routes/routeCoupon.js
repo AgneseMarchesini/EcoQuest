@@ -10,6 +10,10 @@ router.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/consult_coupon.html"));
 });
 
+router.get("/riscatta", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/use_coupon.html"));
+});
+
 // restituisce tutti i coupon
 router.get('/api/', authMiddleware, async (req, res) => {
     try {
@@ -153,10 +157,6 @@ router.patch('/api/:id/riscatta', authMiddleware, async (req, res) => {
         error: 'Errore interno del server durante il riscatto del coupon.' 
     });
   }
-});
-
-router.get("/riscatta", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/use_coupon.html"));
 });
 
 router.get('/api/acquistati/:id', authMiddleware, async (req, res) => {
