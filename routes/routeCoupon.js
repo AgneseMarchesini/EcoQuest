@@ -23,6 +23,15 @@ router.get('/api/', authMiddleware, async (req, res) => {
     }
 });
 
+router.get('/api/acquistati', authMiddleware, async (req, res) => {
+    try {
+        const acquisti = await CouponAcquistato.find({ utenteId: req.user.userId }).populate('couponId');
+        res.status(200).json({ success: true, count: acquisti.length, data: acquisti });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Errore nel recupero dei coupon acquistati' });
+    }
+});
+
 // restituisce i coupon legati a un'attività -> per la ricerca spaziale
 router.get('/api/attivita/:idAttivita', authMiddleware, async (req, res) => {
   try {
@@ -90,7 +99,6 @@ router.post('/api/acquista/:code', authMiddleware, async (req, res) => {
     }
 });
 
-
 // utilizza un coupon specifico
 router.patch('/api/:id/riscatta', authMiddleware, async (req, res) => {
   try {
@@ -105,7 +113,7 @@ router.patch('/api/:id/riscatta', authMiddleware, async (req, res) => {
       });
     }
 
-    if (couponAcquistato.userId.toString() !== req.user.userId.toString()) {
+    if (couponAcquistato.utenteId.toString() !== req.user.userId.toString()) {
       return res.status(403).json({ 
         success: false, 
         error: 'Non sei autorizzato a usare questo coupon.' 
@@ -122,7 +130,7 @@ router.patch('/api/:id/riscatta', authMiddleware, async (req, res) => {
 
     // verifica se è scaduto
     const dataOdierna = new Date();
-    if (new Date(couponAcquistato.scadenza) < dataOdierna) {
+    if (couponAcquistato.scadenza && new Date(couponAcquistato.scadenza) < dataOdierna) {
       return res.status(400).json({ 
         success: false, 
         error: 'Questo coupon è scaduto e non è più valido.' 
@@ -145,6 +153,29 @@ router.patch('/api/:id/riscatta', authMiddleware, async (req, res) => {
         error: 'Errore interno del server durante il riscatto del coupon.' 
     });
   }
+});
+
+router.get("/riscatta", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/use_coupon.html"));
+});
+
+router.get('/api/acquistati/:id', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const acquisto = await CouponAcquistato.findById(id).populate('couponId');
+        
+        if (!acquisto) {
+            return res.status(404).json({ success: false, error: 'Coupon non trovato' });
+        }
+        
+        if (acquisto.utenteId.toString() !== req.user.userId.toString()) {
+            return res.status(403).json({ success: false, error: 'Non autorizzato' });
+        }
+        
+        res.status(200).json({ success: true, data: acquisto });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Errore nel recupero del coupon' });
+    }
 });
 
 module.exports = router;

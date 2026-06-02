@@ -35,8 +35,16 @@
         <main class="coupon-page">
             <section class="coupon-header">
                 <div>
-                    <h1>Coupon disponibili</h1>
-                    <p class="points-display">I tuoi Punti: <strong id="userPoints">0</strong> 🪙</p>
+                    <h1 id="pageTitle">Negozio Coupon</h1>
+                    <p class="points-display">I tuoi Punti: <strong id="userPoints">-</strong> <img src="/assets/point.png" alt="Moneta" class="coin-img"></p>
+                </div>
+
+                <div class="switch-container">
+                    <input type="radio" id="shopView" name="viewToggle" value="shop" checked>
+                    <label for="shopView">Negozio</label>
+                    <input type="radio" id="walletView" name="viewToggle" value="wallet">
+                    <label for="walletView">Portafogli</label>
+                    <div class="switch-selector"></div>
                 </div>
 
                 <div class="header-actions">
@@ -44,8 +52,8 @@
                 </div>
             </section>
 
-            <section id="couponGrid" class="coupon-grid">
-                </section>
+            <section id="couponGrid" class="coupon-grid"></section>
+            <section id="walletGrid" class="coupon-grid" style="display: none;"></section>
         </main>
 
         <div id="sidebarOverlay" class="sidebar-overlay"></div>
