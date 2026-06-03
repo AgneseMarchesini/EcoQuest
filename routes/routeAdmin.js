@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const express = require("express")
 const router = express.Router()
 const Persona = require("../models/persona")
+const Attivita = require("../models/attivita")
 require("../models/amministratore"); 
 const POI = require("../models/POI");
 const Missione = require("../models/missione")
@@ -101,6 +102,28 @@ router.post("/add_mission", authAdminMiddleware, async (req, res) => {
                 message: errors
             });
         }
+
+        return res.status(500).json({
+            message,
+            error: error.message
+        });
+    }
+})
+
+
+router.patch("/approve_profile/:attivitaId", authAdminMiddleware, async (req, res) => {
+    try {
+        const attivitaId = req.params.attivitaId;
+        const attivita = await Attivita.findByIdAndUpdate(attivitaId, {
+            statoApprovazione: true
+        }, {new: true})
+        if (!attivita) {
+            return res.status(404).json({message: "Attività inesistente"})
+        }
+        return res.status(201).json(attivita);
+        
+    } catch (error) {
+        let message = "Errore durante l'approvazione dell'attività";
 
         return res.status(500).json({
             message,
