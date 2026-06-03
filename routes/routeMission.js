@@ -28,7 +28,6 @@ async function getActiveMission(userId) {
 }
 
 async function generaMissioni(lat, lng) {
-    
     const allPois = await poi.find({});
     if (!allPois || allPois.length === 0) return [];
 
@@ -317,6 +316,28 @@ router.post("/api/:id/completata", authMiddleware, async (req, res) => {
         });
     } catch (error) {
         console.error("Errore in /complete:", error);
+        res.status(500).json({ message: "Errore interno del server" });
+    }
+});
+
+router.delete("/api/:id/annulla", authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const missionId = req.params.id;
+
+        const userMission = await MissioneUtente.findOneAndDelete({
+            userId,
+            missionId,
+            stato: { $in: ["InCorso", "InPausa"] }
+        });
+
+        if (!userMission) {
+            return res.status(404).json({ message: "Missione non trovata" });
+        }
+
+        return res.status(200).json({ message: "Missione annullata con successo" });
+    } catch (error) {
+        console.error("Errore in /annulla:", error);
         res.status(500).json({ message: "Errore interno del server" });
     }
 });
