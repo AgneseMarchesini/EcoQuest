@@ -18,7 +18,7 @@ router.get("/riscatta", (req, res) => {
 router.get('/api/', authMiddleware, async (req, res) => {
   try {
     const coupons = await Coupon.find()
-      .populate('attivitaId', 'nome') 
+      .populate('attivitaId', 'nomeAttivita posizione') 
       .sort({ createdAt: -1 });
     
     res.status(200).json({ success: true, count: coupons.length, data: coupons });
@@ -33,20 +33,6 @@ router.get('/api/acquistati', authMiddleware, async (req, res) => {
     res.status(200).json({ success: true, count: acquisti.length, data: acquisti });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Errore nel recupero dei coupon acquistati' });
-  }
-});
-
-// restituisce i coupon legati a un'attività -> per la ricerca spaziale
-router.get('/api/attivita/:idAttivita', authMiddleware, async (req, res) => {
-  try {
-    const { idAttivita } = req.params;
-
-    const coupons = await Coupon.find({ attivita: idAttivita })
-      .populate('attivita', 'nome');
-
-    res.status(200).json({ success: true, count: coupons.length, data: coupons });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Errore nel recupero dei coupon dell\'attività' });
   }
 });
 
