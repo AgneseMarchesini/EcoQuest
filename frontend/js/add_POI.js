@@ -112,7 +112,7 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
 
     try {
         const token = localStorage.getItem("token")
-        const response = await fetch("/admin/add_POI", {
+        const response = await fetch("/admin/poi", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
