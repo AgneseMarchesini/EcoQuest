@@ -16,6 +16,7 @@ const toggleTrackingBtn = document.getElementById("toggleTrackingBtn");
 const suspendMissionBtn = document.getElementById("suspendMissionBtn");
 const resumeMissionBtn = document.getElementById("resumeMissionBtn");
 const transportModeSelect = document.getElementById("activeTransportMode");
+const cancelMissionBtn = document.getElementById("cancelMissionBtn");
 let lastPosition = null;
 
 let map = null;
@@ -599,6 +600,61 @@ async function suspendMission() {
     }
 }
 
+async function cancelMission() {
+    const confirmed = confirm("Sei sicuro di voler annullare definitivamente la missione? Perderai tutti i progressi e non potrai riprenderla.");
+    if (!confirmed) {
+        return;
+    }
+    const token = localStorage.getItem("token");
+    const missionId = getActiveMissionId();
+
+    if (!token || !missionId) {
+        setError("Impossibile annullare: dati della missione mancanti.");
+        return;
+    }
+
+    if (cancelMissionBtn) {
+        cancelMissionBtn.disabled = true;
+        cancelMissionBtn.textContent = "Annullamento...";
+    }
+
+    try {
+        const response = await fetch(`/missioni/api/${missionId}/annulla`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || `Errore HTTP ${response.status}`);
+        }
+
+        stopTracking(true);
+        sessionStorage.removeItem("activeMission");
+        statusMessage.classList.add("hidden");
+        
+        alert("Missione annullata con successo.");
+        
+        window.location.href = "/missioni"; 
+
+    } catch (error) {
+        console.error("Errore durante l'annullamento della missione:", error);
+        setError("Errore durante l'annullamento della missione. Riprova.");
+        
+        if (cancelMissionBtn) {
+            cancelMissionBtn.disabled = false;
+            cancelMissionBtn.textContent = "Annulla missione";
+        }
+    }
+}
+
 async function init() {
     if (!activeMission) {
         activeMission = await loadActiveMissionFromServer();
@@ -626,5 +682,11 @@ if (transportModeSelect) {
         }
     });
 }
+
+
+if (cancelMissionBtn) {
+    cancelMissionBtn.addEventListener("click", cancelMission);
+}
+
 
 init();
