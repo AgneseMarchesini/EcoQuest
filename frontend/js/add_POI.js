@@ -47,9 +47,6 @@ map.on('click', function (e) {
         marker = L.marker([latitudine, longitudine]).addTo(map);
     }
 
-    console.log("Latitudine:", latitudine);
-    console.log("Longitudine:", longitudine);
-
 });
 
 const imagesContainer = document.getElementById("images-container");

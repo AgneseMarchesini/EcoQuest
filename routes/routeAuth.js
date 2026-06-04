@@ -95,7 +95,6 @@ router.post("/login", async (req, res) => {
             process.env.JWT_SECRET,
             {expiresIn: "1h"}
         );
-        console.log(token)
 
         if (!token) {
             return res.status(401).json({message: "Token non creato"})
