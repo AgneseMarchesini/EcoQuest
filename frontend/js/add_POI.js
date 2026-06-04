@@ -47,9 +47,6 @@ map.on('click', function (e) {
         marker = L.marker([latitudine, longitudine]).addTo(map);
     }
 
-    console.log("Latitudine:", latitudine);
-    console.log("Longitudine:", longitudine);
-
 });
 
 const imagesContainer = document.getElementById("images-container");
@@ -112,7 +109,7 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
 
     try {
         const token = localStorage.getItem("token")
-        const response = await fetch("/admin/add_POI", {
+        const response = await fetch("/admin/poi", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

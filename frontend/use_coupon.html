@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EcoQuest - Riscatta Coupon</title>
+        <link rel="stylesheet" href="/css/use_coupon.css">
+        <link rel="icon" href="/assets/logo.png">
+    </head>
+    <body>
+        <div class="overlay-container">
+            <div class="redeem-card">
+                <h2 id="couponTitle">Caricamento...</h2>
+                <span id="couponCategory" class="coupon-badge">-</span>
+                
+                <div class="qr-container">
+                    <div id="qrPlaceholder" class="qr-loader"></div>
+                    <img id="qrCodeImg" src="" alt="QR Code Coupon" style="display: none;">
+                </div>
+                
+                <div class="coupon-code-text">
+                    <p class="label">Codice Coupon</p>
+                    <p id="couponCodeString" class="code-string">-</p>
+                </div>
+                
+                <p class="instructions">Mostra questo QR Code all'esercente per riscattare il tuo premio.</p>
+                
+                <button type="button" id="backBtn" class="back-button">Torna indietro</button>
+            </div>
+        </div>
+
+        <script src="/js/auth_utils.js"></script>
+        <script src="/js/use_coupon.js"></script>
+    </body>
+</html>

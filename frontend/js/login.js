@@ -23,14 +23,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
             body: JSON.stringify({ email, password })
         });
 
-        console.log("STATUS:", response.status);
-        console.log("OK:", response.ok);
-        console.log("RAW TEXT:", await response.clone().text());
-
         const data = await response.json();
-
-        console.log("response.ok:", response.ok);
-        console.log("data:", data);
 
         if (response.ok) {
             localStorage.setItem('token', data.token);

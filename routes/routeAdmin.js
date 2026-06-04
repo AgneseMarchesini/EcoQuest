@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const express = require("express")
 const router = express.Router()
 const Persona = require("../models/persona")
+const Attivita = require("../models/attivita")
 require("../models/amministratore"); 
 const POI = require("../models/POI");
 const Missione = require("../models/missione")
@@ -11,15 +12,20 @@ const path = require("path")
 
 const { authMiddleware, authAdminMiddleware } = require("../utils.js")
 
-router.get("/add_POI", (req, res) => {
+router.get("/poi/nuovo", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/add_POI.html"));
 });
 
-router.get("/add_mission", (req, res)=>{
+router.get("/missioni/nuova", (req, res)=>{
     res.sendFile(path.join(__dirname, "../frontend/add_default_mission.html"));
 });
 
-router.post("/add_POI", authAdminMiddleware, async (req, res) => {
+router.get("/attivita", (req, res)=>{
+    res.sendFile(path.join(__dirname, "../frontend/approve_activity.html"));
+});
+
+
+router.post("/poi", authAdminMiddleware, async (req, res) => {
     try {
         const poiData = {
             nome: req.body.nome,
@@ -67,7 +73,7 @@ router.post("/add_POI", authAdminMiddleware, async (req, res) => {
     }
 })
 
-router.post("/add_mission", authAdminMiddleware, async (req, res) => {
+router.post("/missioni", authAdminMiddleware, async (req, res) => {
     try {
         const arrayPOI = Array.isArray(req.body.arrayPOI) ? req.body.arrayPOI : JSON.parse(req.body.arrayPOI);
 
@@ -101,6 +107,28 @@ router.post("/add_mission", authAdminMiddleware, async (req, res) => {
                 message: errors
             });
         }
+
+        return res.status(500).json({
+            message,
+            error: error.message
+        });
+    }
+})
+
+
+router.patch("/attivita/:attivitaId", authAdminMiddleware, async (req, res) => {
+    try {
+        const attivitaId = req.params.attivitaId;
+        const attivita = await Attivita.findByIdAndUpdate(attivitaId, {
+            statoApprovazione: true
+        }, {new: true})
+        if (!attivita) {
+            return res.status(404).json({message: "Attività inesistente"})
+        }
+        return res.status(200).json(attivita);
+        
+    } catch (error) {
+        let message = "Errore durante l'approvazione dell'attività";
 
         return res.status(500).json({
             message,

@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch("/admin/add_mission", {
+            const response = await fetch("/admin/missioni", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

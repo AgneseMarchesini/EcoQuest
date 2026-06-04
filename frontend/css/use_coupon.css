@@ -1,0 +1,130 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4f8f5;
+    color: #2c3e50;
+    height: 100%;
+}
+
+.overlay-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100vw;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+.redeem-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px 30px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.redeem-card h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.6rem;
+    color: #1a252f;
+}
+
+.coupon-badge {
+    background: #e3f2fd;
+    color: #1e88e5;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 30px;
+}
+
+.qr-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 25px auto;
+    background: #f8f9fa;
+    border: 2px dashed #bdc3c7;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.qr-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.qr-loader {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #2ecc71;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.coupon-code-text {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #e0e6ed;
+}
+
+.coupon-code-text .label {
+    margin: 0 0 4px 0;
+    font-size: 0.8rem;
+    color: #95a5a6;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.code-string {
+    margin: 0;
+    font-size: 1.3rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+    color: #2c3e50;
+    letter-spacing: 2px;
+}
+
+.instructions {
+    font-size: 0.95rem;
+    color: #7f8c8d;
+    line-height: 1.5;
+    margin: 0 0 35px 0;
+}
+
+.back-button {
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    background: #7f8c8d;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.back-button:hover {
+    background: #6c7a89;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
