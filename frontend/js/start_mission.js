@@ -1,3 +1,13 @@
+/**
+ * Gestisce la logica e l'interfaccia della fase di "gameplay" vera e propria, ovvero lo svolgimento 
+ * di una missione attiva. Attiva il tracciamento GPS in tempo reale (tramite `navigator.geolocation`), disegna 
+ * il percorso sulla mappa interattiva (Leaflet + OSRM) in base al mezzo scelto e calcola costantemente la distanza 
+ * dell'utente dai Punti di Interesse (POI) da raggiungere. Segna automaticamente i POI come "visitati" quando 
+ * ci si avvicina sotto una certa soglia (45 metri). Inoltre, gestisce i controlli di stato della missione, 
+ * permettendo all'utente di sospendere la missione (mettendola in pausa per riprenderla in un secondo momento), 
+ * riprenderla o annullarla definitivamente, comunicando i cambi di stato al backend.
+ */
+
 let activeMission = JSON.parse(sessionStorage.getItem("activeMission") || "null");
 
 const ROUTE_TOLERANCE_METERS = 90;

@@ -1,3 +1,9 @@
+/**
+ * Coordina le rotte relative al catalogo dei premi e alla gestione dei coupon riscattabili. 
+ * Permette agli utenti di visualizzare i reward disponibili ed effettuare 
+ * la transazione per generare il codice a barre o alfanumerico del coupon.
+ */
+
 const express = require('express');
 const router = express.Router();
 const Coupon = require('../models/coupon.js');

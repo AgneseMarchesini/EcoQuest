@@ -1,3 +1,9 @@
+/**
+ * Gestisce le rotte API e le operazioni riservate agli amministratori della piattaforma. 
+ * Include le funzionalità per la moderazione, l'inserimento manuale di nuovi Punti di Interesse (POI), 
+ * la creazione di missioni predefinite globali e la supervisione delle metriche generali del sistema.
+ */
+
 const mongoose = require("mongoose");
 const express = require("express")
 const router = express.Router()

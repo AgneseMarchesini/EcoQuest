@@ -1,3 +1,8 @@
+/**
+ * Costruisce il contesto ambientale e temporale dell'utente in tempo reale. Interroga un'API 
+ * meteo esterna per ottenere la temperatura e le condizioni atmosferiche (mappandole in macro-categorie 
+ * come "Sole", "Nuvoloso", "Pioggia", "Neve"), calcola la fascia oraria attuale e integra le coordinate geografiche.
+ */
 const api_weather_data = require('../external_apis/weather.js'); 
 async function buildContext(lat, lng) {
     let weatherData;

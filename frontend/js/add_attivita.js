@@ -1,3 +1,11 @@
+/**
+ * Gestisce la logica frontend per la pagina di registrazione di una nuova attività commerciale. 
+ * Inizializza una mappa interattiva (tramite Leaflet) per far selezionare all'utente le coordinate geografiche 
+ * con un clic, raccoglie e formatta i dati del form (nome, descrizione, categorie, orari di apertura dinamici), 
+ * esegue la validazione lato client (es. coerenza degli orari) e invia il payload strutturato (inclusa la posizione 
+ * in formato GeoJSON) al backend tramite una richiesta POST autenticata.
+ */
+
 const form = document.getElementById("activityForm");
 const successMessage = document.getElementById("successMessage");
 const errorMessage = document.getElementById("errorMessage");

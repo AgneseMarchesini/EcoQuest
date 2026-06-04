@@ -1,3 +1,11 @@
+/**
+ * Controlla la logica frontend della dashboard amministrativa dedicata all'inserimento 
+ * manuale di nuovi Punti di Interesse (POI). Sfrutta una mappa interattiva per acquisire facilmente 
+ * le coordinate geografiche (lat/lng) al clic dell'utente, gestisce campi di input dinamici (per aggiungere 
+ * un numero variabile di URL immagini) e aggrega dati fondamentali come categorie e compatibilità meteo. 
+ * Formatta poi la posizione secondo lo standard GeoJSON e invia il payload all'endpoint protetto `/admin/poi`.
+ */
+
 let messageTimeout;
 
 function showError(message) {

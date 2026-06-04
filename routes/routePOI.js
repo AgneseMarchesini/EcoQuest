@@ -1,3 +1,8 @@
+/**
+ * Mette a disposizione le rotte per il recupero dei Punti di Interesse (POI) 
+ * presenti sul territorio urbano.
+ */
+
 const express = require("express");
 const router = express.Router();
 const poi = require('../models/POI');

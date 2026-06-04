@@ -1,3 +1,10 @@
+/**
+ * Popola la dashboard principale riservata agli account di tipo "Esercente". Al caricamento 
+ * della pagina, effettua una richiesta GET (`/esercente/api/mie_attivita`) per recuperare la lista di 
+ * tutte le attività commerciali registrate da quell'utente. Genera dinamicamente le schede (card) riassuntive 
+ * mostrando il titolo, una breve descrizione e lo stato di moderazione (Approvata/In attesa).
+ */
+
 document.addEventListener('DOMContentLoaded', async () => {
     if (!checkPageAuth(['Esercente'])) {
         return; 

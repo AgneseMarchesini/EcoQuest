@@ -1,3 +1,12 @@
+/**
+ * Gestisce la logica frontend per la creazione e pubblicazione di un nuovo coupon/premio. 
+ * Intercetta l'evento di invio del form (`couponForm`), raccoglie e valida i dati inseriti (titolo, 
+ * descrizione, costo in punti, scadenza, categoria), e invia il payload formattato al backend tramite 
+ * una richiesta POST asincrona, allegando il token di autorizzazione JWT. Infine, gestisce il riscontro 
+ * visivo (UI), mostrando eventuali messaggi di errore o confermando la creazione visualizzando 
+ * il codice univoco generato per il coupon.
+ */
+
 document.getElementById('couponForm').addEventListener('submit', async function (e) {
     if (!checkPageAuth(['Esercente'])) {
         return;

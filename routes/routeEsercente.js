@@ -1,3 +1,8 @@
+/**
+ * Definisce i punti di accesso API dedicati ai commercianti. 
+ * Consente la creazione di profili attività e la pubblicazione di nuovi coupon nel catalogo.
+ */
+
 const express = require("express");
 const router = express.Router();
 const path = require('path');

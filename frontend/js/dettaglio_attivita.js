@@ -1,3 +1,10 @@
+/**
+ * Gestisce la renderizzazione dinamica della pagina di dettaglio di una specifica attività commerciale. 
+ * Recupera l'ID dell'attività dall'URL, interroga l'endpoint protetto (`/esercente/api/attivita/:id`) e popola 
+ * l'interfaccia utente con tutte le informazioni pertinenti: stato di approvazione, orari di apertura, 
+ * categorie, mappa interattiva (Leaflet) centrata sulle coordinate del locale e la lista dei coupon associati.
+ */
+
 const loadingState = document.getElementById("loadingState");
 const errorState = document.getElementById("errorState");
 const detailContent = document.getElementById("detailContent");

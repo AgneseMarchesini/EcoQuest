@@ -1,3 +1,10 @@
+/**
+ * Regola la visibilità degli elementi di navigazione globali dell'applicazione. Viene eseguito su 
+ * ogni pagina, legge e decodifica il token JWT dal `localStorage` per identificare lo stato di login e il ruolo 
+ * dell'utente (Guest, Giocatore, Esercente, Amministratore). In base a questo, mostra o nasconde selettivamente 
+ * i link del menu (tramite classi CSS specifiche come `.admin-only` o `.guest-only`) e gestisce l'evento di logout.
+ */
+
 document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem("token");
     

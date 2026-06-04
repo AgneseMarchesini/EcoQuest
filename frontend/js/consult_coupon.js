@@ -1,3 +1,11 @@
+/**
+ * Gestisce l'interfaccia per l'economia di gioco lato utente, divisa tra "Negozio" e 
+ * "Portafogli". Recupera il saldo punti dell'utente e il catalogo premi, offrendo una doppia modalità di 
+ * visualizzazione (a griglia o geolocalizzata su mappa interattiva). Controlla la disponibilità economica 
+ * per ogni acquisto, gestisce la transazione comunicando con il backend e archivia i premi comprati 
+ * nel portafogli personale pronti per il riscatto fisico.
+ */
+
 let selectedCouponId = null;
 let selectedCouponCode = null;
 let currentUserPoints = 0;

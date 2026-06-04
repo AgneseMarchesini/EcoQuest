@@ -1,3 +1,11 @@
+/**
+ * Centralizza le funzioni di utilità per la gestione della sicurezza e dell'autenticazione 
+ * lato client (frontend). Esporta due funzioni principali: `checkPageAuth`, che decodifica il token JWT 
+ * memorizzato nel `localStorage` per verificare se il ruolo dell'utente (Utente, Esercente, Amministratore) 
+ * ha i permessi per visualizzare la pagina corrente, e `redirectToLoginIfUnauthorized`, che intercetta 
+ * le risposte HTTP 401 (non autorizzato) o 403 (accesso negato) provenienti dalle chiamate API.
+ */
+
 function redirectToLoginIfUnauthorized(response) {
     if (response.status === 401) {
         localStorage.removeItem("token");

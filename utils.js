@@ -1,3 +1,9 @@
+/**
+ * Centralizza e definisce i middleware di sicurezza basati su JSON Web Token (JWT) 
+ * per proteggere le rotte dell'applicazione. Esporta tre funzioni di controllo gerarchico: 
+ * `authMiddleware` (verifica l'identità generica di un utente loggato), `authEsercenteMiddleware` 
+ * (consente l'accesso solo a Esercenti e Amministratori) e `authAdminMiddleware` (accesso esclusivo per gli Amministratori).
+ */
 const jwt = require("jsonwebtoken");
 
 function authMiddleware(req, res, next) {

@@ -1,3 +1,10 @@
+/**
+ * È il motore principale per la generazione e raccomandazione delle missioni. 
+ * Recupera il contesto dell'utente, itera sui template disponibili, filtra i POI compatibili, genera 
+ * le missioni candidate, aggiunge quelle predefinite e infine assegna un punteggio a ciascuna. Conclude 
+ * selezionando le migliori tramite un algoritmo di estrazione casuale pesata basata sullo score.
+ */
+
 const templates = require("./missionTemplates");
 const filterCompatiblePOIs = require("./poiFilter");
 const generateMission = require("./missionGenerator");

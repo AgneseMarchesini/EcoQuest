@@ -1,3 +1,9 @@
+/**
+ * Definisce tutte le rotte API per gestire l'intero ciclo di vita delle missioni dell'utente.
+ * Include la logica per ottenere missioni, avviare una missione, aggiornare il progresso 
+ * e gestire il completamento con la relativa assegnazione di punti.
+ */
+
 const express = require("express")
 const router = express.Router()
 const poi = require('../models/POI.js');

@@ -1,3 +1,10 @@
+/**
+ * Regola la schermata di scoperta e selezione delle missioni (la "quest board"). Recupera la posizione 
+ * attuale dell'utente e interroga il backend (`/missioni/api`) per ottenere un mix di missioni predefinite e 
+ * generate dinamicamente nei dintorni. Crea dinamicamente le schede riassuntive e gestisce l'apertura di una 
+ * sidebar di dettaglio che mostra l'anteprima esatta del percorso. Modifica anche in tempo reale la ricompensa 
+ * in punti calcolando un fattore di penalità basato sul mezzo di trasporto scelto.
+ */
 const bike_factor = 0.9
 const car_factor = 0.5
 const defaultPosition = {

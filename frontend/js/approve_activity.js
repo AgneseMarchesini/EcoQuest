@@ -1,3 +1,10 @@
+/**
+ * Gestisce l'interfaccia della dashboard amministrativa dedicata alla moderazione delle 
+ * nuove attività commerciali. Recupera tramite API (`GET /admin/api/approvazioni`) la lista delle richieste 
+ * inoltrate dagli Esercenti, generando dinamicamente delle schede riassuntive con dettagli come categorie, 
+ * orari e coordinate geografiche. Infine, gestisce le azioni di approvazione o eliminazione.
+ */
+
 document.addEventListener("DOMContentLoaded", () => {
     if (typeof checkPageAuth === "function" && !checkPageAuth(['Amministratore'])) {
         return;

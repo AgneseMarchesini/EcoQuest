@@ -1,3 +1,10 @@
+/**
+ * Gestisce la visualizzazione del coupon acquistato pronto per essere utilizzato. 
+ * Estrae l'ID dell'acquisto dall'URL, interroga l'endpoint protetto (`/coupon/api/acquistati/:id`) 
+ * per ottenere i dettagli del premio (titolo, categoria, codice alfanumerico) e genera dinamicamente 
+ * un QR Code scansionabile utilizzando un'API esterna (`api.qrserver.com`), mostrandolo a schermo.
+ */
+
 document.addEventListener("DOMContentLoaded", () => {
     const couponTitle = document.getElementById("couponTitle");
     const couponCategory = document.getElementById("couponCategory");

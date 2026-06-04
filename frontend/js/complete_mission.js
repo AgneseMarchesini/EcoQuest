@@ -1,3 +1,11 @@
+/**
+ * Controlla la logica della schermata di riepilogo visualizzata al termine di una missione. 
+ * Estrae i dati della sessione locale per calcolare e mostrare il tempo effettivo impiegato e i punti 
+ * ricompensa ottenuti. Inoltre, utilizza Leaflet e il servizio di routing OSRM per tracciare e disegnare 
+ * graficamente sulla mappa il percorso compiuto, adattando la rotta in base al mezzo di trasporto usato 
+ * (a piedi, in bici, in auto).
+ */
+
 const storedData = sessionStorage.getItem('completedMission');
 
 if(storedData) {

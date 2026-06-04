@@ -1,3 +1,7 @@
+/**
+ * Gestisce la rotta alla sezione "homepage".
+ */
+
 const express = require("express");
 const router = express.Router();
 const path = require('path');

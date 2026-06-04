@@ -1,3 +1,12 @@
+/**
+ * Gestisce l'interfaccia frontend riservata agli amministratori per la creazione visiva 
+ * delle missioni "predefinite". Inizializza una mappa interattiva (Leaflet), recupera dal backend 
+ * tutti i Punti di Interesse (POI) esistenti e permette di selezionarli in sequenza cliccandoli 
+ * sulla mappa (mostrando dinamicamente un marker numerato per indicare l'ordine). Infine, raccoglie i dati 
+ * testuali del form (titolo, punti, risparmio CO2) e invia l'array ordinato all'endpoint `/admin/missioni` 
+ * tramite una richiesta POST autenticata (JWT).
+ */
+
 const poiIcon = L.icon({
     iconUrl: "/assets/blue_pin.png",
     iconSize: [38, 38],

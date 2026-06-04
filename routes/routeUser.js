@@ -1,3 +1,8 @@
+/**
+ * Gestisce il profilo personale del cittadino/giocatore.
+ * Attualemente solo il monitoraggio dei punti è implementato.
+ */
+
 const express = require('express');
 const router = express.Router();
 

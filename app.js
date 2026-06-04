@@ -1,3 +1,9 @@
+/**
+ * È il punto di ingresso (entry point) principale dell'applicazione backend Express. 
+ * Stabilisce la connessione con il database MongoDB tramite Mongoose, configura i middleware essenziali 
+ * e registra i router principali.
+ */
+
 const mongoose = require("mongoose");
 const express = require("express")
 const path = require("path");
