@@ -270,6 +270,33 @@ router.patch("/api/:id/sospendi", authMiddleware, async (req, res) => {
     }
 })
 
+router.patch("/api/:id/riprendi", authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const missionId = req.params.id;
+
+        const userMission = await MissioneUtente.findOne({
+            userId,
+            missionId,
+            stato: "InPausa"
+        });
+
+        if (!userMission) {
+            return res.status(404).json({ message: "Missione non trovata" });
+        }
+
+        userMission.stato = "InCorso";
+
+        await userMission.save();
+
+        return res.status(200).json({ message: "Missione ripresa con successo" });
+        
+    } catch (error) {
+        console.error("Errore in /riprendi:", error);
+        res.status(500).json({ message: "Errore interno del server" });
+    }
+});
+
 // completa missione
 router.post("/api/:id/completata", authMiddleware, async (req, res) => {
     try{
