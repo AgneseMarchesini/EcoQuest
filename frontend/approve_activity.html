@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest - Approvazione Attività</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/approve_activity.css">
+    <link rel="icon" href="/assets/logo.png">
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li class="admin-only"><a href="/admin/add_mission" class="nav-item">Crea Missione</a></li>
+                    <li class="admin-only"><a href="/admin/add_POI" class="nav-item">Crea POI</a></li>
+                    <li class="admin-only"><a href="/admin/approve_activity" class="nav-item">Approvazioni</a></li>
+                    <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="approve-page">
+        <section class="page-header">
+            <h1>Richieste di Approvazione</h1>
+            <p>Gestisci le richieste di iscrizione delle nuove attività commerciali nel circuito EcoQuest.</p>
+        </section>
+
+        <section id="requestsContainer" class="requests-grid">
+            <div class="status-message loading-state">Caricamento in corso...</div>
+        </section>
+    </main>
+
+    <script src="/js/approve_activity.js"></script>
+    <script src="/js/navbar.js"></script>
+</body>
+</html>

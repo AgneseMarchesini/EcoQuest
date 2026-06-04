@@ -24,6 +24,48 @@ router.get("/attivita", (req, res)=>{
     res.sendFile(path.join(__dirname, "../frontend/approve_activity.html"));
 });
 
+router.get("/approve_activity", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/approve_activity.html"));
+});
+
+router.get("/api/approvazioni", authAdminMiddleware, async (req, res) => {
+    try {
+        const daApprovare = await Attivita.find({ statoApprovazione: false });
+        res.status(200).json(daApprovare);
+    } catch (error) {
+        res.status(500).json({ message: "Errore nel recupero delle attività da approvare" });
+    }
+});
+
+router.patch("/api/approvazioni/:id/approva", authAdminMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const approvata = await Attivita.findByIdAndUpdate(id, { statoApprovazione: true }, { new: true });
+        
+        if (!approvata) {
+            return res.status(404).json({ message: "Attività non trovata" });
+        }
+        
+        res.status(200).json({ message: "Attività approvata con successo!", data: approvata });
+    } catch (error) {
+        res.status(500).json({ message: "Errore durante l'approvazione dell'attività" });
+    }
+});
+
+router.delete("/api/approvazioni/:id/rifiuta", authAdminMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const eliminata = await Attivita.findByIdAndDelete(id);
+        
+        if (!eliminata) {
+            return res.status(404).json({ message: "Attività non trovata" });
+        }
+        
+        res.status(200).json({ message: "Richiesta eliminata con successo!" });
+    } catch (error) {
+        res.status(500).json({ message: "Errore durante l'eliminazione della richiesta" });
+    }
+});
 
 router.post("/poi", authAdminMiddleware, async (req, res) => {
     try {
