@@ -77,7 +77,8 @@ router.post("/attivita/:id/nuovo_coupon", authEsercenteMiddleware, async (req, r
             descrizione: req.body.descrizione,
             costoInPunti: req.body.costoInPunti,
             scadenza: req.body.scadenza,
-            categoria: req.body.categoria
+            categoria: req.body.categoria,
+            quantita: req.body.quantita
         };
 
         const code = crypto.randomBytes(6).toString('hex').toUpperCase();

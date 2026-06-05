@@ -24,6 +24,7 @@ document.getElementById('couponForm').addEventListener('submit', async function 
     const descrizione = document.getElementById('descrizione').value.trim();
     const costoInPunti = document.getElementById('costoInPunti').value;
     const scadenza = document.getElementById('scadenza').value;
+    const quantita = document.getElementById('quantita').value;
 
     const categoriaSelezionata = document.querySelector('input[name="categoria"]:checked');
 
@@ -38,7 +39,8 @@ document.getElementById('couponForm').addEventListener('submit', async function 
         descrizione: descrizione,
         costoInPunti: parseInt(costoInPunti, 10),
         scadenza: scadenza,
-        categoria: categoriaSelezionata.value
+        categoria: categoriaSelezionata.value,
+        quantita: parseInt(quantita, 10)
     };
 
     const currentPath = window.location.pathname;
