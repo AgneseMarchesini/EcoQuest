@@ -38,7 +38,7 @@ const couponSchema = new mongoose.Schema({
     quantita: {
         type: Number,
         required: true,
-        min: [1, "La quantità minima deve essere almeno 1"]
+        min: [0, "La quantità minima deve essere almeno 1"]
     }
 }, { timestamps: true });
 

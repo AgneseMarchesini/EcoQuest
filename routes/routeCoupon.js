@@ -23,7 +23,9 @@ router.get("/riscatta", (req, res) => {
 // restituisce tutti i coupon
 router.get('/api/', authMiddleware, async (req, res) => {
   try {
-    const coupons = await Coupon.find()
+    // nascondiamo quando un coupon è esaurito così in futuro si può implementare che l'esercente lo può riproporre senza dover riscrivere
+    // inoltre così funziona correttamente couponAcquistato
+    const coupons = await Coupon.find({ quantita: { $gt: 0} }) 
       .populate('attivitaId', 'nomeAttivita posizione') 
       .sort({ createdAt: -1 });
     
@@ -58,6 +60,10 @@ router.post('/api/acquista/:code', authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Coupon non trovato" });
     }
 
+    if (coupon.quantita <= 0) {
+      return res.status(400).json({ message: "Questo coupon è esaurito" });
+    }
+
     if (userRole === 'Amministratore') {
       console.log(`L'admin ${userId} sta acquistando il coupon senza spendere punti.`);
     } else {
@@ -72,7 +78,7 @@ router.post('/api/acquista/:code', authMiddleware, async (req, res) => {
           }
         },
         {
-          new: true
+          returnDocument: 'after'
         }
       );
 
@@ -87,6 +93,9 @@ router.post('/api/acquista/:code', authMiddleware, async (req, res) => {
     });
 
     await nuovoAcquisto.save();
+
+    coupon.quantita -= 1;
+    await coupon.save();
     
     return res.status(200).json({ message: "Acquisto completato" });
   } catch (e) {

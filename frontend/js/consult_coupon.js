@@ -38,6 +38,8 @@ const closeSidebar = document.getElementById("closeSidebar");
 const toggleMapBtn = document.getElementById("toggleMapBtn");
 const mapContainer = document.getElementById("mapContainer");
 const locateUserBtn = document.getElementById("locateUserBtn");
+const sideQuantity = document.getElementById("sideQuantity");
+const emptyWarning = document.getElementById("emptyWarning");
 
 const greenPin = L.icon({
     iconUrl: "/assets/green_pin.png", 
@@ -228,7 +230,7 @@ function updateMapMarkers() {
                 <li style="margin-bottom: 5px;">
                     <a href="#" onclick="window.openCouponFromMap('${c._id}'); return false;" style="color: #2ecc71; text-decoration: none; font-weight: 600;">
                         ${c.titolo}
-                    </a> <span style="color: #e67e22; font-size: 0.8rem;">(${c.costoInPunti} pt)</span>
+                    </a> <span style="color: #e67e22; font-size: 0.8rem;">(${c.costoInPunti} pt | Disp: ${c.quantita})</span>
                 </li>`;
         });
         
@@ -384,6 +386,7 @@ function renderCoupons(coupons) {
             <p class="card-activity">🏢 ${nomeAttivita}</p>
             <div class="card-footer">
                 <span class="card-cost">${coupon.costoInPunti} Punti</span>
+                <span class="card-quantity" style="font-size: 0.85rem; color: #7f8c8d;">Disponibili: ${coupon.quantita}</span>
             </div>
         `;
         card.addEventListener("click", () => openSidebar(coupon));
@@ -420,14 +423,24 @@ function openSidebar(coupon) {
     sideCost.innerText = coupon.costoInPunti;
     sideExpiration.innerText = coupon.scadenza ? new Date(coupon.scadenza).toLocaleDateString('it-IT') : 'N/A';
     sideActivity.innerText = nomeAttivita;
+    sideQuantity.innerText = coupon.quantita;
 
-    if (currentUserPoints < coupon.costoInPunti) {
-        buyBtn.disabled = true;
-        pointsWarning.style.display = "block";
-    } else {
-        buyBtn.disabled = false;
+    let canBuy = true;
+
+    if (coupon.quantita <= 0) {
+        emptyWarning.style.display = "block";
         pointsWarning.style.display = "none";
+        canBuy = false;
+    } else if (currentUserPoints < coupon.costoInPunti) {
+        pointsWarning.style.display = "block";
+        emptyWarning.style.display = "none";
+        canBuy = false;
+    } else {
+        pointsWarning.style.display = "none";
+        emptyWarning.style.display = "none";
     }
+
+    buyBtn.disabled = !canBuy;
 
     sidebarOverlay.classList.add("active");
     couponSidebar.classList.add("active");
