@@ -169,7 +169,7 @@ router.patch("/attivita/:attivitaId", authAdminMiddleware, async (req, res) => {
         const attivitaId = req.params.attivitaId;
         const attivita = await Attivita.findByIdAndUpdate(attivitaId, {
             statoApprovazione: true
-        }, {new: true})
+        }, {returnDocument: 'after'})
         if (!attivita) {
             return res.status(404).json({message: "Attività inesistente"})
         }
