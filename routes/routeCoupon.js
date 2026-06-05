@@ -37,7 +37,10 @@ router.get('/api/', authMiddleware, async (req, res) => {
 
 router.get('/api/acquistati', authMiddleware, async (req, res) => {
   try {
-    const acquisti = await CouponAcquistato.find({ utenteId: req.user.userId }).populate('couponId');
+    const acquisti = await CouponAcquistato.find({ utenteId: req.user.userId }).populate({
+      path: 'couponId',
+      populate: {path: 'attivitaId', select: 'nomeAttivita'}
+    });
     res.status(200).json({ success: true, count: acquisti.length, data: acquisti });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Errore nel recupero dei coupon acquistati' });
@@ -163,7 +166,10 @@ router.patch('/api/:id/riscatta', authMiddleware, async (req, res) => {
 router.get('/api/acquistati/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const acquisto = await CouponAcquistato.findById(id).populate('couponId');
+    const acquisto = await CouponAcquistato.findById(id).populate({
+      path: 'couponId',
+      populate: { path: 'attivitaId', select: 'nomeAttivita' }
+    });
     
     if (!acquisto) {
       return res.status(404).json({ success: false, error: 'Coupon non trovato' });

@@ -395,14 +395,19 @@ function renderCoupons(coupons) {
 }
 
 function renderWalletCoupons(purchasedCoupons) {
+    walletGrid.innerHTML = "";
     purchasedCoupons.forEach(item => {
         const coupon = item.couponId || item; 
         const card = document.createElement("div");
         card.className = "coupon-card wallet-card";
+        const nomeAttivita = coupon.attivitaId ? coupon.attivitaId.nomeAttivita : "Attività Partner";
+        const dataScadenza = coupon.scadenza ? new Date(coupon.scadenza).toLocaleDateString('it-IT') : 'N/A';
         card.innerHTML = `
             <span class="card-category">${coupon.categoria || 'Acquistato'}</span>
             <h3 class="card-title">${coupon.titolo}</h3>
+            <p class="card-activity">🏢 ${nomeAttivita}</p>
             <div class="card-footer">
+                <span style="font-size: 0.85rem; color: #7f8c8d;">📅 Scade il: <strong>${dataScadenza}</strong></span>
                 <span class="card-cost">Riscatta ora</span>
             </div>
         `;

@@ -8,6 +8,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const couponTitle = document.getElementById("couponTitle");
     const couponCategory = document.getElementById("couponCategory");
+    const couponStore = document.getElementById("couponStore");
     const qrPlaceholder = document.getElementById("qrPlaceholder");
     const qrCodeImg = document.getElementById("qrCodeImg");
     const couponCodeString = document.getElementById("couponCodeString");
@@ -58,6 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
             couponTitle.innerText = couponDettagli.titolo;
             couponCategory.innerText = couponDettagli.categoria || "Generico";
             couponCodeString.innerText = couponDettagli.codice;
+            const nomeAttivita = couponDettagli.attivitaId ? couponDettagli.attivitaId.nomeAttivita : "Attività Partner";
+            couponStore.innerText = nomeAttivita;
 
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(couponDettagli.codice)}`;
             
