@@ -23,9 +23,15 @@ const { authMiddleware, authEsercenteMiddleware, authAdminMiddleware } = require
 require("dotenv").config();
 const uri = process.env.MONGODB_URI;
 
-mongoose.connect(uri)
-    .then(() => console.log("Connected to the database!"))
-    .catch((err) => console.log("Connection error: ", err));
+if (process.env.NODE_ENV !== 'test') {
+    mongoose.connect(uri)
+        .then(() => console.log("Connected to the database!"))
+        .catch((err) => console.log("Connection error: ", err));
+
+    app.listen(3000, () => {
+        console.log("Server in ascolto sulla porta 3000");
+    });
+}
 
 app.get("/", (req, res) => {
     res.redirect("/homepage");
@@ -43,3 +49,5 @@ app.use("/missioni", routeMission);
 app.use("/coupon", routeCoupon);
 app.use("/user", routeUser);
 app.listen(3000);
+
+module.exports = app;
