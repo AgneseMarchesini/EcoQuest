@@ -1,0 +1,1372 @@
+openapi: 3.0.3
+info:
+  title: EcoQuest API
+  version: 1.0.0
+  description: >
+    Documentazione completa delle API EcoQuest ricavata da `app.js`, dai file
+    nella cartella `routes` e dagli schemi Mongoose nella cartella `models`.
+    I prefissi principali registrati in `app.js` sono: `/homepage`, `/auth`,
+    `/admin`, `/esercente`, `/poi`, `/missioni`, `/coupon` e `/user`.
+
+servers:
+  - url: http://localhost:3000
+    description: Server locale di sviluppo
+
+tags:
+  - name: homepage
+    description: Pagina pubblica con la mappa.
+  - name: autenticazione
+    description: Registrazione, login e rilascio del token JWT.
+  - name: admin
+    description: Pagine e API amministrative per POI, missioni e approvazioni.
+  - name: esercente
+    description: Dashboard esercente, attivita commerciali e coupon.
+  - name: poi
+    description: Recupero e ricerca geospaziale dei Point Of Interest.
+  - name: missioni
+    description: Missioni disponibili, attive, progresso e completamento.
+  - name: coupon
+    description: Catalogo coupon, acquisto e riscatto.
+  - name: utente
+    description: Informazioni personali dell'utente autenticato.
+
+paths:
+  /:
+    get:
+      tags: [homepage]
+      summary: Redirect alla homepage
+      responses:
+        "302":
+          description: Redirect a `/homepage`.
+
+  /homepage:
+    get:
+      tags: [homepage]
+      summary: Pagina mappa
+      description: Restituisce `frontend/view_map.html`.
+      responses:
+        "200":
+          description: Pagina HTML restituita con successo.
+
+  /auth/sign_up:
+    get:
+      tags: [autenticazione]
+      summary: Pagina di registrazione
+      description: Restituisce `frontend/sign_up.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+    post:
+      tags: [autenticazione]
+      summary: Registra un nuovo account
+      description: >
+        Crea una nuova `Persona` usando i discriminator `Utente` o `Esercente`.
+        La password viene cifrata con argon2 e non viene restituita nella
+        risposta.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpRequest"
+      responses:
+        "201":
+          description: Account creato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Persona"
+        "400":
+          description: Dati mancanti, type non valido o validazione fallita.
+        "409":
+          description: Email o username gia usati.
+        "500":
+          description: Errore durante la registrazione.
+
+  /auth/login:
+    get:
+      tags: [autenticazione]
+      summary: Pagina di login
+      description: Restituisce `frontend/login.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+    post:
+      tags: [autenticazione]
+      summary: Login
+      description: Restituisce un JWT con `userId` e `role`, valido 1 ora.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login effettuato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          description: Email o password mancanti.
+        "401":
+          description: Credenziali non valide o token non creato.
+        "500":
+          description: Errore durante il login.
+
+  /poi/pois:
+    get:
+      tags: [poi]
+      summary: Lista tutti i POI
+      responses:
+        "200":
+          description: Lista POI.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/POI"
+        "500":
+          description: Errore nel recupero dei POI.
+
+  /poi/puntiVicini:
+    get:
+      tags: [poi]
+      summary: Cerca POI vicini
+      parameters:
+        - $ref: "#/components/parameters/Latitudine"
+        - $ref: "#/components/parameters/Longitudine"
+        - name: raggio
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 3000
+          description: Raggio massimo in metri.
+      responses:
+        "200":
+          description: POI trovati.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/POIListResponse"
+        "500":
+          description: Errore durante la ricerca geospaziale.
+
+  /admin/poi/nuovo:
+    get:
+      tags: [admin]
+      summary: Pagina creazione POI
+      description: Restituisce `frontend/add_POI.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+
+  /admin/missioni/nuova:
+    get:
+      tags: [admin]
+      summary: Pagina creazione missione predefinita
+      description: Restituisce `frontend/add_default_mission.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+
+  /admin/attivita:
+    get:
+      tags: [admin]
+      summary: Pagina approvazione attivita
+      description: Restituisce `frontend/approve_activity.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+
+  /admin/approve_activity:
+    get:
+      tags: [admin]
+      summary: Pagina approvazione attivita
+      description: Restituisce `frontend/approve_activity.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+
+  /admin/api/approvazioni:
+    get:
+      tags: [admin]
+      summary: Lista attivita da approvare
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Attivita con `statoApprovazione` false.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Attivita"
+        "401":
+          description: Token mancante o non valido.
+        "403":
+          description: Serve un account Amministratore.
+        "500":
+          description: Errore nel recupero delle attivita.
+
+  /admin/api/approvazioni/{id}/approva:
+    patch:
+      tags: [admin]
+      summary: Approva una attivita
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Attivita approvata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttivitaMutationResponse"
+        "404":
+          description: Attivita non trovata.
+        "500":
+          description: Errore durante l'approvazione.
+
+  /admin/api/approvazioni/{id}/rifiuta:
+    delete:
+      tags: [admin]
+      summary: Rifiuta ed elimina una richiesta di attivita
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Richiesta eliminata.
+        "404":
+          description: Attivita non trovata.
+        "500":
+          description: Errore durante l'eliminazione.
+
+  /admin/poi:
+    post:
+      tags: [admin]
+      summary: Crea un POI
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddPOIRequest"
+      responses:
+        "201":
+          description: POI creato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/POI"
+        "400":
+          description: Errore di validazione.
+        "409":
+          description: Nome o coordinate gia associate.
+        "500":
+          description: Errore durante il salvataggio.
+
+  /admin/missioni:
+    post:
+      tags: [admin]
+      summary: Crea una missione predefinita
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddMissionRequest"
+      responses:
+        "201":
+          description: Missione creata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Missione"
+        "400":
+          description: Errore di validazione.
+        "500":
+          description: Errore durante il salvataggio.
+
+  /admin/attivita/{attivitaId}:
+    patch:
+      tags: [admin]
+      summary: Approva una attivita
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: attivitaId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Attivita approvata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attivita"
+        "404":
+          description: Attivita inesistente.
+        "500":
+          description: Errore durante l'approvazione.
+
+  /esercente:
+    get:
+      tags: [esercente]
+      summary: Dashboard esercente
+      description: Restituisce `frontend/esercente_dashboard.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+
+  /esercente/nuova_attivita:
+    get:
+      tags: [esercente]
+      summary: Pagina creazione attivita
+      description: Restituisce `frontend/add_attivita.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+    post:
+      tags: [esercente]
+      summary: Crea una nuova attivita
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddAttivitaRequest"
+      responses:
+        "201":
+          description: Attivita creata, inizialmente non approvata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attivita"
+        "400":
+          description: Errore di validazione.
+        "403":
+          description: Serve account Esercente o Amministratore.
+        "409":
+          description: Nome attivita gia usato.
+        "500":
+          description: Errore durante il salvataggio.
+
+  /esercente/attivita/{id}:
+    get:
+      tags: [esercente]
+      summary: Pagina dettaglio attivita
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Pagina HTML.
+
+  /esercente/attivita/{id}/nuovo_coupon:
+    get:
+      tags: [esercente]
+      summary: Pagina creazione coupon
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Pagina HTML.
+    post:
+      tags: [esercente]
+      summary: Crea un coupon per una propria attivita
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCouponRequest"
+      responses:
+        "201":
+          description: Coupon creato con codice generato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Coupon"
+        "400":
+          description: Errore di validazione.
+        "403":
+          description: Attivita non appartenente all'esercente.
+        "409":
+          description: Titolo gia usato o collisione codice.
+        "500":
+          description: Errore durante il salvataggio.
+
+  /esercente/api/mie_attivita:
+    get:
+      tags: [esercente]
+      summary: Lista attivita dell'esercente autenticato
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Attivita dell'esercente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Attivita"
+        "500":
+          description: Errore nel recupero delle attivita.
+
+  /esercente/api/attivita/{id}:
+    get:
+      tags: [esercente]
+      summary: Dettaglio attivita e relativi coupon
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Dettagli attivita e coupon.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  attivita:
+                    $ref: "#/components/schemas/Attivita"
+                  coupon:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Coupon"
+        "404":
+          description: Attivita non trovata o non autorizzata.
+        "500":
+          description: Errore nel caricamento.
+
+  /missioni:
+    get:
+      tags: [missioni]
+      summary: Pagina elenco missioni
+      description: Restituisce `frontend/get_missions.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+
+  /missioni/in_corso:
+    get:
+      tags: [missioni]
+      summary: Pagina missione in corso
+      description: Restituisce `frontend/start_mission.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+
+  /missioni/completata:
+    get:
+      tags: [missioni]
+      summary: Pagina missione completata
+      description: Restituisce `frontend/complete_mission.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+
+  /missioni/api:
+    get:
+      tags: [missioni]
+      summary: Genera missioni disponibili
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Latitudine"
+        - $ref: "#/components/parameters/Longitudine"
+      responses:
+        "200":
+          description: Missioni generate dalla posizione dell'utente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionListResponse"
+        "500":
+          description: Errore durante il recupero.
+
+  /missioni/api/attiva:
+    get:
+      tags: [missioni]
+      summary: Missione attiva dell'utente
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Stato della missione attiva.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActiveMissionResponse"
+        "500":
+          description: Errore interno.
+
+  /missioni/api/avvia:
+    post:
+      tags: [missioni]
+      summary: Avvia una missione
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartMissionRequest"
+      responses:
+        "200":
+          description: Missione utente creata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissioneUtente"
+        "400":
+          description: Missione mancante o gia avviata.
+        "409":
+          description: Esiste gia una missione in corso.
+        "500":
+          description: Errore interno.
+
+  /missioni/api/{id}/progresso:
+    post:
+      tags: [missioni]
+      summary: Aggiorna il progresso della missione
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MissionProgressRequest"
+      responses:
+        "200":
+          description: Progresso aggiornato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissioneUtente"
+        "404":
+          description: Missione non attiva.
+        "500":
+          description: Errore interno.
+
+  /missioni/api/{id}/sospendi:
+    patch:
+      tags: [missioni]
+      summary: Sospende una missione in corso
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Missione sospesa.
+        "404":
+          description: Missione non trovata.
+        "500":
+          description: Errore interno.
+
+  /missioni/api/{id}/riprendi:
+    patch:
+      tags: [missioni]
+      summary: Riprende una missione sospesa
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Missione ripresa.
+        "404":
+          description: Missione non trovata.
+        "500":
+          description: Errore interno.
+
+  /missioni/api/{id}/completata:
+    post:
+      tags: [missioni]
+      summary: Completa una missione
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Missione completata e punti assegnati.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompleteMissionResponse"
+        "404":
+          description: Missione non trovata.
+        "500":
+          description: Errore interno.
+
+  /missioni/api/{id}/annulla:
+    delete:
+      tags: [missioni]
+      summary: Annulla una missione in corso o in pausa
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Missione annullata.
+        "404":
+          description: Missione non trovata.
+        "500":
+          description: Errore interno.
+
+  /coupon:
+    get:
+      tags: [coupon]
+      summary: Pagina catalogo coupon
+      description: Restituisce `frontend/consult_coupon.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+
+  /coupon/riscatta:
+    get:
+      tags: [coupon]
+      summary: Pagina riscatto coupon
+      description: Restituisce `frontend/use_coupon.html`.
+      responses:
+        "200":
+          description: Pagina HTML.
+
+  /coupon/api:
+    get:
+      tags: [coupon]
+      summary: Lista coupon disponibili
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Coupon con quantita maggiore di zero.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CouponListResponse"
+        "500":
+          description: Errore nel recupero dei coupon.
+
+  /coupon/api/acquistati:
+    get:
+      tags: [coupon]
+      summary: Lista coupon acquistati dall'utente
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Coupon acquistati.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CouponAcquistatoListResponse"
+        "500":
+          description: Errore nel recupero.
+
+  /coupon/api/acquista/{code}:
+    post:
+      tags: [coupon]
+      summary: Acquista un coupon tramite codice
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Acquisto completato.
+        "400":
+          description: Codice mancante, coupon esaurito o punti insufficienti.
+        "404":
+          description: Coupon non trovato.
+        "500":
+          description: Errore nell'acquisto.
+
+  /coupon/api/{id}/riscatta:
+    patch:
+      tags: [coupon]
+      summary: Riscatta un coupon acquistato
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Coupon riscattato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CouponAcquistatoResponse"
+        "400":
+          description: Coupon gia usato o scaduto.
+        "403":
+          description: Utente non autorizzato.
+        "404":
+          description: Coupon acquistato non trovato.
+        "500":
+          description: Errore interno.
+
+  /coupon/api/acquistati/{id}:
+    get:
+      tags: [coupon]
+      summary: Dettaglio coupon acquistato
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Dettaglio coupon acquistato.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CouponAcquistatoResponse"
+        "403":
+          description: Non autorizzato.
+        "404":
+          description: Coupon non trovato.
+        "500":
+          description: Errore nel recupero.
+
+  /user/api/punti:
+    get:
+      tags: [utente]
+      summary: Punti dell'utente autenticato
+      description: >
+        Restituisce `currentPoints` e `totalPoints`. Gli amministratori ricevono
+        1000 punti fissi.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Punti utente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPointsResponse"
+        "404":
+          description: Utente/Persona non trovato.
+        "500":
+          description: Errore del server.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    Latitudine:
+      name: latitudine
+      in: query
+      required: false
+      schema:
+        type: number
+        default: 46.066423
+      description: Latitudine della posizione di riferimento.
+    Longitudine:
+      name: longitudine
+      in: query
+      required: false
+      schema:
+        type: number
+        default: 11.125760
+      description: Longitudine della posizione di riferimento.
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        error:
+          type: string
+        success:
+          type: boolean
+
+    GeoPoint:
+      type: object
+      required: [coordinates]
+      properties:
+        type:
+          type: string
+          enum: [Point]
+          default: Point
+        coordinates:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            type: number
+          description: Coordinate GeoJSON nel formato `[longitudine, latitudine]`.
+          example: [11.125760, 46.066423]
+
+    Persona:
+      type: object
+      properties:
+        _id:
+          type: string
+        type:
+          type: string
+          enum: [Utente, Esercente, Amministratore]
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        preferences:
+          type: array
+          items:
+            type: boolean
+        totalPoints:
+          type: number
+        currentPoints:
+          type: number
+        badges:
+          type: array
+          items:
+            type: boolean
+        nome:
+          type: string
+        cognome:
+          type: string
+        codiceFiscale:
+          type: string
+        partitaIVA:
+          type: string
+
+    SignUpRequest:
+      type: object
+      required: [type, username, email, password]
+      properties:
+        type:
+          type: string
+          enum: [Utente, Esercente]
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        preferences:
+          type: array
+          items:
+            type: boolean
+        totalPoints:
+          type: number
+          minimum: 0
+        currentPoints:
+          type: number
+          minimum: 0
+        badges:
+          type: array
+          items:
+            type: boolean
+        nome:
+          type: string
+          description: Richiesto per `Esercente`.
+        cognome:
+          type: string
+          description: Richiesto per `Esercente`.
+        codiceFiscale:
+          type: string
+          pattern: "^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$"
+          description: Richiesto e univoco per `Esercente`.
+        partitaIVA:
+          type: string
+          pattern: "^\\d{11}$"
+          description: Richiesto e univoco per `Esercente`.
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        token:
+          type: string
+        role:
+          type: string
+          enum: [Utente, Esercente, Amministratore]
+        username:
+          type: string
+
+    POI:
+      type: object
+      properties:
+        _id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+        posizione:
+          $ref: "#/components/schemas/GeoPoint"
+        urlImmagini:
+          type: array
+          items:
+            type: string
+        categoria:
+          type: array
+          items:
+            type: string
+            enum: [Cultura, Natura, Storia, Sport, Svago, Benessere, Spettacolo, Musica, Indoor, Outdoor, Bar, Ristorante]
+        meteoCondition:
+          type: array
+          items:
+            type: string
+            enum: [Sole, Nuvoloso, Pioggia, Neve]
+
+    AddPOIRequest:
+      type: object
+      required: [nome, descrizione, posizione, categoria]
+      properties:
+        nome:
+          type: string
+        descrizione:
+          type: string
+        posizione:
+          $ref: "#/components/schemas/GeoPoint"
+        urlImmagini:
+          type: array
+          items:
+            type: string
+        categoria:
+          type: array
+          items:
+            type: string
+            enum: [Cultura, Natura, Storia, Sport, Svago, Benessere, Spettacolo, Musica, Indoor, Outdoor, Bar, Ristorante]
+        meteoCondition:
+          type: array
+          items:
+            type: string
+            enum: [Sole, Nuvoloso, Pioggia, Neve]
+
+    POIListResponse:
+      type: object
+      properties:
+        quantita:
+          type: integer
+        dati:
+          type: array
+          items:
+            $ref: "#/components/schemas/POI"
+
+    DailyHours:
+      type: object
+      properties:
+        aperto:
+          type: boolean
+          default: true
+        apertura:
+          type: string
+          example: "09:00"
+        chiusura:
+          type: string
+          example: "19:00"
+
+    WeeklyHours:
+      type: object
+      properties:
+        lunedi:
+          $ref: "#/components/schemas/DailyHours"
+        martedi:
+          $ref: "#/components/schemas/DailyHours"
+        mercoledi:
+          $ref: "#/components/schemas/DailyHours"
+        giovedi:
+          $ref: "#/components/schemas/DailyHours"
+        venerdi:
+          $ref: "#/components/schemas/DailyHours"
+        sabato:
+          $ref: "#/components/schemas/DailyHours"
+        domenica:
+          $ref: "#/components/schemas/DailyHours"
+
+    Attivita:
+      type: object
+      properties:
+        _id:
+          type: string
+        esercenteId:
+          type: string
+        nomeAttivita:
+          type: string
+        descrizione:
+          type: string
+        posizione:
+          $ref: "#/components/schemas/GeoPoint"
+        orari:
+          $ref: "#/components/schemas/WeeklyHours"
+        categoria:
+          type: array
+          items:
+            type: string
+            enum: [Bar, Pizzeria, Ristorante, Panetteria, Vestiario, Negozio, Alimentari]
+        statoApprovazione:
+          type: boolean
+          default: false
+
+    AddAttivitaRequest:
+      type: object
+      required: [nomeAttivita, descrizione, posizione, categoria]
+      properties:
+        nomeAttivita:
+          type: string
+        descrizione:
+          type: string
+        posizione:
+          $ref: "#/components/schemas/GeoPoint"
+        orari:
+          $ref: "#/components/schemas/WeeklyHours"
+        categoria:
+          type: array
+          items:
+            type: string
+            enum: [Bar, Pizzeria, Ristorante, Panetteria, Vestiario, Negozio, Alimentari]
+
+    AttivitaMutationResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          $ref: "#/components/schemas/Attivita"
+
+    MissionPoint:
+      type: object
+      required: [lat, lng]
+      properties:
+        lat:
+          type: number
+        lng:
+          type: number
+
+    Missione:
+      type: object
+      properties:
+        _id:
+          type: string
+        arrayPOI:
+          type: array
+          items:
+            type: string
+          description: Array di ObjectId riferiti a `POI`.
+        puntiDinamici:
+          type: array
+          items:
+            $ref: "#/components/schemas/MissionPoint"
+        punti:
+          type: number
+          minimum: 0
+        bonusGamification:
+          type: number
+          minimum: 0
+        risparmioCO2:
+          type: number
+          minimum: 0
+        stato:
+          type: string
+          enum: [DaIniziare, InCorso, Completata, Annullata, InPausa]
+        titolo:
+          type: string
+        descrizione:
+          type: string
+        predefinita:
+          type: boolean
+        preferredWeather:
+          type: array
+          items:
+            type: string
+
+    AddMissionRequest:
+      type: object
+      required: [titolo, punti, arrayPOI, predefinita]
+      properties:
+        titolo:
+          type: string
+        descrizione:
+          type: string
+        punti:
+          type: number
+          minimum: 0
+        stato:
+          type: string
+          enum: [DaIniziare, InCorso, Completata, Annullata, InPausa]
+          default: DaIniziare
+        predefinita:
+          type: boolean
+        bonusGamification:
+          type: number
+          minimum: 0
+        risparmioCO2:
+          type: number
+          minimum: 0
+        arrayPOI:
+          type: array
+          items:
+            type: string
+          description: ObjectId dei POI; la route accetta anche JSON stringificato.
+
+    MissionListResponse:
+      type: object
+      properties:
+        quantita:
+          type: integer
+        dati:
+          type: array
+          items:
+            $ref: "#/components/schemas/Missione"
+
+    MissioneUtente:
+      type: object
+      properties:
+        _id:
+          type: string
+        userId:
+          type: string
+        missionId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Missione"
+        stato:
+          type: string
+          enum: [DaIniziare, InCorso, Completata, Annullata, InPausa]
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+          nullable: true
+        currentStep:
+          type: number
+        progress:
+          type: object
+          properties:
+            visitedPOI:
+              type: array
+              items:
+                type: string
+        rewardGiven:
+          type: boolean
+
+    ActiveMissionResponse:
+      type: object
+      properties:
+        active:
+          type: boolean
+        data:
+          nullable: true
+          type: object
+          properties:
+            userMission:
+              $ref: "#/components/schemas/MissioneUtente"
+            mission:
+              $ref: "#/components/schemas/Missione"
+
+    StartMissionRequest:
+      type: object
+      description: Inviare `missionId` oppure `missionData`.
+      properties:
+        missionId:
+          type: string
+        missionData:
+          $ref: "#/components/schemas/Missione"
+
+    MissionProgressRequest:
+      type: object
+      required: [poiId]
+      properties:
+        poiId:
+          type: string
+
+    CompleteMissionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Missione completata!
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        reward:
+          type: number
+        percorso:
+          type: array
+          items:
+            type: string
+
+    Coupon:
+      type: object
+      properties:
+        _id:
+          type: string
+        attivitaId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Attivita"
+        titolo:
+          type: string
+        descrizione:
+          type: string
+        codice:
+          type: string
+        costoInPunti:
+          type: number
+        scadenza:
+          type: string
+          format: date-time
+        categoria:
+          type: string
+          enum: [ScontoPercentuale, ScontoInDenaro, Omaggio]
+        quantita:
+          type: number
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AddCouponRequest:
+      type: object
+      required: [titolo, costoInPunti, scadenza, categoria, quantita]
+      properties:
+        titolo:
+          type: string
+        descrizione:
+          type: string
+        costoInPunti:
+          type: number
+        scadenza:
+          type: string
+          format: date-time
+        categoria:
+          type: string
+          enum: [ScontoPercentuale, ScontoInDenaro, Omaggio]
+        quantita:
+          type: number
+          minimum: 0
+
+    CouponAcquistato:
+      type: object
+      properties:
+        _id:
+          type: string
+        utenteId:
+          type: string
+        couponId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Coupon"
+        statoUtilizzo:
+          type: boolean
+          default: false
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CouponListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        count:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Coupon"
+
+    CouponAcquistatoListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        count:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CouponAcquistato"
+
+    CouponAcquistatoResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          $ref: "#/components/schemas/CouponAcquistato"
+
+    UserPointsResponse:
+      type: object
+      properties:
+        currentPoints:
+          type: number
+        totalPoints:
+          type: number
