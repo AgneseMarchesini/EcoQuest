@@ -48,6 +48,10 @@ app.use("/poi", routePOI);
 app.use("/missioni", routeMission);
 app.use("/coupon", routeCoupon);
 app.use("/user", routeUser);
-app.listen(3000);
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(3000, () => {
+        console.log("Server in ascolto sulla porta 3000");
+    });
+}
 
 module.exports = app;

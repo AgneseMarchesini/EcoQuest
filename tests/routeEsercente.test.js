@@ -29,7 +29,7 @@ afterEach(() => {
 afterAll(async () => {
     await mongoose.connection.close();
 });
-describe('POST /esercente/attivita/:id/nuovo_coupon (Crea Coupon)', () => {
+describe('Crea Coupon', () => {
     
     // TC1
     test('1. [Happy Path] Creazione di un coupon inserendo tutti i campi validi', async () => {
