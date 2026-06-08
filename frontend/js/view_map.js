@@ -182,7 +182,7 @@ async function creaMappaInterattiva(config) {
                 });
             }
 
-            const url = `http://localhost:3000/poi/puntiVicini?latitudine=${latitudine}&longitudine=${longitudine}&raggio=${raggio}`;
+            const url = `/poi/puntiVicini?latitudine=${latitudine}&longitudine=${longitudine}&raggio=${raggio}`;
             const response = await fetch(url);
             const json = await response.json();
 

@@ -43,7 +43,8 @@ if (process.env.NODE_ENV !== 'test') {
         .then(() => console.log("Connected to the database!"))
         .catch((err) => console.log("Connection error: ", err));
 
-    app.listen(3000, () => {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
         console.log("Server in ascolto sulla porta 3000");
     });
 }
