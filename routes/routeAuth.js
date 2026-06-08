@@ -1,3 +1,9 @@
+/**
+ * Gestisce i flussi di autenticazione, registrazione e sicurezza per tutte le tipologie 
+ * di attori del sistema (Utenti, Amministratori, Esercenti). Si occupa della convalida delle credenziali, 
+ * della creazione dei nuovi profili e dell'emissione dei token di sessione (JWT) necessari per le rotte protette.
+ */
+
 const express = require("express")
 const router = express.Router()
 const Persona = require("../models/persona")
@@ -100,7 +106,13 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({message: "Token non creato"})
         }
 
-        return res.json({token})
+        return res.json({
+            success: true,
+            token: token,
+            role: persona.type,
+            username: persona.username
+        });
+        
     } catch (error) {
         let message = "Errore durante il login";
 

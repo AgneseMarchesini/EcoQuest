@@ -1,3 +1,10 @@
+/**
+ * Implementa le formule matematiche per valutare quanto una missione sia "buona" per l'utente.
+ * Calcola la distanza fisica, valuta la compatibilità del meteo e combina 
+ * questi fattori per restituire un punteggio finale, 
+ * gestendo sia le missioni dinamiche che quelle predefinite.
+ */
+
 function getDistanceInMeters(lat1, lon1, lat2, lon2) {
     const R = 6371e3; // raggio della terra in metri
     const dLat = (lat2 - lat1) * Math.PI / 180;

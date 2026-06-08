@@ -1,3 +1,10 @@
+/**
+ * Controlla l'interfaccia e la logica di registrazione dei nuovi account. Implementa un meccanismo 
+ * di form dinamico che mostra o nasconde i campi richiesti in base alla tipologia di profilo selezionata 
+ * (Utente normale vs. Esercente). Per gli Esercenti, esige dati fiscali aggiuntivi (Nome, Cognome, CF, Partita IVA). 
+ * Esegue controlli di validazione (es. corrispondenza delle password) e invia il payload strutturato a `/auth/sign_up`.
+ */
+
 const radioUtente = document.getElementById("userUtente");
 const radioEsercente = document.getElementById("userEsercente");
 const labelUtente = document.getElementById("labelUtente");

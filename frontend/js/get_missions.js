@@ -1,3 +1,10 @@
+/**
+ * Regola la schermata di scoperta e selezione delle missioni (la "quest board"). Recupera la posizione 
+ * attuale dell'utente e interroga il backend (`/missioni/api`) per ottenere un mix di missioni predefinite e 
+ * generate dinamicamente nei dintorni. Crea dinamicamente le schede riassuntive e gestisce l'apertura di una 
+ * sidebar di dettaglio che mostra l'anteprima esatta del percorso. Modifica anche in tempo reale la ricompensa 
+ * in punti calcolando un fattore di penalità basato sul mezzo di trasporto scelto.
+ */
 const bike_factor = 0.9
 const car_factor = 0.5
 const defaultPosition = {
@@ -99,7 +106,7 @@ function createAppMapLink(point) {
         longitudine: point.lng,
         focusPoi: "true"
     });
-    const url = `/home/homepage?${params.toString()}`;
+    const url = `/homepage?${params.toString()}`;
     return `<a class="maps-link" href="${url}">Apri mappa</a>`;
 }
 
@@ -122,7 +129,7 @@ function resumeActiveMission() {
     }
 
     saveActiveMission(activeMissionData);
-    window.location.href = "/mission/start_mission";
+    window.location.href = "/missioni/in_corso";
 }
 
 function renderActiveMission(activePayload) {
@@ -139,13 +146,17 @@ function renderActiveMission(activePayload) {
 }
 
 async function loadActiveMission(token) {
-    const response = await fetch("/mission/active", {
+    const response = await fetch("/missioni/api/attiva", {
         headers: {
             Authorization: `Bearer ${token}`
         }
     });
 
-    if (response.status === 401 || response.status === 403) {
+    if (redirectToLoginIfUnauthorized(response)) {
+        throw new Error("Token non valido o scaduto");
+    }
+
+    if (response.status === 403) {
         localStorage.removeItem("token");
         throw new Error("Token non valido o scaduto");
     }
@@ -191,7 +202,7 @@ async function startMission(mission, button) {
                 }
             };
 
-        const response = await fetch("/mission/start", {
+        const response = await fetch("/missioni/api/avvia", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -199,6 +210,10 @@ async function startMission(mission, button) {
             },
             body: JSON.stringify(body)
         });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
 
         const data = await response.json();
 
@@ -218,7 +233,7 @@ async function startMission(mission, button) {
             userMission: data
         });
 
-        window.location.href = "/mission/start_mission";
+        window.location.href = "/missioni/in_corso";
     } catch (error) {
         button.disabled = false;
         button.textContent = originalText;
@@ -322,13 +337,17 @@ async function loadMissions() {
     try {
         await loadActiveMission(token);
 
-        const response = await fetch(`/mission/listaMissioni?${params.toString()}`, {
+        const response = await fetch(`/missioni/api?${params.toString()}`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
 
-        if (response.status === 401 || response.status === 403) {
+        if (redirectToLoginIfUnauthorized(response)) {
+            throw new Error("Token non valido o scaduto");
+        }
+
+        if (response.status === 403) {
             localStorage.removeItem("token");
             throw new Error("Token non valido o scaduto");
         }
@@ -421,7 +440,6 @@ function closeSidebarFunc() {
     }
 }
 
-// Event listeners for closing
 closeBtn.addEventListener("click", closeSidebarFunc);
 overlay.addEventListener("click", closeSidebarFunc);
 

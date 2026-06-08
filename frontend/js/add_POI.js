@@ -1,3 +1,11 @@
+/**
+ * Controlla la logica frontend della dashboard amministrativa dedicata all'inserimento 
+ * manuale di nuovi Punti di Interesse (POI). Sfrutta una mappa interattiva per acquisire facilmente 
+ * le coordinate geografiche (lat/lng) al clic dell'utente, gestisce campi di input dinamici (per aggiungere 
+ * un numero variabile di URL immagini) e aggrega dati fondamentali come categorie e compatibilità meteo. 
+ * Formatta poi la posizione secondo lo standard GeoJSON e invia il payload all'endpoint protetto `/admin/poi`.
+ */
+
 let messageTimeout;
 
 function showError(message) {
@@ -47,9 +55,6 @@ map.on('click', function (e) {
         marker = L.marker([latitudine, longitudine]).addTo(map);
     }
 
-    console.log("Latitudine:", latitudine);
-    console.log("Longitudine:", longitudine);
-
 });
 
 const imagesContainer = document.getElementById("images-container");
@@ -76,6 +81,9 @@ imagesContainer.addEventListener("input", function (e) {
 });
 
 document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
+    if (!checkPageAuth(['Amministratore'])) {
+        return;
+    }
     e.preventDefault();
 
     if(!position.lat || !position.lng)
@@ -109,7 +117,7 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
 
     try {
         const token = localStorage.getItem("token")
-        const response = await fetch("/admin/add_POI", {
+        const response = await fetch("/admin/poi", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -117,6 +125,10 @@ document.getElementById("aggiungiPoi").addEventListener("submit", async (e) => {
             },
             body: JSON.stringify(poi)
         });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
 
         const data = await response.json();
 

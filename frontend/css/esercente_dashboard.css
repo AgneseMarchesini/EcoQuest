@@ -1,0 +1,128 @@
+        
+.dashboard-container {
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #bbd5da;
+}
+
+.dashboard-header h2 {
+    margin: 0;
+    text-align: left;
+}
+
+.btn-add {
+    padding: 10px 20px;
+    background-color: #37ff8b;
+    color: #000000;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn-add:hover {
+    background-color: #1ea85a;
+}
+
+.attivita-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.attivita-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.attivita-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+.attivita-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.attivita-category {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #8d9ec6;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.attivita-desc {
+    font-size: 0.95rem;
+    color: #4d4d4d;
+    margin-bottom: 20px;
+    flex-grow: 1; /* Spinge il bottone in fondo */
+}
+
+.btn-details {
+    text-align: center;
+    padding: 10px;
+    background-color: #bbd5da;
+    color: #1a1a1a;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.btn-details:hover {
+    background-color: #8d9ec6;
+    color: #fff;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    border: 2px dashed #bbd5da;
+    color: #666;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-bottom: 20px; 
+    width: fit-content;
+}
+
+.badge-approvata {
+    background-color: #e6ffed;
+    color: #1a7f37;
+    border: 1px solid #1a7f37;
+}
+
+.badge-attesa {
+    background-color: #fff8c5;
+    color: #9a6700;
+    border: 1px solid #d4a72c;
+}

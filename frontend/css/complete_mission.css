@@ -1,0 +1,98 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 10px 0 5px 0;
+    color: #1a252f;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+    margin-bottom: 40px;
+}
+
+.stats-grid {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 40px;
+    width: 100%;
+    max-width: 600px;
+    justify-content: center;
+}
+
+.stat-card {
+    background: #ffffff;
+    flex: 1;
+    padding: 25px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-top: 5px solid #2ecc71;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #95a5a6;
+    letter-spacing: 1px;
+}
+
+.map-section {
+    width: 100%;
+    max-width: 800px;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.map-section h2 {
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    text-align: left;
+}
+
+#summaryMap {
+    width: 100%;
+    height: 350px;
+    border-radius: 12px;
+    background: #e9ecef;
+    border: 2px solid #f1f2f6;
+    overflow: hidden;
+}

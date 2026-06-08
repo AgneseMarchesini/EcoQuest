@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css">
     <link rel="stylesheet" href="/css/start_mission.css">
+    <link rel="stylesheet" href="/css/get_missions.css">
     <link rel="icon" href="/assets/logo.png">
 </head>
 <body>
@@ -33,6 +34,15 @@
 
             <div id="poiList" class="poi-list"></div>
 
+            <div class="transport-selector" style="margin-bottom: 1rem;">
+                <label for="activeTransportMode">Mezzo di trasporto:</label>
+                <select id="activeTransportMode" class="styled-select">
+                    <option value="foot" selected>A piedi</option>
+                    <option value="bike">Bicicletta</option>
+                    <option value="car">Auto (Sconsigliata)</option>
+                </select>
+            </div>
+
             <section class="tracking-section">
                 <div class="tracking-header">
                     <div>
@@ -47,14 +57,18 @@
             <div id="statusMessage" class="status-message hidden" role="status"></div>
 
             <div class="actions">
-                <a id="openMapLink" class="secondary-button" href="/home/homepage">Apri mappa</a>
-                <a class="primary-button" href="/mission/get_missions">Torna alle missioni</a>
+                <a id="openMapLink" class="secondary-button" href="/homepage">Apri mappa</a>
+                <button id="suspendMissionBtn" type="button" class="secondary-button">Sospendi missione</button>
+                <button id="resumeMissionBtn" type="button" class="primary-button hidden">Riprendi missione</button>
+                <button id="cancelMissionBtn" type="button" class="danger-button">Annulla missione</button>
+                <a class="primary-button" href="/missioni">Torna alle missioni</a>
             </div>
         </section>
     </main>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script src="/js/auth_utils.js"></script>
     <script src="/js/start_mission.js"></script>
 </body>
 </html>

@@ -1,17 +1,21 @@
+/**
+ * Definisce tutte le rotte API per gestire l'intero ciclo di vita delle missioni dell'utente.
+ * Include la logica per ottenere missioni, avviare una missione, aggiornare il progresso 
+ * e gestire il completamento con la relativa assegnazione di punti.
+ */
+
 const express = require("express")
 const router = express.Router()
-const poi = require('../models/POI');
-const POI = require("../models/POI");
+const poi = require('../models/POI.js');
+const POI = require("../models/POI.js");
 const path = require('path');
-const generateUserMissions = require('../mission_system/missionService');
-const { authMiddleware } = require("../utils");
-const Missione = require('../models/missione');
+const generateUserMissions = require('../mission_system/missionService.js');
+const { authMiddleware } = require("../utils.js");
+const Missione = require('../models/missione.js');
 const MissioneUtente = require("../models/missioneUtente.js");
 const Utente = require("../models/utente.js");
 
-function getUserId(req) {
-    return req.user.userId || req.user.id;
-}
+// funzioni di supporto
 
 async function getActiveMission(userId) {
     const userMission = await MissioneUtente.findOne({
@@ -29,16 +33,7 @@ async function getActiveMission(userId) {
     };
 }
 
-router.get("/get_missions", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/get_missions.html"));
-});
-
-router.get("/start_mission", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/start_mission.html"));
-});
-
 async function generaMissioni(lat, lng) {
-    
     const allPois = await poi.find({});
     if (!allPois || allPois.length === 0) return [];
 
@@ -82,7 +77,22 @@ async function generaMissioni(lat, lng) {
     return missions;
 }
 
-router.get('/listaMissioni', authMiddleware, async (req, res) => {
+// rotte html
+
+router.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/get_missions.html"));
+});
+
+router.get("/in_corso", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/start_mission.html"));
+});
+
+router.get("/completata", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/complete_mission.html"));
+});
+
+// ottieni missioni vicine
+router.get('/api', authMiddleware, async (req, res) => {
     try {
         const latitudine = parseFloat(req.query.latitudine) || 46.066423;
         const longitudine = parseFloat(req.query.longitudine) || 11.125760;
@@ -101,9 +111,10 @@ router.get('/listaMissioni', authMiddleware, async (req, res) => {
     }
 });
 
-router.get("/active", authMiddleware, async (req, res) => {
+//ottieni missione attiva dell'utente
+router.get("/api/attiva", authMiddleware, async (req, res) => {
     try {
-        const activeMission = await getActiveMission(getUserId(req));
+        const activeMission = await getActiveMission(req.user.userId);
 
         res.status(200).json({
             active: Boolean(activeMission),
@@ -115,13 +126,13 @@ router.get("/active", authMiddleware, async (req, res) => {
     }
 });
 
-router.post("/start", authMiddleware, async (req, res) => {
+// avvia una missione
+router.post("/api/avvia", authMiddleware, async (req, res) => {
     try {
-        const userId = getUserId(req);
+        const userId = req.user.userId;
         const { missionId, missionData } = req.body;
         let missionIdToStart = missionId;
 
-        // 1. Controllo se l'utente ha già una missione attiva
         const activeMission = await getActiveMission(userId);
         if (activeMission) {
             return res.status(409).json({
@@ -130,12 +141,9 @@ router.post("/start", authMiddleware, async (req, res) => {
             });
         }
 
-        // 2. Se è una missione dinamica/generata (senza missionId ma con missionData)
         if (!missionIdToStart && missionData) {
             let rawPOIArray = missionData.arrayPOI;
-            let finalPoiIds = [];
 
-            // Parsing di sicurezza se i dati arrivano formattati come stringa
             if (typeof rawPOIArray === 'string') {
                 rawPOIArray = JSON.parse(rawPOIArray);
             }
@@ -143,32 +151,22 @@ router.post("/start", authMiddleware, async (req, res) => {
                 rawPOIArray = JSON.parse(rawPOIArray[0]);
             }
 
-            // Trasforma le coordinate {lat, lng} del frontend in veri POI nel database
+            let finalPoiIds = [];
+            let puntiDinamici = [];
+
             for (let item of rawPOIArray) {
                 if (item && (item.lat || (item.posizione && item.posizione.coordinates))) {
                     const lat = item.lat || item.posizione.coordinates[1];
                     const lng = item.lng || item.posizione.coordinates[0];
-
-                    const temporaryPOI = await POI.create({
-                        nome: `Punto Generato - ${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-                        descrizione: "Punto di interesse generato dinamicamente",
-                        posizione: {
-                            type: 'Point',
-                            coordinates: [lng, lat] // Formato GeoJSON: [Longitudine, Latitudine]
-                        },
-                        categoria: ['Outdoor'] // Categoria di fallback obbligatoria del tuo schema
-                    });
-
-                    finalPoiIds.push(temporaryPOI._id);
+                    puntiDinamici.push({ lat, lng });
                 } else {
-                    // Se è già un ID stringa valido, lo aggiunge direttamente
                     finalPoiIds.push(item);
                 }
             }
 
-            // Nota: se il tuo modello si chiama 'mission' invece di 'Missione', adatta la riga sotto
             const nuovaMissione = await Missione.create({
-                arrayPOI: finalPoiIds, // Array pulito di soli ObjectIds!
+                arrayPOI: finalPoiIds, 
+                puntiDinamici: puntiDinamici,
                 punti: missionData.punti,
                 bonusGamification: missionData.bonusGamification,
                 risparmioCO2: missionData.risparmioCO2,
@@ -181,14 +179,12 @@ router.post("/start", authMiddleware, async (req, res) => {
             missionIdToStart = nuovaMissione._id;
         }
 
-        // 3. Verifica finale sulla presenza del codice missione
         if (!missionIdToStart) {
             return res.status(400).json({
                 message: "missionId o missionData mancanti"
             });
         }
 
-        // 4. Controlla se la specifica missione è già stata avviata/completata in precedenza
         const existing = await MissioneUtente.findOne({
             userId,
             missionId: missionIdToStart,
@@ -201,7 +197,6 @@ router.post("/start", authMiddleware, async (req, res) => {
             });
         }
 
-        // 5. Crea la sessione di tracciamento attiva per l'utente (Risolve il problema di visibilità)
         const userMission = await MissioneUtente.create({
             userId,
             missionId: missionIdToStart,
@@ -211,8 +206,6 @@ router.post("/start", authMiddleware, async (req, res) => {
             progress: { visitedPOI: [] },
             rewardGiven: false
         });
-
-        // Restituisce l'oggetto di tracciamento atteso dal frontend
         res.json(userMission);
 
     } catch (error) {
@@ -221,10 +214,12 @@ router.post("/start", authMiddleware, async (req, res) => {
     }
 });
 
-router.post("/progress", authMiddleware, async (req, res) => {
+// aggiorna i progressi
+router.post("/api/:id/progresso", authMiddleware, async (req, res) => {
     try{
-        const userId = getUserId(req);
-        const { missionId, poiId } = req.body;
+        const userId = req.user.userId;
+        const missionId = req.params.id;
+        const { poiId } = req.body;
 
         const userMission = await MissioneUtente.findOne({
             userId,
@@ -253,11 +248,66 @@ router.post("/progress", authMiddleware, async (req, res) => {
     }
 });
 
+// sospendi missione
+router.patch("/api/:id/sospendi", authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const missionId = req.params.id;
 
-router.post("/complete", authMiddleware, async (req, res) => {
+        const userMission = await MissioneUtente.findOne({
+            userId,
+            missionId,
+            stato: "InCorso"
+        });
+
+        if (!userMission) {
+            return res.status(404).json({message: "Missione non trovata"})
+        }
+
+        userMission.stato = "InPausa"
+
+        await userMission.save()
+
+        return res.status(200).json({message: "Missione sospesa con successo"})
+        
+    } catch (error) {
+        console.error("Errore in /sospendi:", error);
+        res.status(500).json({ message: "Errore interno del server" });
+    }
+})
+
+router.patch("/api/:id/riprendi", authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const missionId = req.params.id;
+
+        const userMission = await MissioneUtente.findOne({
+            userId,
+            missionId,
+            stato: "InPausa"
+        });
+
+        if (!userMission) {
+            return res.status(404).json({ message: "Missione non trovata" });
+        }
+
+        userMission.stato = "InCorso";
+
+        await userMission.save();
+
+        return res.status(200).json({ message: "Missione ripresa con successo" });
+        
+    } catch (error) {
+        console.error("Errore in /riprendi:", error);
+        res.status(500).json({ message: "Errore interno del server" });
+    }
+});
+
+// completa missione
+router.post("/api/:id/completata", authMiddleware, async (req, res) => {
     try{
-        const userId = getUserId(req);
-        const { missionId } = req.body;
+        const userId = req.user.userId;
+        const missionId = req.params.id;
 
         const userMission = await MissioneUtente.findOne({
             userId,
@@ -291,10 +341,36 @@ router.post("/complete", authMiddleware, async (req, res) => {
 
         res.json({
             message: "Missione completata!",
-            reward
+            startTime: userMission.startTime,
+            endTime: userMission.endTime,
+            reward,
+            percorso: missioneCompletata.arrayPOI
+
         });
     } catch (error) {
         console.error("Errore in /complete:", error);
+        res.status(500).json({ message: "Errore interno del server" });
+    }
+});
+
+router.delete("/api/:id/annulla", authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const missionId = req.params.id;
+
+        const userMission = await MissioneUtente.findOneAndDelete({
+            userId,
+            missionId,
+            stato: { $in: ["InCorso", "InPausa"] }
+        });
+
+        if (!userMission) {
+            return res.status(404).json({ message: "Missione non trovata" });
+        }
+
+        return res.status(200).json({ message: "Missione annullata con successo" });
+    } catch (error) {
+        console.error("Errore in /annulla:", error);
         res.status(500).json({ message: "Errore interno del server" });
     }
 });

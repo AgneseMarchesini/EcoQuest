@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecoquest - Dashboard Esercente</title>
+    <link rel="stylesheet" href="/css/add.css">
+    <link rel="stylesheet" href="/css/add_attivita.css">
+    <link rel="stylesheet" href="/css/esercente_dashboard.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    
+    <link rel="icon" href="/assets/logo.png">
+    <script src="/js/auth_utils.js"></script>
+    <script>
+        checkPageAuth(['Esercente', 'Amministratore']);
+    </script>
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/homepage" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="/esercente/nuova_attivita" class="nav-item">Crea Attivita</a></li>
+                    <li class="user-only"><a href="#" class="nav-item">Gestione Profilo</a></li>
+                    <li><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="activity-page">
+        <div class="activity-form dashboard-container">
+            
+            <div class="dashboard-header">
+                <h2>Le tue Attività</h2>
+                <a href="/esercente/nuova_attivita" class="btn-add">+ Aggiungi Attività</a>
+            </div>
+
+            <div id="errorMessage"></div>
+            
+            <div id="attivita-list" class="attivita-grid">
+                <p>Caricamento attività in corso...</p>
+            </div>
+
+        </div>
+    </div>
+    <script src="/js/auth_utils.js"></script>
+    <script src="/js/esercente_dashboard.js"></script>
+    <script src="/js/navbar.js"></script>
+</body>
+</html>

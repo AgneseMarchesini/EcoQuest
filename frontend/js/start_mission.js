@@ -1,3 +1,13 @@
+/**
+ * Gestisce la logica e l'interfaccia della fase di "gameplay" vera e propria, ovvero lo svolgimento 
+ * di una missione attiva. Attiva il tracciamento GPS in tempo reale (tramite `navigator.geolocation`), disegna 
+ * il percorso sulla mappa interattiva (Leaflet + OSRM) in base al mezzo scelto e calcola costantemente la distanza 
+ * dell'utente dai Punti di Interesse (POI) da raggiungere. Segna automaticamente i POI come "visitati" quando 
+ * ci si avvicina sotto una certa soglia (45 metri). Inoltre, gestisce i controlli di stato della missione, 
+ * permettendo all'utente di sospendere la missione (mettendola in pausa per riprenderla in un secondo momento), 
+ * riprenderla o annullarla definitivamente, comunicando i cambi di stato al backend.
+ */
+
 let activeMission = JSON.parse(sessionStorage.getItem("activeMission") || "null");
 
 const ROUTE_TOLERANCE_METERS = 90;
@@ -13,6 +23,11 @@ const openMapLink = document.getElementById("openMapLink");
 const statusMessage = document.getElementById("statusMessage");
 const trackingText = document.getElementById("trackingText");
 const toggleTrackingBtn = document.getElementById("toggleTrackingBtn");
+const suspendMissionBtn = document.getElementById("suspendMissionBtn");
+const resumeMissionBtn = document.getElementById("resumeMissionBtn");
+const transportModeSelect = document.getElementById("activeTransportMode");
+const cancelMissionBtn = document.getElementById("cancelMissionBtn");
+let lastPosition = null;
 
 let map = null;
 let routingControl = null;
@@ -92,7 +107,7 @@ function getMissionPoints(mission) {
 
 function buildMapUrl(point) {
     if (!point || !Number.isFinite(point.lat) || !Number.isFinite(point.lng)) {
-        return "/home/homepage";
+        return "/homepage";
     }
 
     const params = new URLSearchParams({
@@ -101,7 +116,7 @@ function buildMapUrl(point) {
         focusPoi: "true"
     });
 
-    return `/home/homepage?${params.toString()}`
+    return `/homepage?${params.toString()}`
 }
 
 function distanceMeters(a, b) {
@@ -206,14 +221,17 @@ async function completeMissionOnServer() {
     completionSubmitted = true;
 
     try {
-        const response = await fetch("/mission/complete", {
+        const response = await fetch(`/missioni/api/${missionId}/completata`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ missionId })
         });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
 
         const data = await response.json();
         if (!response.ok) {
@@ -221,9 +239,12 @@ async function completeMissionOnServer() {
         }
 
         missionStatus.textContent = "Completata";
-        setTrackingMessage(`Missione completata! Ricompensa: ${data.reward || 0} punti.`, "on-route");
         sessionStorage.removeItem("activeMission")
         stopTracking();
+
+        sessionStorage.setItem('completedMission', JSON.stringify(data));
+
+        window.location.href = "/mission/complete_mission";
     } catch (error) {
         completionSubmitted = false;
         setError("Missione raggiunta, ma non riesco a salvarla come completata. Riprova tra poco.");
@@ -257,6 +278,7 @@ function markReachedPois(position) {
 }
 
 function updateTrackingState(position, accuracy) {
+    lastPosition = position;
     if (!map) {
         return;
     }
@@ -419,8 +441,20 @@ function drawRoute(waypoints) {
         return;
     }
 
+    const selectedMode = transportModeSelect ? transportModeSelect.value : 'foot';
+    let routingUrl = 'https://routing.openstreetmap.de/routed-foot/route/v1'; 
+    if (selectedMode === 'car') {
+        routingUrl = 'https://routing.openstreetmap.de/routed-car/route/v1';
+    } else if (selectedMode === 'bike') {
+        routingUrl = 'https://routing.openstreetmap.de/routed-bike/route/v1';
+    }
+
     routingControl = L.Routing.control({
         waypoints,
+        router: L.Routing.osrmv1({
+            serviceUrl: routingUrl,
+            profile: 'driving' 
+        }),
         routeWhileDragging: false,
         draggableWaypoints: false,
         addWaypoints: false,
@@ -474,7 +508,16 @@ function render() {
 
     renderPoiList();
     initMap();
-    startTracking();
+    if (userMission.stato === "InPausa") {
+        setTrackingMessage("Missione in pausa. Premi Riprendi per continuare.", "off-route");
+        if (suspendMissionBtn) suspendMissionBtn.style.display = "none";
+        if (resumeMissionBtn) resumeMissionBtn.style.display = "inline-block";
+    } else {
+        // se è InCorso, fa partire il tracking
+        if (suspendMissionBtn) suspendMissionBtn.style.display = "inline-block";
+        if (resumeMissionBtn) resumeMissionBtn.style.display = "none";
+        startTracking();
+    }
 }
 
 async function loadActiveMissionFromServer() {
@@ -483,11 +526,15 @@ async function loadActiveMissionFromServer() {
         return null;
     }
 
-    const response = await fetch("/mission/active", {
+    const response = await fetch("/missioni/api/attiva", {
         headers: {
             Authorization: `Bearer ${token}`
         }
     });
+
+    if (redirectToLoginIfUnauthorized(response)) {
+        return null;
+    }
 
     if (!response.ok) {
         return null;
@@ -495,6 +542,193 @@ async function loadActiveMissionFromServer() {
 
     const json = await response.json();
     return json.active ? json.data : null;
+}
+
+async function suspendMission() {
+    const token = localStorage.getItem("token");
+    const missionId = getActiveMissionId();
+
+    if (!token || !missionId) {
+        setError("Impossibile sospendere: dati della missione mancanti.");
+        return;
+    }
+
+    if (suspendMissionBtn) {
+        suspendMissionBtn.disabled = true;
+        suspendMissionBtn.textContent = "Sospensione in corso...";
+    }
+
+    try {
+        const response = await fetch(`/missioni/api/${missionId}/sospendi`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || `Errore HTTP ${response.status}`);
+        }
+
+        statusMessage.classList.add("hidden");
+
+        missionStatus.textContent = "InPausa";
+        
+        stopTracking(true);
+        setTrackingMessage("Missione in pausa. Tracking GPS disattivato.", "off-route");
+
+        if (activeMission && activeMission.userMission) {
+            activeMission.userMission.stato = "InPausa";
+            sessionStorage.setItem("activeMission", JSON.stringify(activeMission));
+        }
+
+        if (suspendMissionBtn) {
+            suspendMissionBtn.style.display = "none"; 
+            suspendMissionBtn.disabled = false;
+            suspendMissionBtn.textContent = "Sospendi missione";
+        }
+        
+        if (resumeMissionBtn) {
+            resumeMissionBtn.style.display = "inline-block"; 
+        }
+
+    } catch (error) {
+        console.error("Errore durante la sospensione della missione:", error);
+        setError("Errore durante la sospensione della missione. Riprova.");
+        
+        if (suspendMissionBtn) {
+            suspendMissionBtn.disabled = false;
+            suspendMissionBtn.textContent = "Sospendi missione";
+        }
+    }
+}
+
+async function resumeMission() {
+    const token = localStorage.getItem("token");
+    const missionId = getActiveMissionId();
+
+    if (!token || !missionId) {
+        setError("Impossibile riprendere: dati della missione mancanti.");
+        return;
+    }
+
+    if (resumeMissionBtn) {
+        resumeMissionBtn.disabled = true;
+        resumeMissionBtn.textContent = "Ripresa in corso...";
+    }
+
+    try {
+        const response = await fetch(`/missioni/api/${missionId}/riprendi`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || `Errore HTTP ${response.status}`);
+        }
+
+        statusMessage.classList.add("hidden");
+
+        missionStatus.textContent = "InCorso";
+        
+        startTracking();
+        setTrackingMessage("Tracking attivo. Avvicinati al prossimo POI.", "on-route");
+
+        if (activeMission && activeMission.userMission) {
+            activeMission.userMission.stato = "InCorso";
+            sessionStorage.setItem("activeMission", JSON.stringify(activeMission));
+        }
+
+        if (resumeMissionBtn) {
+            resumeMissionBtn.style.display = "none"; 
+            resumeMissionBtn.disabled = false;
+            resumeMissionBtn.textContent = "Riprendi missione";
+        }
+        
+        if (suspendMissionBtn) {
+            suspendMissionBtn.style.display = "inline-block"; 
+        }
+
+    } catch (error) {
+        console.error("Errore durante la ripresa della missione:", error);
+        setError("Errore durante la ripresa della missione. Riprova.");
+        
+        if (resumeMissionBtn) {
+            resumeMissionBtn.disabled = false;
+            resumeMissionBtn.textContent = "Riprendi missione";
+        }
+    }
+}
+
+async function cancelMission() {
+    const confirmed = confirm("Sei sicuro di voler annullare definitivamente la missione? Perderai tutti i progressi e non potrai riprenderla.");
+    if (!confirmed) {
+        return;
+    }
+    const token = localStorage.getItem("token");
+    const missionId = getActiveMissionId();
+
+    if (!token || !missionId) {
+        setError("Impossibile annullare: dati della missione mancanti.");
+        return;
+    }
+
+    if (cancelMissionBtn) {
+        cancelMissionBtn.disabled = true;
+        cancelMissionBtn.textContent = "Annullamento...";
+    }
+
+    try {
+        const response = await fetch(`/missioni/api/${missionId}/annulla`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        if (redirectToLoginIfUnauthorized(response)) {
+            return;
+        }
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || `Errore HTTP ${response.status}`);
+        }
+
+        stopTracking(true);
+        sessionStorage.removeItem("activeMission");
+        statusMessage.classList.add("hidden");
+        
+        alert("Missione annullata con successo.");
+        
+        window.location.href = "/missioni"; 
+
+    } catch (error) {
+        console.error("Errore durante l'annullamento della missione:", error);
+        setError("Errore durante l'annullamento della missione. Riprova.");
+        
+        if (cancelMissionBtn) {
+            cancelMissionBtn.disabled = false;
+            cancelMissionBtn.textContent = "Annulla missione";
+        }
+    }
 }
 
 async function init() {
@@ -509,5 +743,30 @@ async function init() {
 }
 
 toggleTrackingBtn.addEventListener("click", toggleTracking);
+
+if (suspendMissionBtn) {
+    suspendMissionBtn.addEventListener("click", suspendMission);
+}
+
+if(resumeMissionBtn) {
+    resumeMissionBtn.addEventListener("click", resumeMission);
+}
+
+if (transportModeSelect) {
+    transportModeSelect.addEventListener("change", () => {
+        if (lastPosition) {
+            drawRouteFromPosition(lastPosition);
+        } else if (missionPointsArray.length > 0) {
+            const waypointLatLngs = missionPointsArray.map(p => L.latLng(p.lat, p.lng));
+            drawRoute(waypointLatLngs);
+        }
+    });
+}
+
+
+if (cancelMissionBtn) {
+    cancelMissionBtn.addEventListener("click", cancelMission);
+}
+
 
 init();

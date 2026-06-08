@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest - Crea Attivita</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/add_attivita.css">
+    <link rel="icon" href="/assets/logo.png">
+    <script src="/js/auth_utils.js"></script>
+    <script>
+        checkPageAuth(['Esercente', 'Amministratore']);
+    </script>
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/homepage" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="/esercente" class="nav-item">Dashboard</a></li>
+                    <li class="user-only"><a href="#" class="nav-item">Gestione Profilo</a></li>
+                    <li><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="activity-page">
+        <form id="activityForm" class="activity-form">
+            <div class="form-header">
+                <h2>Crea nuova attività</h2>
+            </div>
+
+            <section class="form-section">
+                <h3>Dati principali</h3>
+
+                <div class="form-grid">
+                    <div class="form-input">
+                        <label for="nomeAttivita">Nome attività *</label>
+                        <input type="text" id="nomeAttivita" name="nomeAttivita" required maxlength="80" placeholder="Es. Pizzeria Duomo">
+                    </div>
+
+                    <div class="form-input">
+                        <label>Categorie *</label>
+                        <div class="category-grid" id="categoryGroup">
+                            <label><input type="checkbox" name="categoria" value="Bar"> Bar</label>
+                            <label><input type="checkbox" name="categoria" value="Pizzeria"> Pizzeria</label>
+                            <label><input type="checkbox" name="categoria" value="Ristorante"> Ristorante</label>
+                            <label><input type="checkbox" name="categoria" value="Panetteria"> Panetteria</label>
+                            <label><input type="checkbox" name="categoria" value="Vestiario"> Vestiario</label>
+                            <label><input type="checkbox" name="categoria" value="Negozio"> Negozio</label>
+                            <label><input type="checkbox" name="categoria" value="Alimentari"> Alimentari</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-input">
+                    <label for="descrizione">Descrizione *</label>
+                    <textarea id="descrizione" name="descrizione" required rows="4" maxlength="600" placeholder="Descrivi l'attivita, i prodotti o i servizi offerti"></textarea>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h3>Posizione</h3>
+                <div id="activityMap"></div>
+                <div class="coordinates-row">
+                    <div class="form-input">
+                        <label for="latitudine">Latitudine *</label>
+                        <input type="number" id="latitudine" name="latitudine" step="any" required readonly>
+                    </div>
+                    <div class="form-input">
+                        <label for="longitudine">Longitudine *</label>
+                        <input type="number" id="longitudine" name="longitudine" step="any" required readonly>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h3>Orari</h3>
+                <div class="hours-list" id="hoursList">
+                    <div class="day-row" data-day="lunedi">
+                        <label class="day-toggle"><input type="checkbox" class="day-open" checked> Lunedi</label>
+                        <input type="time" class="opening-time" value="09:00">
+                        <input type="time" class="closing-time" value="19:00">
+                    </div>
+                    <div class="day-row" data-day="martedi">
+                        <label class="day-toggle"><input type="checkbox" class="day-open" checked> Martedi</label>
+                        <input type="time" class="opening-time" value="09:00">
+                        <input type="time" class="closing-time" value="19:00">
+                    </div>
+                    <div class="day-row" data-day="mercoledi">
+                        <label class="day-toggle"><input type="checkbox" class="day-open" checked> Mercoledi</label>
+                        <input type="time" class="opening-time" value="09:00">
+                        <input type="time" class="closing-time" value="19:00">
+                    </div>
+                    <div class="day-row" data-day="giovedi">
+                        <label class="day-toggle"><input type="checkbox" class="day-open" checked> Giovedi</label>
+                        <input type="time" class="opening-time" value="09:00">
+                        <input type="time" class="closing-time" value="19:00">
+                    </div>
+                    <div class="day-row" data-day="venerdi">
+                        <label class="day-toggle"><input type="checkbox" class="day-open" checked> Venerdi</label>
+                        <input type="time" class="opening-time" value="09:00">
+                        <input type="time" class="closing-time" value="19:00">
+                    </div>
+                    <div class="day-row" data-day="sabato">
+                        <label class="day-toggle"><input type="checkbox" class="day-open" checked> Sabato</label>
+                        <input type="time" class="opening-time" value="09:00">
+                        <input type="time" class="closing-time" value="19:00">
+                    </div>
+                    <div class="day-row" data-day="domenica">
+                        <label class="day-toggle"><input type="checkbox" class="day-open" checked> Domenica</label>
+                        <input type="time" class="opening-time" value="09:00">
+                        <input type="time" class="closing-time" value="19:00">
+                    </div>
+                </div>
+            </section>
+
+            <button type="submit" id="submitBtn">Crea attività</button>
+            <div id="successMessage" class="message success" hidden></div>
+            <div id="errorMessage" class="message error" hidden></div>
+        </form>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/add_attivita.js"></script>
+    <script src="/js/navbar.js"></script>
+</body>
+</html>

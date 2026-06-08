@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecoquest - Aggiungi Coupon</title>
+    <link rel="stylesheet" href="/css/add.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <script src="/js/auth_utils.js"></script>
+
+    <link rel="icon" href="/assets/logo.png">
+    <script>
+        checkPageAuth(['Esercente', 'Amministratore']);
+    </script>
+
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/homepage" class="logo">
+                <h1>🌱EcoQuest</h1>
+            </a>
+            
+            <nav class="navbar">
+                <ul class="nav-links">
+                    <li><a href="/esercente" class="nav-item">Dashboard</a></li>
+                    <li class="user-only"><a href="#" class="nav-item">Gestione Profilo</a></li>
+                    <li><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <form class="form" id="couponForm">
+            <h2>Crea Nuovo Coupon</h2>
+
+            <div class="form-input">
+                <label for="titolo">Titolo dell'offerta *</label>
+                <input type="text" id="titolo" name="titolo" required placeholder="Es. Sconto Colazione 10%">
+            </div>
+
+            <div class="form-input">
+                <label for="descrizione">Descrizione</label>
+                <input type="text" id="descrizione" name="descrizione" placeholder="Es. Valido solo la mattina...">
+            </div>
+
+            <div class="form-input">
+                <label for="costoInPunti">Costo in Punti *</label>
+                <input type="number" id="costoInPunti" name="costoInPunti" required min="0" placeholder="Es. 150">
+            </div>
+
+            <div class="form-input">
+                <label for="scadenza">Data di Scadenza *</label>
+                <input type="date" id="scadenza" name="scadenza" required>
+            </div>
+
+            <div class="form-input">
+                <label for="quantita">Quantità disponibile *</label>
+                <input type="number" id="quantita" name="quantita" required min="1" placeholder="Es. 5">
+            </div>
+
+            <div class="form-input">
+                <label>Categoria *</label>
+                <div class="checkbox_item">
+                    <input type="radio" id="cat1" name="categoria" value="ScontoPercentuale">
+                    <label for="cat1" style="margin-bottom: 0; font-weight: normal;">Sconto Percentuale</label>
+                </div>
+                <div class="checkbox_item">
+                    <input type="radio" id="cat2" name="categoria" value="ScontoInDenaro">
+                    <label for="cat2" style="margin-bottom: 0; font-weight: normal;">Sconto in Denaro</label>
+                </div>
+                <div class="checkbox_item">
+                    <input type="radio" id="cat3" name="categoria" value="Omaggio">
+                    <label for="cat3" style="margin-bottom: 0; font-weight: normal;">Omaggio</label>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">Crea Coupon</button>
+
+            <div id="successMessage" style="display: none; text-align: center; margin-top: 15px;"></div>
+            <div id="errorMessage" style="display: none; text-align: center; margin-top: 15px;"></div>
+        </form>
+    </div>
+
+    <script src="/js/add_coupon.js"></script>
+    <script src="/js/navbar.js"></script>
+</body>
+</html>

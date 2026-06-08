@@ -1,3 +1,12 @@
+/**
+ * Gestisce l'interfaccia frontend riservata agli amministratori per la creazione visiva 
+ * delle missioni "predefinite". Inizializza una mappa interattiva (Leaflet), recupera dal backend 
+ * tutti i Punti di Interesse (POI) esistenti e permette di selezionarli in sequenza cliccandoli 
+ * sulla mappa (mostrando dinamicamente un marker numerato per indicare l'ordine). Infine, raccoglie i dati 
+ * testuali del form (titolo, punti, risparmio CO2) e invia l'array ordinato all'endpoint `/admin/missioni` 
+ * tramite una richiesta POST autenticata (JWT).
+ */
+
 const poiIcon = L.icon({
     iconUrl: "/assets/blue_pin.png",
     iconSize: [38, 38],
@@ -6,6 +15,9 @@ const poiIcon = L.icon({
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
+    if (!checkPageAuth(['Amministratore'])) {
+        return;
+    }
     // coordinate di trento
     const map = L.map('map').setView([46.066423, 11.12576], 13);
     
@@ -106,7 +118,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch("/admin/add_mission", {
+            const response = await fetch("/admin/missioni", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -114,6 +126,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 },
                 body: JSON.stringify(payload)
             });
+
+            if (redirectToLoginIfUnauthorized(response)) {
+                return;
+            }
 
             const data = await response.json();
 

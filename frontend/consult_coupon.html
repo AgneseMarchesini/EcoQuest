@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EcoQuest - Coupon</title>
+        <link rel="stylesheet" href="/css/consult_coupon.css">
+        <link rel="stylesheet" href="/css/navbar.css">
+        <link rel="icon" href="/assets/logo.png">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
+    </head>
+    <body>
+        <header id="main-header">
+            <div class="header-container">
+                <a href="/" class="logo">
+                    <h1>🌱EcoQuest</h1>
+                </a>
+                
+                <nav class="navbar">
+                    <ul class="nav-links">
+                        <li class="user-only"><a href="/missioni" class="nav-item">Genera Missioni</a></li>
+                        <li class="admin-only"><a href="/admin/missioni/nuova" class="nav-item">Crea Missione</a></li>
+                        <li class="admin-only"><a href="/admin/poi/nuovo" class="nav-item">Crea POI</a></li>
+                        <li class="user-only"><a href="#" class="nav-item">Gestione Profilo</a></li>
+                        <li class="user-only"><a href="#" id="logoutBtn" class="nav-item">Logout</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main class="coupon-page">
+            <section class="coupon-header">
+                <div>
+                    <h1 id="pageTitle">Negozio Coupon</h1>
+                    <p class="points-display">I tuoi Punti: <strong id="userPoints">-</strong> <img src="/assets/point.png" alt="Moneta" class="coin-img"></p>
+                </div>
+
+                <div class="switch-container">
+                    <input type="radio" id="shopView" name="viewToggle" value="shop" checked>
+                    <label for="shopView">Negozio</label>
+                    <input type="radio" id="walletView" name="viewToggle" value="wallet">
+                    <label for="walletView">Portafogli</label>
+                    <div class="switch-selector"></div>
+                </div>
+
+                <div class="header-actions">
+                    <button type="button" id="toggleMapBtn" class="primary-button map-toggle-btn">Mappa</button>
+                    <button type="button" id="locateUserBtn" class="primary-button locate-btn" style="display: none;">📍 Usa Posizione</button>
+                    <button type="button" id="refreshBtn" class="primary-button">Aggiorna</button>
+                </div>
+            </section>
+
+            <div id="mapContainer" class="map-container">
+                <div id="map"></div>
+            </div>
+
+            <section id="couponGrid" class="coupon-grid"></section>
+            <section id="walletGrid" class="coupon-grid" style="display: none;"></section>
+        </main>
+
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+        <aside id="couponSidebar" class="coupon-sidebar">
+            <div class="sidebar-header">
+                <h2 id="sideTitle">Titolo Coupon</h2>
+                <button id="closeSidebar" class="close-btn">&times;</button>
+            </div>
+            
+            <div class="sidebar-content">
+                <span id="sideCategory" class="badge">Categoria</span>
+                
+                <div class="detail-group">
+                    <p id="sideDescription" class="coupon-description">Descrizione dettagliata qui...</p>
+                </div>
+
+                <div class="detail-group meta-info">
+                    <p><strong>Negozio:</strong> <span id="sideActivity">-</span></p> 
+                    <p><strong>Costo:</strong> <span id="sideCost">0</span> Punti 🪙</p>
+                    <p><strong>Scadenza:</strong> <span id="sideExpiration">GG/MM/AAAA</span></p>
+                    <p><strong>Disponibili:</strong> <span id="sideQuantity">-</span></p>
+                </div>
+                
+                <p id="pointsWarning" class="warning-text">Non hai abbastanza punti per questo coupon.</p>
+                <p id="emptyWarning" class="warning-text" style="display: none; background: #f2dede; color: #a94442;">Questo coupon è esaurito!</p>
+            </div>
+
+            <div class="sidebar-footer">
+                <button id="buyBtn" class="buy-button">Acquista Coupon</button>
+            </div>
+        </aside>
+
+        <script src="/js/auth_utils.js"></script>
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+        <script src="/js/consult_coupon.js"></script>
+        <script src="/js/navbar.js"></script>
+    </body>
+</html>

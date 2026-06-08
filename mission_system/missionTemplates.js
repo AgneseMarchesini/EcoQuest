@@ -1,3 +1,9 @@
+/**
+ * Definisce un catalogo statico di "modelli" per le missioni dinamiche. 
+ * Ogni template specifica il testo dell'obiettivo, le categorie richieste per il POI compatibile, 
+ * il meteo ideale e i pesi specifici per il calcolo del punteggio (es. quanto conta la distanza rispetto al clima).
+ */
+
 const templates = [
     // CULTURA / STORIA
     {

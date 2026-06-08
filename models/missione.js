@@ -11,9 +11,9 @@ const pointSchema = new mongoose.Schema({
 const missionSchema = new mongoose.Schema({
     arrayPOI: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "POI",
-        required: true
+        ref: "POI"
     }],
+    puntiDinamici: [pointSchema],
     punti: {
         type: Number,
         min: 0,

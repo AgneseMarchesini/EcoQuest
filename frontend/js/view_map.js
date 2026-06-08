@@ -1,3 +1,11 @@
+/**
+ * Inizializza la mappa interattiva (Leaflet), richiede l'accesso al GPS del dispositivo per centrare 
+ * la visuale sulla posizione reale dell'utente e scarica dinamicamente i Punti di Interesse (POI) 
+ * circostanti tramite l'API `/poi/puntiVicini`. Gestisce l'interazione con i marker (cambio colore) e 
+ * compila dinamicamente una barra laterale (sidebar) con le informazioni del luogo selezionato, 
+ * includendo un carosello per le immagini e i badge delle categorie.
+ */
+
 const greenPin = L.icon({
     iconUrl: "../assets/green_pin.png",
     iconSize: [38, 38],
