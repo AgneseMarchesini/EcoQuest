@@ -244,7 +244,7 @@ async function completeMissionOnServer() {
 
         sessionStorage.setItem('completedMission', JSON.stringify(data));
 
-        window.location.href = "/mission/complete_mission";
+        window.location.href = "/missioni/completata";
     } catch (error) {
         completionSubmitted = false;
         setError("Missione raggiunta, ma non riesco a salvarla come completata. Riprova tra poco.");
