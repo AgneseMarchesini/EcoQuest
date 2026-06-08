@@ -28,13 +28,13 @@ EcoQuest-dev/
 │
 ├── mission_system/               # Logica core per la gestione e generazione delle missioni
 │   ├── contextService.js         # Gestione del contesto (es. meteo, ora) per le missioni
-│   ├── missionGenerator.js       # Motore di generazione delle missioni dinamiche
-│   ├── missionService.js         # Servizi di base per le missioni
+│   ├── missionGenerator.js       # Servizi di base per le missioni
+│   ├── missionService.js         # Motore di generazione delle missioni dinamiche
 │   ├── missionTemplates.js       # Modelli predefiniti per le missioni
 │   ├── poiFilter.js              # Filtraggio dei Punti di Interesse (POI)
 │   └── scoringService.js         # Logica di assegnazione punti e ricompense
 │
-├── models/                       # Modelli del database (es. Mongoose/MongoDB)
+├── models/                       # Modelli del database
 │   ├── POI.js                    # Modello per i Punti di Interesse
 │   ├── amministratore.js         # Modello utente Amministratore
 │   ├── esercente.js              # Modello utente Esercente
@@ -43,18 +43,20 @@ EcoQuest-dev/
 │   ├── persona.js                # Classe base per le anagrafiche
 │   └── utente.js                 # Modello utente standard (Giocatore)
 │
-└── routes/                       # Definizione degli endpoint (Rotter) dell'API
-    ├── routeAdmin.js             # Rotte dedicate al pannello di amministrazione
-    ├── routeAuth.js              # Rotte per l'autenticazione (login, registrazione)
-    ├── routeHome.js              # Rotte per la homepage/dashboard
-    ├── routeMission.js           # Rotte per la gestione delle missioni
-    └── routePOI.js               # Rotte per la gestione dei Punti di Interesse
+└── routes/                       # Definizione degli endpoint dell'API
+    ├── routeAdmin.js             # Routes dedicate al pannello di amministrazione
+    ├── routeAuth.js              # Routes per l'autenticazione (login, registrazione)
+    ├── routeHome.js              # Routes per la homepage
+    ├── routeMission.js           # Routes per la gestione delle missioni
+    └── routePOI.js               # Routes per la gestione dei Punti di Interesse
 ```
 
-Gruppo 8
+Gruppo ID 8
 
 Alessandro Bignami 242884
+
 Agnese Marchesini 244658
+
 Michele Zanetti 244710
 
 <p align="right">(<a href="#readme-top">torna in alto</a>)</p>
