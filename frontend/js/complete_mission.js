@@ -14,9 +14,9 @@ if(storedData) {
     const points = parsedData.reward || 0;
 
     let timeFormatted = "00:00";
-    if (data.startTime && data.endTime) {
-        const start = new Date(data.startTime);
-        const end = new Date(data.endTime);
+    if (parsedData.startTime && parsedData.endTime) {
+        const start = new Date(parsedData.startTime);
+        const end = new Date(parsedData.endTime);
         const diffMs = end - start; 
 
         if(diffMs > 0) {
