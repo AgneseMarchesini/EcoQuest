@@ -42,13 +42,19 @@ EcoQuest-dev/
 │   ├── missioneUtente.js         # Relazione tra utenti e missioni intraprese
 │   ├── persona.js                # Classe base per le anagrafiche
 │   └── utente.js                 # Modello utente standard (Giocatore)
-│
+|   └── attivita.js               # Modello dell'Attivita
+│   └── coupon.js                 # Modello del Coupon
+|   └── couponAcquistato.js       # Modello del Coupon una volta acquistato
+|
 └── routes/                       # Definizione degli endpoint (Rotter) dell'API
     ├── routeAdmin.js             # Rotte dedicate al pannello di amministrazione
     ├── routeAuth.js              # Rotte per l'autenticazione (login, registrazione)
     ├── routeHome.js              # Rotte per la homepage/dashboard
     ├── routeMission.js           # Rotte per la gestione delle missioni
     └── routePOI.js               # Rotte per la gestione dei Punti di Interesse
+    └── routeUser.js              # Rotte per accedere ai dati dell'Utente interni all'app
+    └── routeCoupon.js            # Rotte per la gestione dei Coupon
+    └── routeEsercente.js.        # Rotte per le azioni dell'Esercente (creazione attività e coupon)
 ```
 
 Gruppo 8
