@@ -210,3 +210,59 @@ describe('Consulta Coupon', () => {
     });
 
 });
+
+describe('Utilizza Coupon', () => {
+
+    // TC7
+    test('7. [Happy Path] Utilizzo di un coupon', async () => {
+        const mockCouponValido = {
+            _id: 'idAcquisto123',
+            utenteId: 'idUtenteBase', 
+            statoUtilizzo: false,
+            scadenza: '2026-12-31',
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        jest.spyOn(CouponAcquistato, 'findById').mockReturnValue({
+            populate: jest.fn().mockResolvedValue(mockCouponValido)
+        });
+
+        const res = await request(app)
+            .patch('/coupon/api/idAcquisto123/riscatta')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.message).toBe('Coupon riscattato con successo!');
+        expect(mockCouponValido.statoUtilizzo).toBe(true);
+        expect(mockCouponValido.save).toHaveBeenCalled();
+    });
+
+    // TC8
+    test('8. [Error Guessing] Tentativo di utilizzo di un coupon già scaduto', async () => {
+        const mockCouponScaduto = {
+            _id: 'idAcquisto124',
+            utenteId: 'idUtenteBase',
+            statoUtilizzo: false,
+            couponId: {
+                _id: 'coupon124',
+                titolo: 'Caffè Vecchio',
+                scadenza: '2020-01-01',
+            },
+            save: jest.fn()
+        };
+
+        jest.spyOn(CouponAcquistato, 'findById').mockReturnValue({
+            populate: jest.fn().mockResolvedValue(mockCouponScaduto)
+        });
+
+        const res = await request(app)
+            .patch('/coupon/api/idAcquisto124/riscatta')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.success).toBe(false);
+        expect(res.body.error).toBe('Questo coupon è scaduto e non è più valido.');
+        expect(mockCouponScaduto.save).not.toHaveBeenCalled();
+    });
+});

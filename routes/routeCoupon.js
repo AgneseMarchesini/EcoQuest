@@ -138,11 +138,11 @@ router.patch('/api/:id/riscatta', authMiddleware, async (req, res) => {
 
     // verifica se è scaduto
     const dataOdierna = new Date();
-    if (couponAcquistato.scadenza && new Date(couponAcquistato.scadenza) < dataOdierna) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Questo coupon è scaduto e non è più valido.' 
-      });
+    if (couponAcquistato.couponId && couponAcquistato.couponId.scadenza && new Date(couponAcquistato.couponId.scadenza) < dataOdierna) { 
+        return res.status(400).json({ 
+            success: false, 
+            error: 'Questo coupon è scaduto e non è più valido.' 
+        });
     }
 
     couponAcquistato.statoUtilizzo = true;

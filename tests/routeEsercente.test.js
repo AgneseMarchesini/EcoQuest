@@ -2,6 +2,10 @@ const request = require('supertest');
 jest.mock('../utils.js', () => ({
     authMiddleware: (req, res, next) => next(),
     authEsercenteMiddleware: (req, res, next) => {
+        if (req.headers.authorization === 'Bearer token_utente_standard') {
+            return res.status(403).json({ message: "Accesso negato" });
+        }
+        
         req.user = { userId: 'idEsercente' }; 
         next();
     },
@@ -334,5 +338,55 @@ describe('Crea Attività', () => {
 
         expect(res.statusCode).toBe(400);
         expect(res.body.message[0] || res.body.message).toContain("L'orario di apertura deve essere precedente alla chiusura.");
+    });
+});
+
+describe('Consulta Attività', () => {
+    test('1. [Happy Path] Visualizzazione corretta delle attività commerciali nel sistema', async () => {
+        const mockAttivitaApprovate = [
+            {
+                _id: 'attivita123',
+                esercenteId: 'idEsercente',
+                nomeAttivita: 'Pizzeria Eco',
+                statoApprovazione: true
+            }
+        ];
+
+        jest.spyOn(Attivita, 'find').mockResolvedValue(mockAttivitaApprovate);
+
+        const res = await request(app)
+            .get('/esercente/api/mie_attivita')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(200);
+        expect(Array.isArray(res.body)).toBe(true);
+        expect(res.body[0].statoApprovazione).toBe(true);
+        expect(Attivita.find).toHaveBeenCalledWith({ esercenteId: 'idEsercente' });
+    });
+
+    test('2. [Equivalence] Consultazione con elenco attività vuoto nel database', async () => {
+        jest.spyOn(Attivita, 'find').mockResolvedValue([]);
+
+        const res = await request(app)
+            .get('/esercente/api/mie_attivita')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toEqual([]);
+        expect(Attivita.find).toHaveBeenCalledWith({ esercenteId: 'idEsercente' });
+    });
+
+    test('3. [Security] Tentativo di consultazione delle attività dell\'esercente da parte di un utente standard', async () => {
+        const mockTokenStandard = "Bearer token_utente_standard";
+        
+        jest.spyOn(Attivita, 'find');
+
+        const res = await request(app)
+            .get('/esercente/api/mie_attivita') // <-- Corretto: ora punta alla rotta di questo file
+            .set('Authorization', mockTokenStandard);
+
+        expect(res.statusCode).toBe(403);
+        expect(res.body.message).toContain("Accesso negato");
+        expect(Attivita.find).not.toHaveBeenCalled();
     });
 });
