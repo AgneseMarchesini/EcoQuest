@@ -261,3 +261,78 @@ describe('Crea Coupon', () => {
         expect(res.statusCode).toBe(400);
     });
 });
+
+describe('Crea Attività', () => {
+
+    test('1. [Happy Path] Creazione attività con dati validi', async () => {
+        const payload = {
+            nomeAttivita: "Bar Roma",
+            descrizione: "Ottimi caffè",
+            posizione: { lat: 41.8902, lng: 12.4922 },
+            categoria: "Bar",
+            orari: { lun: "Aperto 08:00 - 18:00" }
+        };
+
+        jest.spyOn(Attivita, 'create').mockResolvedValue({
+            _id: 'attivita123',
+            esercenteId: 'idEsercente',
+            ...payload,
+            save: jest.fn().mockResolvedValue(this)
+        });
+
+        const res = await request(app)
+            .post('/esercente/nuova_attivita')
+            .set('Authorization', mockToken)
+            .send(payload);
+
+        expect(res.statusCode).toBe(201);
+        expect(res.body).toHaveProperty('_id');
+        expect(res.body.nomeAttivita).toBe("Bar Roma");
+        expect(Attivita.create).toHaveBeenCalled();
+    });
+
+    test('2. [Error Guessing] Mancata selezione delle coordinate sulla mappa (Errore Validazione)', async () => {
+        jest.spyOn(Attivita, 'create').mockRejectedValue(
+            createValidationError('posizione', "Seleziona la posizione dell'attivita sulla mappa.")
+        );
+
+        const payload = {
+            nomeAttivita: "Bar Roma",
+            categoria: "Bar",
+            descrizione: "Ottimi caffè",
+            orari: { lun: "Aperto 08:00 - 18:00" }
+        };
+
+        const res = await request(app)
+            .post('/esercente/nuova_attivita')
+            .set('Authorization', mockToken)
+            .send(payload);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message[0] || res.body.message).toContain("Seleziona la posizione dell'attivita sulla mappa.");
+    });
+
+    test('3. [Boundary Value] Errore Validazione: Orario di chiusura antecedente all\'apertura', async () => {
+        jest.spyOn(Attivita, 'create').mockRejectedValue(
+            createValidationError('orari', "L'orario di apertura deve essere precedente alla chiusura.")
+        );
+
+        const payload = {
+            nomeAttivita: "Bar Roma",
+            descrizione: "Ottimi caffè",
+            posizione: { lat: 41.8902, lng: 12.4922 },
+            categoria: "Bar",
+            orari: { 
+                lun: "Aperto 18:00 - 10:00"
+            }
+        };
+
+        const res = await request(app)
+            .post('/esercente/nuova_attivita')
+            .set('Authorization', mockToken)
+            .send(payload);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message[0] || res.body.message).toContain("L'orario di apertura deve essere precedente alla chiusura.");
+    });
+});

@@ -30,10 +30,6 @@ router.get("/attivita", (req, res)=>{
     res.sendFile(path.join(__dirname, "../frontend/approve_activity.html"));
 });
 
-router.get("/approve_activity", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/approve_activity.html"));
-});
-
 router.get("/api/approvazioni", authAdminMiddleware, async (req, res) => {
     try {
         const daApprovare = await Attivita.find({ statoApprovazione: false });
