@@ -182,15 +182,6 @@ paths:
         "200":
           description: Pagina HTML.
 
-  /admin/approve_activity:
-    get:
-      tags: [admin]
-      summary: Pagina approvazione attivita
-      description: Restituisce `frontend/approve_activity.html`.
-      responses:
-        "200":
-          description: Pagina HTML.
-
   /admin/api/approvazioni:
     get:
       tags: [admin]

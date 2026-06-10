@@ -142,3 +142,127 @@ describe('Acquista Coupon', () => {
         expect(Coupon.findOne).not.toHaveBeenCalled();
     });
 });
+
+describe('Consulta Coupon', () => {
+
+    test('1. [Happy Path] Caricamento del Negozio Coupon con almeno un coupon disponibile', async () => {
+        const mockCoupons = [
+            { 
+                _id: 'coupon123', 
+                titolo: 'Sconto 10%', 
+                quantita: 5, 
+                attivitaId: { nomeAttivita: 'Bar Roma', posizione: { lat: 41.8, lng: 12.4 } } 
+            },
+            { 
+                _id: 'coupon124', 
+                titolo: 'Caffè in omaggio', 
+                quantita: 10, 
+                attivitaId: { nomeAttivita: 'Caffetteria Milano', posizione: { lat: 45.4, lng: 9.1 } } 
+            }
+        ];
+
+        jest.spyOn(Coupon, 'find').mockReturnValue({
+            populate: jest.fn().mockReturnValue({
+                sort: jest.fn().mockResolvedValue(mockCoupons)
+            })
+        });
+
+        const res = await request(app)
+            .get('/coupon/api/')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.count).toBe(2);
+        expect(res.body.data).toEqual(mockCoupons);
+        expect(Coupon.find).toHaveBeenCalledWith({ quantita: { $gt: 0 } });
+    });
+
+    test('2. [Empty State] Caricamento del Negozio Coupon quando non ci sono coupon disponibili', async () => {
+        jest.spyOn(Coupon, 'find').mockReturnValue({
+            populate: jest.fn().mockReturnValue({
+                sort: jest.fn().mockResolvedValue([])
+            })
+        });
+
+        const res = await request(app)
+            .get('/coupon/api/')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.count).toBe(0);
+        expect(res.body.data).toEqual([]);
+    });
+
+    test('3. [Exception] Errore interno del server durante il recupero dei coupon', async () => {
+        jest.spyOn(Coupon, 'find').mockImplementation(() => {
+            throw new Error('Database connection failed');
+        });
+
+        const res = await request(app)
+            .get('/coupon/api/')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(500);
+        expect(res.body.success).toBe(false);
+        expect(res.body.error).toBe('Errore nel recupero di tutti i coupon');
+    });
+
+});
+
+describe('Utilizza Coupon', () => {
+
+    // TC7
+    test('7. [Happy Path] Utilizzo di un coupon', async () => {
+        const mockCouponValido = {
+            _id: 'idAcquisto123',
+            utenteId: 'idUtenteBase', 
+            statoUtilizzo: false,
+            scadenza: '2026-12-31',
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        jest.spyOn(CouponAcquistato, 'findById').mockReturnValue({
+            populate: jest.fn().mockResolvedValue(mockCouponValido)
+        });
+
+        const res = await request(app)
+            .patch('/coupon/api/idAcquisto123/riscatta')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.message).toBe('Coupon riscattato con successo!');
+        expect(mockCouponValido.statoUtilizzo).toBe(true);
+        expect(mockCouponValido.save).toHaveBeenCalled();
+    });
+
+    // TC8
+    test('8. [Error Guessing] Tentativo di utilizzo di un coupon già scaduto', async () => {
+        const mockCouponScaduto = {
+            _id: 'idAcquisto124',
+            utenteId: 'idUtenteBase',
+            statoUtilizzo: false,
+            couponId: {
+                _id: 'coupon124',
+                titolo: 'Caffè Vecchio',
+                scadenza: '2020-01-01',
+            },
+            save: jest.fn()
+        };
+
+        jest.spyOn(CouponAcquistato, 'findById').mockReturnValue({
+            populate: jest.fn().mockResolvedValue(mockCouponScaduto)
+        });
+
+        const res = await request(app)
+            .patch('/coupon/api/idAcquisto124/riscatta')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.success).toBe(false);
+        expect(res.body.error).toBe('Questo coupon è scaduto e non è più valido.');
+        expect(mockCouponScaduto.save).not.toHaveBeenCalled();
+    });
+});

@@ -15,6 +15,8 @@ jest.mock('../utils.js', () => ({
 
 const app = require('../app');
 const MissioneUtente = require('../models/missioneUtente');
+const Missione = require('../models/missione');
+const Utente = require('../models/utente');
 
 const mockToken = "Bearer fittizio_token_jwt";
 
@@ -26,7 +28,6 @@ afterAll(async () => {
 });
 
 describe('Sospendi Missione', () => {
-
     // TC1
     test('1. [Happy Path] Sospensione corretta di una missione in corso', async () => {
         const mockUserMission = { 
@@ -155,5 +156,105 @@ describe('Annulla Missione', () => {
         expect(res.statusCode).toBe(401);
         expect(res.body.message).toMatch(/Non autorizzato/i);
         expect(MissioneUtente.findOneAndDelete).not.toHaveBeenCalled();
+    });
+});
+
+describe('Completa Missione', () => {
+    test('1. [Happy Path] Completamento con successo di una missione attiva', async () => {
+        const mockUserMission = {
+            _id: 'mission123',
+            userId: 'idUtenteBase',
+            missionId: 'idMissioneAttiva',
+            stato: 'InCorso',
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        const mockMissioneDettaglio = {
+            _id: 'idMissioneAttiva',
+            punti: 100,
+            arrayPOI: ['poi1', 'poi2']
+        };
+
+        jest.spyOn(MissioneUtente, 'findOne').mockResolvedValue(mockUserMission);
+        jest.spyOn(Missione, 'findById').mockResolvedValue(mockMissioneDettaglio);
+        jest.spyOn(Utente, 'findByIdAndUpdate').mockResolvedValue(true);
+
+        const res = await request(app)
+            .post('/missioni/api/idMissioneAttiva/completata')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.message).toBe('Missione completata!');
+        expect(res.body.reward).toBe(100);
+        expect(mockUserMission.stato).toBe('Completata');
+        expect(mockUserMission.save).toHaveBeenCalled();
+        expect(Utente.findByIdAndUpdate).toHaveBeenCalled();
+    });
+
+    test('2. [Error Guessing] Tentativo di completamento di una missione già chiusa o inesistente', async () => {
+        jest.spyOn(MissioneUtente, 'findOne').mockResolvedValue(null);
+
+        const res = await request(app)
+            .post('/missioni/api/idMissioneInesistente/completata')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(404);
+        expect(res.body.message).toBe('Missione non trovata');
+    });
+
+    test('3. [Security] Mancata autorizzazione della chiamata di completamento', async () => {
+        jest.spyOn(MissioneUtente, 'findOne');
+
+        const res = await request(app)
+            .post('/missioni/api/idMissioneAttiva/completata');
+
+        expect(res.statusCode).toBe(401);
+        expect(res.body.message).toMatch(/Non autorizzato/i);
+        expect(MissioneUtente.findOne).not.toHaveBeenCalled();
+    });
+});
+
+describe('Riprendi Missione', () => {
+    test('1. [Happy Path] Ripristino dello stato di una missione precedentemente messa in pausa', async () => {
+        const mockUserMission = { 
+            _id: 'mission123', 
+            userId: 'idUtenteBase', 
+            missionId: 'idMissioneInPausa', 
+            stato: 'InPausa', 
+            save: jest.fn().mockResolvedValue(true) 
+        };
+        
+        jest.spyOn(MissioneUtente, 'findOne').mockResolvedValue(mockUserMission);
+
+        const res = await request(app)
+            .patch('/missioni/api/idMissioneInPausa/riprendi')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.message).toBe('Missione ripresa con successo');
+        expect(mockUserMission.stato).toBe('InCorso');
+        expect(mockUserMission.save).toHaveBeenCalled();
+    });
+
+    test('2. [Error Guessing] Tentativo di ripresa di una missione non in pausa', async () => {
+        jest.spyOn(MissioneUtente, 'findOne').mockResolvedValue(null);
+
+        const res = await request(app)
+            .patch('/missioni/api/idMissioneGiaInCorso/riprendi')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(404);
+        expect(res.body.message).toBe('Missione non trovata');
+    });
+
+    test('3. [Error Guessing] Tentativo di ripresa di una missione non esistente', async () => {
+        jest.spyOn(MissioneUtente, 'findOne').mockResolvedValue(null);
+
+        const res = await request(app)
+            .patch('/missioni/api/idMissioneInesistente/riprendi')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(404);
+        expect(res.body.message).toBe('Missione non trovata');
     });
 });

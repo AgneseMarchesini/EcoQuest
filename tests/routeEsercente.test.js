@@ -2,6 +2,10 @@ const request = require('supertest');
 jest.mock('../utils.js', () => ({
     authMiddleware: (req, res, next) => next(),
     authEsercenteMiddleware: (req, res, next) => {
+        if (req.headers.authorization === 'Bearer token_utente_standard') {
+            return res.status(403).json({ message: "Accesso negato" });
+        }
+        
         req.user = { userId: 'idEsercente' }; 
         next();
     },
@@ -259,5 +263,130 @@ describe('Crea Coupon', () => {
             .send(payload);
 
         expect(res.statusCode).toBe(400);
+    });
+});
+
+describe('Crea Attività', () => {
+
+    test('1. [Happy Path] Creazione attività con dati validi', async () => {
+        const payload = {
+            nomeAttivita: "Bar Roma",
+            descrizione: "Ottimi caffè",
+            posizione: { lat: 41.8902, lng: 12.4922 },
+            categoria: "Bar",
+            orari: { lun: "Aperto 08:00 - 18:00" }
+        };
+
+        jest.spyOn(Attivita, 'create').mockResolvedValue({
+            _id: 'attivita123',
+            esercenteId: 'idEsercente',
+            ...payload,
+            save: jest.fn().mockResolvedValue(this)
+        });
+
+        const res = await request(app)
+            .post('/esercente/nuova_attivita')
+            .set('Authorization', mockToken)
+            .send(payload);
+
+        expect(res.statusCode).toBe(201);
+        expect(res.body).toHaveProperty('_id');
+        expect(res.body.nomeAttivita).toBe("Bar Roma");
+        expect(Attivita.create).toHaveBeenCalled();
+    });
+
+    test('2. [Error Guessing] Mancata selezione delle coordinate sulla mappa (Errore Validazione)', async () => {
+        jest.spyOn(Attivita, 'create').mockRejectedValue(
+            createValidationError('posizione', "Seleziona la posizione dell'attivita sulla mappa.")
+        );
+
+        const payload = {
+            nomeAttivita: "Bar Roma",
+            categoria: "Bar",
+            descrizione: "Ottimi caffè",
+            orari: { lun: "Aperto 08:00 - 18:00" }
+        };
+
+        const res = await request(app)
+            .post('/esercente/nuova_attivita')
+            .set('Authorization', mockToken)
+            .send(payload);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message[0] || res.body.message).toContain("Seleziona la posizione dell'attivita sulla mappa.");
+    });
+
+    test('3. [Boundary Value] Errore Validazione: Orario di chiusura antecedente all\'apertura', async () => {
+        jest.spyOn(Attivita, 'create').mockRejectedValue(
+            createValidationError('orari', "L'orario di apertura deve essere precedente alla chiusura.")
+        );
+
+        const payload = {
+            nomeAttivita: "Bar Roma",
+            descrizione: "Ottimi caffè",
+            posizione: { lat: 41.8902, lng: 12.4922 },
+            categoria: "Bar",
+            orari: { 
+                lun: "Aperto 18:00 - 10:00"
+            }
+        };
+
+        const res = await request(app)
+            .post('/esercente/nuova_attivita')
+            .set('Authorization', mockToken)
+            .send(payload);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message[0] || res.body.message).toContain("L'orario di apertura deve essere precedente alla chiusura.");
+    });
+});
+
+describe('Consulta Attività', () => {
+    test('1. [Happy Path] Visualizzazione corretta delle attività commerciali nel sistema', async () => {
+        const mockAttivitaApprovate = [
+            {
+                _id: 'attivita123',
+                esercenteId: 'idEsercente',
+                nomeAttivita: 'Pizzeria Eco',
+                statoApprovazione: true
+            }
+        ];
+
+        jest.spyOn(Attivita, 'find').mockResolvedValue(mockAttivitaApprovate);
+
+        const res = await request(app)
+            .get('/esercente/api/mie_attivita')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(200);
+        expect(Array.isArray(res.body)).toBe(true);
+        expect(res.body[0].statoApprovazione).toBe(true);
+        expect(Attivita.find).toHaveBeenCalledWith({ esercenteId: 'idEsercente' });
+    });
+
+    test('2. [Equivalence] Consultazione con elenco attività vuoto nel database', async () => {
+        jest.spyOn(Attivita, 'find').mockResolvedValue([]);
+
+        const res = await request(app)
+            .get('/esercente/api/mie_attivita')
+            .set('Authorization', mockToken);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toEqual([]);
+        expect(Attivita.find).toHaveBeenCalledWith({ esercenteId: 'idEsercente' });
+    });
+
+    test('3. [Security] Tentativo di consultazione delle attività dell\'esercente da parte di un utente standard', async () => {
+        const mockTokenStandard = "Bearer token_utente_standard";
+        
+        jest.spyOn(Attivita, 'find');
+
+        const res = await request(app)
+            .get('/esercente/api/mie_attivita') // <-- Corretto: ora punta alla rotta di questo file
+            .set('Authorization', mockTokenStandard);
+
+        expect(res.statusCode).toBe(403);
+        expect(res.body.message).toContain("Accesso negato");
+        expect(Attivita.find).not.toHaveBeenCalled();
     });
 });
